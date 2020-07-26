@@ -1,0 +1,17 @@
+set(CMAKE_Fortran_FLAGS "${FEQPARSE_COMPILER_FLAGS} ${CMAKE_Fortran_FLAGS}")
+file(GLOB FEQPARSE_SRC     "${CMAKE_CURRENT_SOURCE_DIR}/*.F03")
+
+set(FEQPARSE_LIB "feqparse")
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/include)
+ADD_LIBRARY(${FEQPARSE_LIB} STATIC 
+     ${FEQPARSE_SRC} 
+     )
+
+#target_compile_definitions(${FEQPARSE_LIB})
+install(TARGETS ${FEQPARSE_LIB} 
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib)
+
+set_target_properties(${FEQPARSE_LIB} PROPERTIES LINKER_LANGUAGE Fortran)
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include DESTINATION .)
