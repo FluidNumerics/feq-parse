@@ -1,4 +1,4 @@
-! EquationParser.f90
+! FEQParse.F03
 ! 
 ! Copyright 2020 Fluid Numerics LLC
 ! All rights reserved.
@@ -11,7 +11,7 @@
 !
 ! //////////////////////////////////////////////////////////////////////////////////////////////// !
 
-MODULE EquationParser_Class
+MODULE FEQParse
 
 IMPLICIT NONE
 
@@ -966,4 +966,4 @@ CONTAINS
 
   END FUNCTION Priority
 
-END MODULE EquationParser_Class
+END MODULE FEQParse
