@@ -31,8 +31,8 @@ The above steps install
 ## Usage
 To build your Fortran application with feqparse, add the following flags
 ```
-FLIBS += -L/usr/local/feqparse/lib -lfeqparse
-FFLAGS += -I/usr/local/feqparse/include
+FLIBS += -L/opt/feqparse/lib -lfeqparse
+FFLAGS += -I/opt/feqparse/include
 ```
 
 ### Demo Program
