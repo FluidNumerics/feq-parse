@@ -6,10 +6,14 @@ Copyright 2020 Fluid Numerics LLC
 ## Installation
 
 For a quick installation to `/usr/local/feqparse`,
-1. `cd build/`
-2. `cmake ../`
-3. `make`
-4. `sudo make install`
+```
+cd build/
+cmake ../
+make
+cd test && ctest .
+cd ../
+sudo make install
+```
 
 The above steps install
 ```
@@ -57,3 +61,4 @@ IMPLICIT NONE
 
 
 END PROGRAM FEqParseDemo
+```
