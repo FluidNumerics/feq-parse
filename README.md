@@ -3,6 +3,8 @@ Copyright 2020 Fluid Numerics LLC
 
 `feqparse` is an equation parser Fortran class that is used to interpret and evaluate functions provided as strings.
 
+[Learn how to contribute to this repository](./CONTRIBUTING.md)
+
 ## Installation
 
 For a quick installation to `/usr/local/feqparse`,
@@ -75,3 +77,7 @@ IMPLICIT NONE
 
 END PROGRAM FEqParseDemo
 ```
+
+## Contributors
+
+* (Maintainer) Joe Schoonover, Fluid Numerics LLC
