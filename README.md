@@ -29,14 +29,21 @@ The above steps install
 ```
 
 ## Usage
-To build your Fortran application with feqparse, add the following flags
-```
-FLIBS += -L/opt/feqparse/lib -lfeqparse
-FFLAGS += -I/opt/feqparse/include
-```
 
 ### Demo Program
 
+*Example Makefile*
+```
+FC = gfortran
+FLIBS += -L/opt/feqparse/lib -lfeqparse
+FFLAGS += -I/opt/feqparse/include
+
+demo : FEqParseDemo.f90
+	${FC} -c FEqParseDemo.f90 ${FFLAGS}
+	${FC} FEqParseDemo.o ${FFLAGS} ${FLIBS} -o $@
+```
+
+*Example program*
 ```
 PROGRAM FEqParseDemo
 
