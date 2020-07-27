@@ -10,15 +10,22 @@ For a quick installation to `/usr/local/feqparse`,
 cd build/
 cmake ../
 make
-cd test && ctest .
-cd ../
 sudo make install
+```
+If you'd like to run the provided tests to verify your installation, 
+1. Navigate to the `test/` directory underneath the `build/` directory.
+```
+cd test/
+```
+2. Use `ctest` to run the provided tests
+```
+ctest .
 ```
 
 The above steps install
 ```
 /usr/local/feqparse/lib/libfeqparse.a
-/usr/local/feqparse/include/EquationParser_Class.mod
+/usr/local/feqparse/include/FEQParse.mod
 ```
 
 ## Usage
