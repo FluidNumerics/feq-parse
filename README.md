@@ -44,10 +44,9 @@ USE FEQParse
 
 IMPLICIT NONE
 
-  TYPE(EquationParser) :: equation
-
+  TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: f
+  CHARACTER(LEN=30) :: eqChar
   REAL :: x(1:3)
 
     ! Specify the independent variables
@@ -61,7 +60,7 @@ IMPLICIT NONE
    
     ! Evaluate the equation 
     x = (/ 0.0, 0.0, 0.0 /) 
-    PRINT*, equation % evaluate( x )
+    PRINT*, f % evaluate( x )
 
     ! Clean up memory
     CALL f % Destruct()
