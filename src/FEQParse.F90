@@ -137,15 +137,15 @@ IMPLICIT NONE
 
 CONTAINS
 
-   FUNCTION Construct_EquationParser( equation, indepVars, nIndepVars ) RESULT( parser )
+   FUNCTION Construct_EquationParser( equation, indepVars ) RESULT( parser )
     TYPE( EquationParser ) :: parser
     CHARACTER(*)           :: equation
-    INTEGER                :: nIndepVars
-    CHARACTER(1)           :: indepVars(1:nIndepVars)    
+    CHARACTER(1)           :: indepVars(1:)    
     ! Local
     INTEGER :: i
     CHARACTER(Error_Message_Length) :: errorMsg
     LOGICAL                         :: equationIsClean, tokenized, success
+    INTEGER                         :: nIndepVars
 
       functions(1) % str = "cos"
       functions(2) % str = "sin"
@@ -162,6 +162,7 @@ CONTAINS
       functions(13) % str = "sech"
       functions(14) % str = "rand"
 
+      nIndepVars = SIZE(indepVars)
       ALLOCATE( parser % indepVars(1:nIndepVars) )
       parser % nIndepVars = nIndepVars
       DO i = 1, nIndepVars
@@ -803,8 +804,8 @@ CONTAINS
 
   LOGICAL FUNCTION IsVariable( eqChar, variables, nvariables )
     CHARACTER(1) :: eqChar
-    CHARACTER(1) :: variables(1:nvariables)
     INTEGER      :: nvariables
+    CHARACTER(1) :: variables(1:nvariables)
     ! Local
     INTEGER :: i
 
