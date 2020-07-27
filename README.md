@@ -24,8 +24,8 @@ ctest .
 
 The above steps install
 ```
-/usr/local/feqparse/lib/libfeqparse.a
-/usr/local/feqparse/include/FEQParse.mod
+/opt/feqparse/lib/libfeqparse.a
+/opt/feqparse/include/FEQParse.mod
 ```
 
 ## Usage
