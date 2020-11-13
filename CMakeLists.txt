@@ -1,30 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)
-# Default compiler gfortran, otherwise cmake Fortran package will set it to f95
-# You can override the compiler with cmake -DFEQPARSE_COMPILER=
-set(FEQPARSE_COMPILER "/usr/bin/gfortran" CACHE STRING "Fortran Compiler to build feqparse")
-set(FEQPARSE_AR "/usr/bin/gcc-ar" CACHE STRING "Static archive command")
-set(FEQPARSE_RANLIB "/usr/bin/gcc-ranlib" CACHE STRING "ranlib used to create Static archive")
-set(FEQPARSE_COMPILER_FLAGS "-std=f2003 -ffree-form -ffree-line-length-none -cpp" CACHE STRING "Compiler flags to build feqparse")
-set(FEQPARSE_INSTALL_DIR  "/opt/feqparse"  CACHE STRING "Install directory for feqparse")
-message("-- FEQPARSE -------------  cmake START -------------------")
-message("-- FEQPARSE_COMPILER:       ${FEQPARSE_COMPILER}")
-message("-- FEQPARSE_AR:             ${FEQPARSE_AR}")
-message("-- FEQPARSE_RANLIB:         ${FEQPARSE_RANLIB}")
-message("-- FEQPARSE_COMPILER_FLAGS: ${FEQPARSE_COMPILER_FLAGS}")
-message("-- FEQPARSE_INSTALL_DIR:    ${FEQPARSE_INSTALL_DIR}")
-message("-- FEQPARSE ----------------------------------------------")
 
-set(CMAKE_Fortran_COMPILER_INIT ${FEQPARSE_COMPILER})
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
 PROJECT(feqparse Fortran C)
-SET(CMAKE_BUILD_TYPE ${FEQPARSE_BUILD_TYPE})
 SET(VERSION 0.0.0)
-SET(CMAKE_AR ${FEQPARSE_AR})
-SET(CMAKE_RANLIB ${FEQPARSE_RANLIB})
-SET(CMAKE_INSTALL_PREFIX ${FEQPARSE_INSTALL_DIR})
-message("-- CMAKE_INSTALL_PREFIX:${CMAKE_INSTALL_PREFIX}")
 
 INCLUDE(FortranCInterface)
 FortranCInterface_VERIFY()

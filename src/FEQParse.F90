@@ -370,13 +370,15 @@ CONTAINS
 
       
       IF( parser % inFix % tokens(1) % tokenType == Operator_Token )THEN
-         IF( TRIM( parser % inFix % tokens(1) % tokenString ) == "+" .OR. TRIM( parser % inFix % tokens(1) % tokenString ) == "-" )     THEN
+         IF( TRIM( parser % inFix % tokens(1) % tokenString ) == "+" .OR. &
+              TRIM( parser % inFix % tokens(1) % tokenString ) == "-" ) THEN
             parser % inFix % tokens(1) % tokenType = Monadic_Token
          END IF
       END IF
       
       DO i = 2, parser % inFix % top_index
-         IF( parser % inFix % tokens(i) % tokenType == Operator_Token .AND. parser % inFix % tokens(i-1) % tokenType == OpeningParentheses_Token )     THEN
+         IF( parser % inFix % tokens(i) % tokenType == Operator_Token .AND. &
+              parser % inFix % tokens(i-1) % tokenType == OpeningParentheses_Token ) THEN
             parser % inFix % tokens(i) % tokenType = Monadic_Token
          END IF
       END DO
@@ -413,7 +415,8 @@ CONTAINS
 
           CALL operator_stack % push( parser % inFix % tokens(i) )
 
-        ELSEIF( parser % inFix % tokens(i) % tokenType == Operator_Token .OR. parser % inFix % tokens(i) % tokenType == Monadic_Token )THEN
+        ELSEIF( parser % inFix % tokens(i) % tokenType == Operator_Token &
+                .OR. parser % inFix % tokens(i) % tokenType == Monadic_Token )THEN
 
 
           IF( .NOT. operator_stack % IsEmpty( ) )THEN
@@ -421,7 +424,8 @@ CONTAINS
             tok = operator_stack % TopToken( )
               
             DO WHILE( TRIM(tok % tokenString) /= "(" .AND. &
-                      Priority( TRIM(tok % tokenString) ) >  Priority( TRIM(parser % inFix % tokens(i) % tokenString) ) )
+                      Priority( TRIM(tok % tokenString) ) > &
+                       Priority( TRIM(parser % inFix % tokens(i) % tokenString) ) )
        
               CALL parser % postFix % push( tok )
               CALL operator_stack % pop( tok )
