@@ -13,17 +13,11 @@
 
 MODULE FEQParse
 
+USE ISO_FORTRAN_ENV
+
 IMPLICIT NONE
 
-  INTEGER, PARAMETER, PRIVATE :: sp   = SELECTED_REAL_KIND(6, 37)     ! 32-bit
-  INTEGER, PARAMETER, PRIVATE :: dp   = SELECTED_REAL_KIND(15, 307)   ! 64-bit
-#ifdef DOUBLE_PRECISION
-  INTEGER, PARAMETER, PRIVATE :: prec = dp
-#else
-  INTEGER, PARAMETER, PRIVATE :: prec = sp
-#endif
-
-  REAL(prec), PARAMETER :: pi   = 4.0_dp*atan(1.0_dp)
+  REAL(real64), PARAMETER :: pi   = 4.0_real64*atan(1.0_real64)
 
   INTEGER, PARAMETER, PRIVATE :: Error_Message_Length = 256
   INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
@@ -85,8 +79,8 @@ IMPLICIT NONE
   END TYPE TokenStack
 
   TYPE NumberStack
-    REAL(prec), ALLOCATABLE :: tokens(:)
-    INTEGER                 :: top_index
+    REAL(real64), ALLOCATABLE :: tokens(:)
+    INTEGER                   :: top_index
 
     CONTAINS
   
@@ -123,7 +117,8 @@ IMPLICIT NONE
       PROCEDURE :: Tokenize
       PROCEDURE :: ConvertToPostfix
 
-      PROCEDURE :: Evaluate
+      GENERIC :: Evaluate => Evaluate_real32, Evaluate_real64
+      PROCEDURE, PRIVATE :: Evaluate_real32, Evaluate_real64
 
       PROCEDURE :: Print_InFixTokens
       PROCEDURE :: Print_PostFixTokens
@@ -472,21 +467,143 @@ CONTAINS
       
   END SUBROUTINE ConvertToPostFix
 
-  FUNCTION Evaluate( parser, x ) RESULT( f )
+  FUNCTION Evaluate_real32( parser, x ) RESULT( f )
     CLASS(EquationParser) :: parser
-    REAL(prec)            :: x(1:parser % nIndepVars)
-    REAL(prec)            :: f
+    REAL(real32) :: x(1:parser % nIndepVars)
+    REAL(real32) :: f
     ! Local
-    INTEGER           :: i, k
-    TYPE(Token)       :: t
+    INTEGER :: i, k
+    TYPE(Token) :: t
     TYPE(NumberStack) :: stack
-    REAL(prec)        :: v, a, b, c
+    REAL(real64) :: v, a, b, c
          
       CALL stack % Construct( Stack_Length )
 
       IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
 
-        f = 0.0_prec
+        f = 0.0_real32
+
+      ELSE
+
+        DO k = 1, parser % postfix % top_index 
+  
+          t = parser % postfix % tokens(k) % Equals_Token( )
+  
+          SELECT CASE ( t % tokenType )
+           
+            CASE( Number_Token )
+  
+              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
+                 v = pi
+              ELSE
+                READ( t % tokenString, * ) v
+              END IF
+  
+              CALL stack % Push( v )
+                 
+            CASE ( Variable_Token )
+  
+              DO i = 1, parser % nIndepVars
+                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
+                  CALL stack % Push( REAL(x(i),real64) )
+                  EXIT
+                ENDIF
+              ENDDO
+                   
+              !IF( TRIM( t % tokenString ) == "x" )THEN
+  
+              !   CALL stack % Push( x(1) )
+  
+              !ELSEIF( TRIM( t % tokenString ) == "y" )THEN
+  
+              !   CALL stack % Push( x(2) )
+  
+              !ELSEIF( TRIM( t % tokenString ) == "z" )THEN
+  
+              !   CALL stack % Push( x(3) )
+  
+              !ENDIF
+  
+            CASE ( Operator_Token )
+  
+              CALL stack % Pop( a )
+              CALL stack % Pop( b )
+  
+              SELECT CASE ( TRIM(t % tokenString) )
+  
+                 CASE ( "+" )
+  
+                    c = a + b
+  
+                 CASE ( "-" )
+  
+                    c = b - a
+  
+                 CASE ( "*" )
+  
+                    c = a*b
+  
+                 CASE ( "/" )
+  
+                    c = b/a
+  
+                 CASE ( "^" )
+  
+                    c = b**a
+                 CASE DEFAULT
+  
+              END SELECT
+  
+              CALL stack % Push( c )
+              
+           CASE ( Function_Token )
+  
+              CALL stack % Pop( a )
+  
+              b = F_of_X( TRIM(t % tokenString), a )
+  
+              CALL stack % Push( b )
+              
+           CASE ( Monadic_Token )
+  
+             IF( TRIM(t % tokenString) == "-" )     THEN
+  
+                CALL stack % Pop( a )
+                a = -a
+                CALL stack % Push( a )
+  
+             END IF
+             
+           CASE DEFAULT
+  
+         END SELECT
+  
+       END DO
+  
+       CALL stack % Pop( a )
+       f = a
+  
+       CALL stack % Destruct( )
+
+     ENDIF
+         
+  END FUNCTION Evaluate_real32
+
+  FUNCTION Evaluate_real64( parser, x ) RESULT( f )
+    CLASS(EquationParser) :: parser
+    REAL(real64) :: x(1:parser % nIndepVars)
+    REAL(real64) :: f
+    ! Local
+    INTEGER :: i, k
+    TYPE(Token) :: t
+    TYPE(NumberStack) :: stack
+    REAL(real64) :: v, a, b, c
+         
+      CALL stack % Construct( Stack_Length )
+
+      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+
+        f = 0.0_real64
 
       ELSE
 
@@ -592,7 +709,7 @@ CONTAINS
 
      ENDIF
          
-  END FUNCTION Evaluate
+  END FUNCTION Evaluate_real64
 
   SUBROUTINE Print_InfixTokens( parser )
     CLASS( EquationParser ), INTENT(in) :: parser
@@ -723,7 +840,7 @@ CONTAINS
 
   SUBROUTINE Push_NumberStack( stack, tok ) 
     CLASS(NumberStack), INTENT(inout) :: stack
-    REAL(prec), INTENT(in)         :: tok
+    REAL(real64), INTENT(in)         :: tok
 
       stack % top_index                  = stack % top_index + 1
       stack % tokens(stack % top_index) = tok 
@@ -732,7 +849,7 @@ CONTAINS
 
   SUBROUTINE Pop_NumberStack( stack, tok ) 
     CLASS(NumberStack), INTENT(inout) :: stack
-    REAL(prec), INTENT(out)        :: tok
+    REAL(real64), INTENT(out)        :: tok
     
       IF( stack % top_index <= 0 ) THEN
         PRINT *, "Attempt to pop from empty token stack"
@@ -746,7 +863,7 @@ CONTAINS
 
   SUBROUTINE Peek_NumberStack( stack, tok ) 
     CLASS(NumberStack), INTENT(in) :: stack
-    REAL(prec), INTENT(out)        :: tok
+    REAL(real64), INTENT(out)        :: tok
     
       IF( stack % top_index <= 0 ) THEN
         PRINT *, "Attempt to peek from empty token stack"
@@ -871,11 +988,11 @@ CONTAINS
          
   END FUNCTION FindLastFunctionIndex
 
-  REAL(prec) FUNCTION F_of_X( func, x ) 
+  REAL(real64) FUNCTION F_of_X( func, x ) 
     CHARACTER(*) :: func
-    REAL(prec)   :: x
+    REAL(real64)   :: x
     ! Local
-    REAL(prec)   :: r
+    REAL(real64)   :: r
 
       IF( TRIM( func ) == "cos" .OR. TRIM( func ) == "COS" )THEN
 
@@ -895,7 +1012,7 @@ CONTAINS
 
       ELSEIF( TRIM( func ) == "sech" .OR. TRIM( func ) == "SECH" )THEN
 
-        F_of_X = 2.0_prec/( exp(x) + exp(-x) )
+        F_of_X = 2.0_real64/( exp(x) + exp(-x) )
 
       ELSEIF( TRIM( func ) == "sqrt" .OR. TRIM( func ) == "SQRT" )THEN
 
@@ -936,7 +1053,7 @@ CONTAINS
 
       ELSE
  
-        F_of_X = 0.0_prec
+        F_of_X = 0.0_real64
 
       ENDIF
 
