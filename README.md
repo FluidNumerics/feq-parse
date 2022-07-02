@@ -14,7 +14,7 @@ cmake ../
 make
 sudo make install
 ```
-If you'd like to run the provided tests to verify your installation, 
+If you'd like to run the provided tests to verify your installation,
 1. Navigate to the `test/` directory underneath the `build/` directory.
 ```
 cd test/
@@ -28,6 +28,28 @@ The above steps install
 ```
 /opt/feqparse/lib/libfeqparse.a
 /opt/feqparse/include/FEQParse.mod
+```
+
+### Fortran Package Manager
+
+A [Fortran Package Manager](https://github.com/fortran-lang/fpm) manifest file is also included, so that the library and test cases can be compiled with FPM. For example:
+
+```
+fpm build --profile release
+fpm test --profile release
+```
+
+To use `feq-parse` within your fpm project, add the following to your `fpm.toml` file:
+```toml
+[dependencies]
+feq-parse = { git="https://github.com/FluidNumerics/feq-parse.git" }
+```
+
+Or, to use a specific version:
+
+```toml
+[dependencies]
+feq-parse = { git="https://github.com/FluidNumerics/feq-parse.git", tag = "v1.1.0" }
 ```
 
 ## Usage
@@ -61,14 +83,14 @@ IMPLICIT NONE
     ! Specify the independent variables
     independentVars = (/ 'x', 'y', 'z' /)
 
-    ! Specify an equation string that we want to evaluate 
+    ! Specify an equation string that we want to evaluate
     eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
 
     ! Create the EquationParser object
     f = EquationParser(eqChar, independentVars)
-   
-    ! Evaluate the equation 
-    x = (/ 0.0, 0.0, 0.0 /) 
+
+    ! Evaluate the equation
+    x = (/ 0.0, 0.0, 0.0 /)
     PRINT*, f % evaluate( x )
 
     ! Clean up memory
