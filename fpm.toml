@@ -1,0 +1,18 @@
+name = "feq-parse"
+license = "Apache 2.0"
+author = "Fluid Numerics LLC"
+copyright = "Copyright 2020 Fluid Numerics LLC"
+description = "An equation parser class for Modern Fortran"
+homepage = "https://github.com/FluidNumerics/feq-parse"
+keywords = ["parser"]
+
+[build]
+auto-executables = false
+auto-examples = false
+auto-tests = true
+
+[library]
+source-dir = "src"
+
+[install]
+library = true
