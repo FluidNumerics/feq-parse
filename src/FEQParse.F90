@@ -21,7 +21,7 @@ IMPLICIT NONE
 
   INTEGER, PARAMETER, PRIVATE :: Error_Message_Length = 256
   INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
-  INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 5
+  INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
   INTEGER, PARAMETER, PRIVATE :: Max_Variable_Length  = 12 
   INTEGER, PARAMETER, PRIVATE :: Token_Length         = 48
   INTEGER, PARAMETER, PRIVATE :: Stack_Length         = 128
@@ -142,20 +142,20 @@ CONTAINS
     LOGICAL                         :: equationIsClean, tokenized, success
     INTEGER                         :: nIndepVars
 
-      functions(1) % str = "cos"
-      functions(2) % str = "sin"
-      functions(3) % str = "tan"
-      functions(4) % str = "tanh"
-      functions(5) % str = "sqrt"
-      functions(6) % str = "abs"
-      functions(7) % str = "exp"
-      functions(8) % str = "ln"
-      functions(9) % str = "log"
-      functions(10) % str = "acos"
-      functions(11) % str = "asin"
-      functions(12) % str = "atan"
-      functions(13) % str = "sech"
-      functions(14) % str = "rand"
+      functions(1) % str = "\cos"
+      functions(2) % str = "\sin"
+      functions(3) % str = "\tan"
+      functions(4) % str = "\tanh"
+      functions(5) % str = "\sqrt"
+      functions(6) % str = "\abs"
+      functions(7) % str = "\exp"
+      functions(8) % str = "\ln"
+      functions(9) % str = "\log"
+      functions(10) % str = "\acos"
+      functions(11) % str = "\asin"
+      functions(12) % str = "\atan"
+      functions(13) % str = "\sech"
+      functions(14) % str = "\rand"
 
       nIndepVars = SIZE(indepVars)
       ALLOCATE( parser % indepVars(1:nIndepVars) )
@@ -333,7 +333,7 @@ CONTAINS
 
 
         ELSEIF( IsFunction( parser % inFixFormula(i:i) ) )THEN
-
+          
           parser % inFix % top_index = parser % inFix % top_index + 1
           parser % inFix % tokens( parser % inFix % top_index ) % tokenString = ''
 
@@ -509,20 +509,6 @@ CONTAINS
                   EXIT
                 ENDIF
               ENDDO
-                   
-              !IF( TRIM( t % tokenString ) == "x" )THEN
-  
-              !   CALL stack % Push( x(1) )
-  
-              !ELSEIF( TRIM( t % tokenString ) == "y" )THEN
-  
-              !   CALL stack % Push( x(2) )
-  
-              !ELSEIF( TRIM( t % tokenString ) == "z" )THEN
-  
-              !   CALL stack % Push( x(3) )
-  
-              !ENDIF
   
             CASE ( Operator_Token )
   
@@ -631,20 +617,6 @@ CONTAINS
                   EXIT
                 ENDIF
               ENDDO
-                   
-              !IF( TRIM( t % tokenString ) == "x" )THEN
-  
-              !   CALL stack % Push( x(1) )
-  
-              !ELSEIF( TRIM( t % tokenString ) == "y" )THEN
-  
-              !   CALL stack % Push( x(2) )
-  
-              !ELSEIF( TRIM( t % tokenString ) == "z" )THEN
-  
-              !   CALL stack % Push( x(3) )
-  
-              !ENDIF
   
             CASE ( Operator_Token )
   
@@ -965,7 +937,7 @@ CONTAINS
       IsFunction = .FALSE.
       DO i = 1, nFunctions
 
-        IF( eqChar == functions(i) % str(1:1) )THEN
+        IF( eqChar == "\" ) THEN !functions(i) % str(1:1) )THEN
           IsFunction = .TRUE.
         ENDIF
 
@@ -994,59 +966,59 @@ CONTAINS
     ! Local
     REAL(real64)   :: r
 
-      IF( TRIM( func ) == "cos" .OR. TRIM( func ) == "COS" )THEN
+      IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
 
         F_of_X = cos( x )
 
-      ELSEIF( TRIM( func ) == "sin" .OR. TRIM( func ) == "SIN" )THEN
+      ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
 
         F_of_X = sin( x )
 
-      ELSEIF( TRIM( func ) == "tan" .OR. TRIM( func ) == "TAN" )THEN
+      ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
 
         F_of_X = tan( x )
 
-      ELSEIF( TRIM( func ) == "tanh" .OR. TRIM( func ) == "TANH" )THEN
+      ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
 
         F_of_X = tanh( x )
 
-      ELSEIF( TRIM( func ) == "sech" .OR. TRIM( func ) == "SECH" )THEN
+      ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
 
         F_of_X = 2.0_real64/( exp(x) + exp(-x) )
 
-      ELSEIF( TRIM( func ) == "sqrt" .OR. TRIM( func ) == "SQRT" )THEN
+      ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
 
         F_of_X = sqrt( x )
 
-      ELSEIF( TRIM( func ) == "abs" .OR. TRIM( func ) == "ABS" )THEN
+      ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
 
         F_of_X = abs( x )
 
-      ELSEIF( TRIM( func ) == "exp" .OR. TRIM( func ) == "EXP" )THEN
+      ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
 
         F_of_X = exp( x )
 
-      ELSEIF( TRIM( func ) == "ln" .OR. TRIM( func ) == "LN" )THEN
+      ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
 
         F_of_X = log( x )
 
-      ELSEIF( TRIM( func ) == "log" .OR. TRIM( func ) == "LOG" )THEN
+      ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
 
         F_of_X = log10( x )
 
-      ELSEIF( TRIM( func ) == "acos" .OR. TRIM( func ) == "ACOS" )THEN
+      ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
 
         F_of_X = acos( x )
 
-      ELSEIF( TRIM( func ) == "asin" .OR. TRIM( func ) == "ASIN" )THEN
+      ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
 
         F_of_X = asin( x )
 
-      ELSEIF( TRIM( func ) == "atan" .OR. TRIM( func ) == "ATAN" )THEN
+      ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
 
         F_of_X = atan( x )
 
-      ELSEIF( TRIM( func ) == "rand" .OR. TRIM( func ) == "RAND" )THEN
+      ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
 
         CALL RANDOM_NUMBER( r )
         F_of_X = r*x

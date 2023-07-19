@@ -55,4 +55,5 @@ endfunction ()
 
 add_fortran_test_executable (
     testsuite
-    "gaussian3d.f90")
+    "gaussian3d.f90"
+    "tanh_with_t.f90")

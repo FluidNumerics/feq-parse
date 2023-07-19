@@ -54,6 +54,9 @@ feq-parse = { git="https://github.com/FluidNumerics/feq-parse.git", tag = "v1.1.
 
 ## Usage
 
+!!! note
+    All functions in the equation string must start with a `\`
+
 ### Demo Program
 
 *Example Makefile*
@@ -84,7 +87,7 @@ IMPLICIT NONE
     independentVars = (/ 'x', 'y', 'z' /)
 
     ! Specify an equation string that we want to evaluate
-    eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
+    eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
 
     ! Create the EquationParser object
     f = EquationParser(eqChar, independentVars)
