@@ -584,7 +584,7 @@ CONTAINS
     TYPE(Token) :: t
     TYPE(NumberStack) :: stack
     REAL(real64) :: v, a, b, c
-         
+
       CALL stack % Construct( Stack_Length )
 
       IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
@@ -596,7 +596,7 @@ CONTAINS
         DO k = 1, parser % postfix % top_index 
   
           t = parser % postfix % tokens(k) % Equals_Token( )
-  
+          
           SELECT CASE ( t % tokenType )
            
             CASE( Number_Token )
@@ -700,7 +700,7 @@ CONTAINS
     INTEGER :: i
 
       DO i = 1, parser % postFix % top_index
-        PRINT*, TRIM( parser % postFix % tokens(i) % tokenString )
+        PRINT*, TRIM( parser % postFix % tokens(i) % tokenString ), parser % postFix % tokens(i) % tokenType
       ENDDO
 
   END SUBROUTINE Print_PostfixTokens
