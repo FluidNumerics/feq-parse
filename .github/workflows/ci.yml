@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  test:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.test_type }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+        fail-fast: false
+        matrix:
+          include:
+            # Linux
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-9
+              shell: bash
+              test_type: regular
+              coverage: false
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      # - name: Add msbuild to PATH
+      #   if: ${{ matrix.os_name == 'windows-latest' }}
+      #   uses: microsoft/setup-msbuild@v1.0.2
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.os == 'windows-latest' }}
+        with:
+          update: true
+          install: git base-devel mingw-w64-x86_64-toolchain
+      - name: Show version information
+        run: |
+          ${{ matrix.compiler }} --version
+      - name: Build
+        run: |
+          cd build
+          cmake ../
+          make -j 2 FC=${{ matrix.compiler }}
+      - name: Run regular function tests
+        if: ${{ matrix.test_type == 'regular' }}
+        run: |
+          cd build/
+          ./test/testsuite -A
+      - name: Run memory checks with Valgrind (only Linux)
+        if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
+        run: |
+          sudo apt-get install -y valgrind
+          valgrind --error-exitcode=1 -s ./test/testsuite -A
