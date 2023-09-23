@@ -3,7 +3,16 @@ name: ci
 on:
   push:
     branches:
-      - 'main'
+      - main
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
 
 jobs:
   test:
@@ -11,9 +20,9 @@ jobs:
     name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.test_type }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
-        fail-fast: false
-        matrix:
-          include:
+      fail-fast: false
+      matrix:
+        include:
             # Linux
             - os: ubuntu-22.04
               os_name: linux
