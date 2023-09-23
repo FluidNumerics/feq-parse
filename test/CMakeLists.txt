@@ -38,7 +38,7 @@ function (add_fortran_test_executable TARGET)
     add_executable (${TARGET} main.c)
     target_link_libraries (${TARGET} ${TARGET}_fortran)
     target_include_directories (${TARGET} PUBLIC ${TARGET}_fortran)
-    target_link_libraries (${TARGET} ${CMAKE_BINARY_DIR}/src/libfeqparse.a)
+    target_link_libraries (${TARGET} ${CMAKE_BINARY_DIR}/src/libfeqparse-static.a)
     target_include_directories(${TARGET} PUBLIC ${CMAKE_BINARY_DIR}/include)
 
     set (INDEX 0)
