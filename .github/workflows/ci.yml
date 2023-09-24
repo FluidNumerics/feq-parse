@@ -51,8 +51,8 @@ jobs:
       - name: Build
         run: |
           cd build
-          cmake ../
-          make -j 2 FC=${{ matrix.compiler }}
+          FC=${{ matrix.compiler }} cmake ../
+          make VERBOSE=1
       - name: Run regular function tests
         if: ${{ matrix.test_type == 'regular' }}
         run: |
