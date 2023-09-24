@@ -35,6 +35,7 @@ function (add_fortran_test_executable TARGET)
     create_test_sourcelist (_ main.c ${TEST_FILES_MANGLED})
 
     add_library (${TARGET}_fortran ${TEST_FILES})
+    target_include_directories(${TARGET}_fortran PUBLIC ${CMAKE_BINARY_DIR}/include)
     add_executable (${TARGET} main.c)
     target_link_libraries (${TARGET} ${TARGET}_fortran)
     target_include_directories (${TARGET} PUBLIC ${TARGET}_fortran)
