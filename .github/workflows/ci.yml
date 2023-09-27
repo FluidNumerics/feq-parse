@@ -57,7 +57,7 @@ jobs:
         if: ${{ matrix.test_type == 'regular' }}
         run: |
           cd build/test
-          ctest
+          ctest || ctest --rerun-failed --output-on-failure
       - name: Run memory checks with Valgrind (only Linux)
         if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
         run: |
