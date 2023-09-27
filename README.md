@@ -1,6 +1,8 @@
 # Fortran Equation Parser
 Copyright 2020 Fluid Numerics LLC
 
+[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/ci.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions)
+
 `feqparse` is an equation parser Fortran class that is used to interpret and evaluate functions provided as strings.
 
 [Learn how to contribute to this repository](./CONTRIBUTING.md)
