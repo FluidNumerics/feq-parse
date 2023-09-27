@@ -28,7 +28,8 @@ ctest .
 
 The above steps install
 ```
-/opt/feqparse/lib/libfeqparse.a
+/opt/feqparse/lib/libfeqparse-static.a
+/opt/feqparse/lib/libfeqparse.so
 /opt/feqparse/include/FEQParse.mod
 ```
 

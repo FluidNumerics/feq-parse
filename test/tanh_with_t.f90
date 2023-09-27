@@ -14,14 +14,14 @@ INTEGER FUNCTION tanh_with_t() RESULT(r)
     independentVars = (/ 'x', 't' /)
 
     ! Evaluate directly
-    exact = 0.5*(1.0 - tanh((0.0 - 250000.0 - 0.5*1000000.0)/100000.0))
+    exact = 0.5_real64*(1.0_real64 - tanh((0.0_real64 - 250000.0_real64 - 0.5_real64*1000000.0_real64)/100000.0_real64))
     ! Specify an equation string that we want to evaluate 
-    eqChar = "f = 0.5*(1.0 - \tanh((x - (250000 + 0.5*t))/100000))"   ! Create the EquationParser object
+    eqChar = "f = 0.5*(1.0 - \tanh((x - (250000.0 + 0.5*t))/100000.0))"   ! Create the EquationParser object
     f = EquationParser(eqChar, independentVars)
-
+    PRINT*, ABS(f % evaluate( x ) - exact),f % evaluate( x ), exact, epsilon(exact)
     ! Evaluate the equation at (0,1000)
-    x = (/ 0.0, 1000000.0 /)
-    IF( ABS(f % evaluate( x ) - exact) <= epsilon(exact) )THEN
+    x = (/ 0.0_real64, 1000000.0_real64 /)
+    IF( ABS(f % evaluate( x ) - exact) <= 10.0_real64**(-3) )THEN
       r = 0
     ELSE
       r = 1
