@@ -14,6 +14,8 @@
 MODULE FEQParse
 
 USE ISO_FORTRAN_ENV
+USE FEQParse_String
+USE FEQParse_Functions
 
 IMPLICIT NONE
 
@@ -36,18 +38,11 @@ IMPLICIT NONE
   INTEGER, PARAMETER, PRIVATE :: ClosingParentheses_Token = 6
   INTEGER, PARAMETER, PRIVATE :: Monadic_Token            = 7
 
-  INTEGER, PARAMETER, PRIVATE :: nFunctions = 14
   INTEGER, PARAMETER, PRIVATE :: nSeparators = 7
-
-  TYPE String
-    CHARACTER(10) :: str
-  END TYPE String
 
   CHARACTER(1), DIMENSION(7), PRIVATE  :: separators = (/ "+", "-", "*", "/", "(", ")", "^" /) 
   CHARACTER(1), DIMENSION(5), PRIVATE  :: operators  = (/ "+", "-", "*", "/", "^" /) 
-  CHARACTER(1), DIMENSION(10), PRIVATE :: numbers    = (/ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" /) 
-  TYPE(String), DIMENSION(14), PRIVATE :: functions 
-
+  CHARACTER(1), DIMENSION(10), PRIVATE :: numbers    = (/ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" /)
   ! Private Types !
 
   TYPE Token  
@@ -98,7 +93,7 @@ IMPLICIT NONE
   PRIVATE :: Token, TokenStack, NumberStack
   PRIVATE :: Construct_TokenStack, Destruct_TokenStack, Push_TokenStack, Pop_TokenStack, Peek_TokenStack, IsEmpty_TokenStack
   PRIVATE :: Construct_NumberStack, Destruct_NumberStack, Push_NumberStack, Pop_NumberStack, Peek_NumberStack, IsEmpty_NumberStack
-  PRIVATE :: IsNumber, IsVariable, IsFunction, IsOperator, IsSeparator, FindLastFunctionIndex, F_of_X, Priority
+  PRIVATE :: IsNumber, IsVariable, IsOperator, IsSeparator
 
 
   TYPE EquationParser
@@ -109,6 +104,7 @@ IMPLICIT NONE
     CHARACTER(LEN=1), ALLOCATABLE      :: indepVars(:) 
     TYPE( TokenStack )                 :: inFix
     TYPE( TokenStack )                 :: postFix
+    TYPE( FEQParse_FunctionHandler)    :: func
 
     CONTAINS
 
@@ -122,6 +118,8 @@ IMPLICIT NONE
 
       PROCEDURE :: Print_InFixTokens
       PROCEDURE :: Print_PostFixTokens
+
+      procedure, private :: Priority
 
   END TYPE EquationParser
 
@@ -142,20 +140,7 @@ CONTAINS
     LOGICAL                         :: equationIsClean, tokenized, success
     INTEGER                         :: nIndepVars
 
-      functions(1) % str = "\cos"
-      functions(2) % str = "\sin"
-      functions(3) % str = "\tan"
-      functions(4) % str = "\tanh"
-      functions(5) % str = "\sqrt"
-      functions(6) % str = "\abs"
-      functions(7) % str = "\exp"
-      functions(8) % str = "\ln"
-      functions(9) % str = "\log"
-      functions(10) % str = "\acos"
-      functions(11) % str = "\asin"
-      functions(12) % str = "\atan"
-      functions(13) % str = "\sech"
-      functions(14) % str = "\rand"
+      parser % func = FEQParse_FunctionHandler( )
 
       nIndepVars = SIZE(indepVars)
       ALLOCATE( parser % indepVars(1:nIndepVars) )
@@ -199,6 +184,7 @@ CONTAINS
 
       CALL parser % inFix % Destruct()
       CALL parser % postFix % Destruct()
+      call parser % func % Destruct()
 
   END SUBROUTINE Destruct_EquationParser
 
@@ -332,7 +318,7 @@ CONTAINS
           i = i + 1
 
 
-        ELSEIF( IsFunction( parser % inFixFormula(i:i) ) )THEN
+        ELSEIF( parser % func % IsFunction( parser % inFixFormula(i:i) ) )THEN
           
           parser % inFix % top_index = parser % inFix % top_index + 1
           parser % inFix % tokens( parser % inFix % top_index ) % tokenString = ''
@@ -419,8 +405,8 @@ CONTAINS
             tok = operator_stack % TopToken( )
               
             DO WHILE( TRIM(tok % tokenString) /= "(" .AND. &
-                      Priority( TRIM(tok % tokenString) ) > &
-                       Priority( TRIM(parser % inFix % tokens(i) % tokenString) ) )
+                      parser % Priority( TRIM(tok % tokenString) ) > &
+                      parser % Priority( TRIM(parser % inFix % tokens(i) % tokenString) ) )
        
               CALL parser % postFix % push( tok )
               CALL operator_stack % pop( tok )
@@ -546,7 +532,7 @@ CONTAINS
   
               CALL stack % Pop( a )
   
-              b = F_of_X( TRIM(t % tokenString), a )
+              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
   
               CALL stack % Push( b )
               
@@ -654,7 +640,7 @@ CONTAINS
   
               CALL stack % Pop( a )
   
-              b = F_of_X( TRIM(t % tokenString), a )
+              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
   
               CALL stack % Push( b )
               
@@ -929,114 +915,12 @@ CONTAINS
 
   END FUNCTION IsOperator
 
-  LOGICAL FUNCTION IsFunction( eqChar )
-    CHARACTER(1) :: eqChar
-    ! Local
-    INTEGER :: i
-
-      IsFunction = .FALSE.
-      DO i = 1, nFunctions
-
-        IF( eqChar == "\" ) THEN !functions(i) % str(1:1) )THEN
-          IsFunction = .TRUE.
-        ENDIF
-
-      ENDDO
-
-  END FUNCTION IsFunction
-
-  FUNCTION FindLastFunctionIndex( eqChar ) RESULT( j )
-    CHARACTER(Max_Function_Length) :: eqChar
-    INTEGER                        :: i, j
-
-      DO i = 1, Max_Function_Length
-
-        IF( eqChar(i:i) == "(" )THEN
-          j = i-2
-          EXIT
-        ENDIF
-
-      ENDDO
-         
-  END FUNCTION FindLastFunctionIndex
-
-  REAL(real64) FUNCTION F_of_X( func, x ) 
-    CHARACTER(*) :: func
-    REAL(real64)   :: x
-    ! Local
-    REAL(real64)   :: r
-
-      IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
-
-        F_of_X = cos( x )
-
-      ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
-
-        F_of_X = sin( x )
-
-      ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
-
-        F_of_X = tan( x )
-
-      ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
-
-        F_of_X = tanh( x )
-
-      ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
-
-        F_of_X = 2.0_real64/( exp(x) + exp(-x) )
-
-      ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
-
-        F_of_X = sqrt( x )
-
-      ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
-
-        F_of_X = abs( x )
-
-      ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
-
-        F_of_X = exp( x )
-
-      ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
-
-        F_of_X = log( x )
-
-      ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
-
-        F_of_X = log10( x )
-
-      ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
-
-        F_of_X = acos( x )
-
-      ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
-
-        F_of_X = asin( x )
-
-      ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
-
-        F_of_X = atan( x )
-
-      ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
-
-        CALL RANDOM_NUMBER( r )
-        F_of_X = r*x
-
-      ELSE
- 
-        F_of_X = 0.0_real64
-
-      ENDIF
-
-
-  END FUNCTION F_of_X
-
-  INTEGER FUNCTION Priority( operatorString )
+  INTEGER FUNCTION Priority(parser, operatorString )
+    class(EquationParser) :: parser
     CHARACTER(1) :: operatorString
 
 
-      IF( IsFunction( operatorString ) )THEN
+      IF( parser % func % IsFunction( operatorString ) )THEN
 
         Priority = 4
 
