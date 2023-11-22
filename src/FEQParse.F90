@@ -14,8 +14,9 @@
 MODULE FEQParse
 
 USE ISO_FORTRAN_ENV
-USE FEQParse_String
 USE FEQParse_Functions
+USE FEQParse_TokenStack
+USE FEQParse_FloatStacks
 
 IMPLICIT NONE
 
@@ -25,7 +26,6 @@ IMPLICIT NONE
   INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
   INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
   INTEGER, PARAMETER, PRIVATE :: Max_Variable_Length  = 12 
-  INTEGER, PARAMETER, PRIVATE :: Token_Length         = 48
   INTEGER, PARAMETER, PRIVATE :: Stack_Length         = 128
 
   ! Token types 
@@ -45,54 +45,7 @@ IMPLICIT NONE
   CHARACTER(1), DIMENSION(10), PRIVATE :: numbers    = (/ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" /)
   ! Private Types !
 
-  TYPE Token  
-    CHARACTER(Token_Length) :: tokenString
-    INTEGER                 :: tokenType
-
-    CONTAINS  
-      PROCEDURE :: Equals_Token
-
-  END TYPE Token
-
-
-  TYPE TokenStack
-    TYPE(Token), ALLOCATABLE :: tokens(:)
-    INTEGER                  :: top_index = 0
-
-    CONTAINS
-  
-      PROCEDURE :: Construct => Construct_TokenStack
-      PROCEDURE :: Destruct  => Destruct_TokenStack
-      
-      PROCEDURE :: Push      => Push_TokenStack
-      PROCEDURE :: Pop       => Pop_TokenStack
-      PROCEDURE :: Peek      => Peek_TokenStack
-
-      PROCEDURE :: IsEmpty   => IsEmpty_TokenStack
-      PROCEDURE :: TopToken
-  
-  END TYPE TokenStack
-
-  TYPE NumberStack
-    REAL(real64), ALLOCATABLE :: tokens(:)
-    INTEGER                   :: top_index
-
-    CONTAINS
-  
-      PROCEDURE :: Construct => Construct_NumberStack
-      PROCEDURE :: Destruct  => Destruct_NumberStack
-      
-      PROCEDURE :: Push      => Push_NumberStack
-      PROCEDURE :: Pop       => Pop_NumberStack
-      PROCEDURE :: Peek      => Peek_NumberStack
-
-      PROCEDURE :: IsEmpty   => IsEmpty_NumberStack
-  
-  END TYPE NumberStack
-
-  PRIVATE :: Token, TokenStack, NumberStack
-  PRIVATE :: Construct_TokenStack, Destruct_TokenStack, Push_TokenStack, Pop_TokenStack, Peek_TokenStack, IsEmpty_TokenStack
-  PRIVATE :: Construct_NumberStack, Destruct_NumberStack, Push_NumberStack, Pop_NumberStack, Peek_NumberStack, IsEmpty_NumberStack
+ 
   PRIVATE :: IsNumber, IsVariable, IsOperator, IsSeparator
 
 
@@ -104,7 +57,7 @@ IMPLICIT NONE
     CHARACTER(LEN=1), ALLOCATABLE      :: indepVars(:) 
     TYPE( TokenStack )                 :: inFix
     TYPE( TokenStack )                 :: postFix
-    TYPE( FEQParse_FunctionHandler)    :: func
+    TYPE( FEQParse_FunctionHandler )   :: func
 
     CONTAINS
 
@@ -113,8 +66,8 @@ IMPLICIT NONE
       PROCEDURE :: Tokenize
       PROCEDURE :: ConvertToPostfix
 
-      GENERIC :: Evaluate => Evaluate_real32, Evaluate_real64
-      PROCEDURE, PRIVATE :: Evaluate_real32, Evaluate_real64
+      GENERIC :: Evaluate => Evaluate_sfp32, Evaluate_sfp64
+      PROCEDURE, PRIVATE :: Evaluate_sfp32, Evaluate_sfp64
 
       PROCEDURE :: Print_InFixTokens
       PROCEDURE :: Print_PostFixTokens
@@ -453,15 +406,15 @@ CONTAINS
       
   END SUBROUTINE ConvertToPostFix
 
-  FUNCTION Evaluate_real32( parser, x ) RESULT( f )
+  FUNCTION Evaluate_sfp32( parser, x ) RESULT( f )
     CLASS(EquationParser) :: parser
     REAL(real32) :: x(1:parser % nIndepVars)
     REAL(real32) :: f
     ! Local
     INTEGER :: i, k
     TYPE(Token) :: t
-    TYPE(NumberStack) :: stack
-    REAL(real64) :: v, a, b, c
+    TYPE(sfp32Stack) :: stack
+    REAL(real32) :: v, a, b, c
          
       CALL stack % Construct( Stack_Length )
 
@@ -491,7 +444,7 @@ CONTAINS
   
               DO i = 1, parser % nIndepVars
                 IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
-                  CALL stack % Push( REAL(x(i),real64) )
+                  CALL stack % Push( x(i) )
                   EXIT
                 ENDIF
               ENDDO
@@ -559,16 +512,16 @@ CONTAINS
 
      ENDIF
          
-  END FUNCTION Evaluate_real32
+  END FUNCTION Evaluate_sfp32
 
-  FUNCTION Evaluate_real64( parser, x ) RESULT( f )
+  FUNCTION Evaluate_sfp64( parser, x ) RESULT( f )
     CLASS(EquationParser) :: parser
     REAL(real64) :: x(1:parser % nIndepVars)
     REAL(real64) :: f
     ! Local
     INTEGER :: i, k
     TYPE(Token) :: t
-    TYPE(NumberStack) :: stack
+    TYPE(sfp64Stack) :: stack
     REAL(real64) :: v, a, b, c
 
       CALL stack % Construct( Stack_Length )
@@ -667,7 +620,7 @@ CONTAINS
 
      ENDIF
          
-  END FUNCTION Evaluate_real64
+  END FUNCTION Evaluate_sfp64
 
   SUBROUTINE Print_InfixTokens( parser )
     CLASS( EquationParser ), INTENT(in) :: parser
@@ -690,156 +643,6 @@ CONTAINS
       ENDDO
 
   END SUBROUTINE Print_PostfixTokens
-
-  ! TokenStack and NumberStack 
-
-  SUBROUTINE Construct_TokenStack( stack, N )
-   CLASS(TokenStack), INTENT(out) :: stack
-   INTEGER, INTENT(in)            :: N
-
-     ALLOCATE( stack % tokens(1:N) )
-     stack % top_index = 0
-
-  END SUBROUTINE Construct_TokenStack
-
-  SUBROUTINE Destruct_TokenStack( stack )
-    CLASS(TokenStack), INTENT(inout) :: stack
-
-      IF( ALLOCATED( stack % tokens ) ) DEALLOCATE( stack % tokens )
-      stack % top_index = 0
-
-  END SUBROUTINE Destruct_TokenStack
-
-  SUBROUTINE Push_TokenStack( stack, tok ) 
-    CLASS(TokenStack), INTENT(inout) :: stack
-    TYPE(Token), INTENT(in)         :: tok
-
-      stack % top_index                  = stack % top_index + 1
-      stack % tokens(stack % top_index)  % tokenString = tok % tokenString
-      stack % tokens(stack % top_index)  % tokenType   = tok % tokenType
- 
-  END SUBROUTINE Push_TokenStack
-
-  SUBROUTINE Pop_TokenStack( stack, tok ) 
-    CLASS(TokenStack), INTENT(inout) :: stack
-    TYPE(Token), INTENT(out)        :: tok
-    
-      IF( stack % top_index <= 0 ) THEN
-        PRINT *, "Attempt to pop from empty token stack"
-      ELSE 
-        tok % tokenString         = stack % tokens( stack % top_index ) % tokenString
-        tok % tokenType           = stack % tokens( stack % top_index ) % tokenType
-        stack % top_index = stack % top_index - 1
-      END IF
-
-
-  END SUBROUTINE Pop_TokenStack
-
-  SUBROUTINE Peek_TokenStack( stack, tok ) 
-    CLASS(TokenStack), INTENT(in) :: stack
-    TYPE(Token), INTENT(out)     :: tok
-    
-      IF( stack % top_index <= 0 ) THEN
-        PRINT *, "Attempt to peek from empty token stack"
-      ELSE 
-        tok % tokenString = stack % tokens( stack % top_index ) % tokenString
-        tok % tokenType   = stack % tokens( stack % top_index ) % tokenType
-      END IF
-  END SUBROUTINE Peek_TokenStack
-
-  LOGICAL FUNCTION IsEmpty_TokenStack( stack )
-    CLASS( TokenStack ) :: stack
-
-      IsEmpty_TokenStack = .FALSE.
-
-      IF( stack % top_index <= 0 )THEN
-        IsEmpty_TokenStack = .TRUE.
-      ENDIF
-
-  END FUNCTION IsEmpty_TokenStack
-
-  TYPE( Token ) FUNCTION TopToken( stack )
-    CLASS( TokenStack ) :: stack
-
-      IF( stack % top_index > 0 )THEN
-        TopToken % tokenString = stack % tokens( stack % top_index ) % tokenString
-        TopToken % tokenType   = stack % tokens( stack % top_index ) % tokenType
-      ELSE
-        TopToken % tokenString = ''
-      ENDIF
-
-  END FUNCTION TopToken 
-
-  FUNCTION Equals_Token( tok1 ) RESULT( tok2 )
-    CLASS(Token) :: tok1
-    TYPE(Token)  :: tok2
-
-      tok2 % tokenString = tok1 % tokenString 
-      tok2 % tokenType   = tok1 % tokenType
-
-  END FUNCTION Equals_Token
-
-  SUBROUTINE Construct_NumberStack( stack, N )
-   CLASS(NumberStack), INTENT(out) :: stack
-   INTEGER, INTENT(in)            :: N
-
-     ALLOCATE( stack % tokens(1:N) )
-     stack % top_index = 0
-
-  END SUBROUTINE Construct_NumberStack
-
-  SUBROUTINE Destruct_NumberStack( stack )
-    CLASS(NumberStack), INTENT(inout) :: stack
-
-      IF( ALLOCATED( stack % tokens) ) DEALLOCATE( stack % tokens )
-      stack % top_index = 0
-
-  END SUBROUTINE Destruct_NumberStack
-
-  SUBROUTINE Push_NumberStack( stack, tok ) 
-    CLASS(NumberStack), INTENT(inout) :: stack
-    REAL(real64), INTENT(in)         :: tok
-
-      stack % top_index                  = stack % top_index + 1
-      stack % tokens(stack % top_index) = tok 
- 
-  END SUBROUTINE Push_NumberStack
-
-  SUBROUTINE Pop_NumberStack( stack, tok ) 
-    CLASS(NumberStack), INTENT(inout) :: stack
-    REAL(real64), INTENT(out)        :: tok
-    
-      IF( stack % top_index <= 0 ) THEN
-        PRINT *, "Attempt to pop from empty token stack"
-      ELSE 
-        tok               = stack % tokens( stack % top_index )
-        stack % top_index = stack % top_index - 1
-      END IF
-
-
-  END SUBROUTINE Pop_NumberStack
-
-  SUBROUTINE Peek_NumberStack( stack, tok ) 
-    CLASS(NumberStack), INTENT(in) :: stack
-    REAL(real64), INTENT(out)        :: tok
-    
-      IF( stack % top_index <= 0 ) THEN
-        PRINT *, "Attempt to peek from empty token stack"
-      ELSE 
-        tok = stack % tokens( stack % top_index )
-      END IF
-  END SUBROUTINE Peek_NumberStack
-
-  LOGICAL FUNCTION IsEmpty_NumberStack( stack )
-    CLASS( NumberStack ) :: stack
-
-      IsEmpty_NumberStack = .FALSE.
-
-      IF( stack % top_index <= 0 )THEN
-        IsEmpty_NumberStack = .TRUE.
-      ENDIF
-
-  END FUNCTION IsEmpty_NumberStack
 
   ! Support Functions !
 
