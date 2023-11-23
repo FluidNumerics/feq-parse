@@ -85,6 +85,7 @@ jobs:
           lcov --no-external \
               --capture \
               --directory /home/runner/work/feq-parse \
+              --exclude '*/test/*'
               --output-file /home/runner/work/lcov.info
 
       - name: codecov
