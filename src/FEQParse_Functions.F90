@@ -99,10 +99,10 @@ contains
   END FUNCTION IsFunction
 
   FUNCTION FindLastFunctionIndex( eqChar ) RESULT( j )
-    CHARACTER(feqparse_function_maxlength) :: eqChar
+    CHARACTER(*) :: eqChar
     INTEGER                        :: i, j
 
-      DO i = 1, feqparse_function_maxlength
+      DO i = 1, LEN(eqChar)
 
         IF( eqChar(i:i) == "(" )THEN
           j = i-2
