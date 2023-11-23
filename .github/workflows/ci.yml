@@ -69,7 +69,8 @@ jobs:
           lcov --no-external \
                --capture \
                --initial \
-               --output-file lcov_base.info
+               --directory /home/runner/work/feq-parse \
+               --output-file /home/runner/work/lcov_base.info
 
       - name: Run ctests
         run: |
@@ -82,13 +83,14 @@ jobs:
           
           lcov --no-external \
               --capture \
-              --output-file lcov_test.info
+              --directory /home/runner/work/feq-parse \
+              --output-file /home/runner/work/lcov_test.info
 
-          lcov --add-tracefile lcov_base.info \
-              --add-tracefile lcov_test.info \ 
-              --output-file lcov.info
+          lcov --add-tracefile /home/runner/work/lcov_base.info \
+              --add-tracefile /home/runner/work/lcov_test.info \ 
+              --output-file /home/runner/work/lcov.info
 
-          rm lcov_test.info lcov_base.info
+          rm /home/runner/work/lcov_test.info /home/runner/work/lcov_base.info
 
       - name: Upload coverage reports to Codecov
         if: ${{ matrix.build_type == 'coverage' }}
