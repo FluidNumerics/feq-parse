@@ -18,7 +18,7 @@ on:
 jobs:
   test:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.test_type }} - ${{ github.event_name }}
+    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.build_type }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -63,19 +63,21 @@ jobs:
           FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
       - name: Initialize coverage counters
-        if: ${{ matrix.build_type == "coverage" }}
+        if: ${{ matrix.build_type == 'coverage' }}
         run: |
           apt-get update -y && apt-get install lcov
           lcov --no-external \
                --capture \
                --initial \
                --output-file lcov_base.info
+
       - name: Run ctests
         run: |
           cd build/test
           ctest || ctest --rerun-failed --output-on-failure
-      - name: Initialize coverage counters
-        if: ${{ matrix.coverage }}
+
+      - name: Create coverage report
+        if: ${{ matrix.build_type == 'coverage' }}
         run: |
           
           lcov --no-external \
@@ -85,6 +87,14 @@ jobs:
           lcov --add-tracefile lcov_base.info \
               --add-tracefile lcov_test.info \ 
               --output-file lcov.info
+
+          rm lcov_test.info lcov_base.info
+
+      - name: Upload coverage reports to Codecov
+        if: ${{ matrix.build_type == 'coverage' }}
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run memory checks with Valgrind (only Linux)
         if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
