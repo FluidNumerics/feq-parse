@@ -29,8 +29,17 @@ jobs:
               os_name: linux
               compiler: gfortran-9
               shell: bash
-              test_type: regular
-              coverage: false
+              build_type: coverage
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-10
+              shell: bash
+              build_type: debug
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-11
+              shell: bash
+              build_type: debug
     defaults:
       run:
         shell: ${{ matrix.shell }}
@@ -51,13 +60,32 @@ jobs:
       - name: Build
         run: |
           cd build
-          FC=${{ matrix.compiler }} FFLAGS="-O0 -g" cmake ../
+          FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
-      - name: Run regular function tests
-        if: ${{ matrix.test_type == 'regular' }}
+      - name: Initialize coverage counters
+        if: ${{ matrix.build_type == "coverage" }}
+        run: |
+          apt-get update -y && apt-get install lcov
+          lcov --no-external \
+               --capture \
+               --initial \
+               --output-file lcov_base.info
+      - name: Run ctests
         run: |
           cd build/test
           ctest || ctest --rerun-failed --output-on-failure
+      - name: Initialize coverage counters
+        if: ${{ matrix.coverage }}
+        run: |
+          
+          lcov --no-external \
+              --capture \
+              --output-file lcov_test.info
+
+          lcov --add-tracefile lcov_base.info \
+              --add-tracefile lcov_test.info \ 
+              --output-file lcov.info
+
       - name: Run memory checks with Valgrind (only Linux)
         if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
         run: |
