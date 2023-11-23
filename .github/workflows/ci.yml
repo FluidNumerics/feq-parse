@@ -54,19 +54,23 @@ jobs:
         with:
           update: true
           install: git base-devel mingw-w64-x86_64-toolchain
+
       - name: Show version information
         run: |
           ${{ matrix.compiler }} --version
+
       - name: Build
         run: |
           cd build
           FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
+
       - name: Initialize coverage counters
         if: ${{ matrix.build_type == 'coverage' }}
         run: |
           sudo apt-get update -y && sudo apt-get install lcov
           lcov --no-external \
+               --directory /home/runner/work/feq-parse \
                --zerocounters
 
       - name: Run ctests
