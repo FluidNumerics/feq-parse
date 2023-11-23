@@ -93,7 +93,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: ./lcov.info
+          files: /home/runner/work/lcov.info
           flags: ctests
 
       - name: Run memory checks with Valgrind (only Linux)
