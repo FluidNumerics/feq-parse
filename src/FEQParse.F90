@@ -66,8 +66,10 @@ IMPLICIT NONE
       PROCEDURE :: Tokenize
       PROCEDURE :: ConvertToPostfix
 
-      GENERIC :: Evaluate => Evaluate_sfp32, Evaluate_sfp64
+      GENERIC :: Evaluate => Evaluate_sfp32, Evaluate_sfp64, &
+                             Evaluate_r1fp32, Evaluate_r1fp64
       PROCEDURE, PRIVATE :: Evaluate_sfp32, Evaluate_sfp64
+      PROCEDURE, PRIVATE :: Evaluate_r1fp32, Evaluate_r1fp64
 
       PROCEDURE :: Print_InFixTokens
       PROCEDURE :: Print_PostFixTokens
@@ -622,6 +624,234 @@ CONTAINS
          
   END FUNCTION Evaluate_sfp64
 
+  FUNCTION Evaluate_r1fp32( parser, x ) RESULT( f )
+    CLASS(EquationParser) :: parser
+    REAL(real32) :: x(:,:)
+    REAL(real32) :: f(lbound(x,1):ubound(x,1))
+    ! Local
+    INTEGER :: i, k
+    TYPE(Token) :: t
+    TYPE(r1fp32Stack) :: stack
+    real(real32) :: vnumber
+    REAL(real32) :: v(lbound(x,1):ubound(x,1))
+    real(real32) :: a(lbound(x,1):ubound(x,1))
+    real(real32) :: b(lbound(x,1):ubound(x,1))
+    real(real32) :: c(lbound(x,1):ubound(x,1))
+         
+      CALL stack % Construct( Stack_Length, v )
+      CALL parser % Print_InfixTokens()
+      CALL parser % Print_PostfixTokens()
+
+      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+
+        f = 0.0_real32
+
+      ELSE
+
+        DO k = 1, parser % postfix % top_index 
+  
+          t = parser % postfix % tokens(k) % Equals_Token( )
+  
+          SELECT CASE ( t % tokenType )
+           
+            CASE( Number_Token )
+              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
+                 v = pi
+              ELSE
+                READ( t % tokenString, * ) vnumber 
+                v = vnumber
+              END IF
+  
+              CALL stack % Push( v )
+                 
+            CASE ( Variable_Token )
+  
+              DO i = 1, parser % nIndepVars
+                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
+                  CALL stack % Push( x(:,i) )
+                  EXIT
+                ENDIF
+              ENDDO
+  
+            CASE ( Operator_Token )
+  
+              CALL stack % Pop( a )
+              CALL stack % Pop( b )
+  
+              SELECT CASE ( TRIM(t % tokenString) )
+  
+                 CASE ( "+" )
+  
+                    c = a + b
+  
+                 CASE ( "-" )
+  
+                    c = b - a
+  
+                 CASE ( "*" )
+  
+                    c = a*b
+  
+                 CASE ( "/" )
+  
+                    c = b/a
+  
+                 CASE ( "^" )
+  
+                    c = b**a
+                 CASE DEFAULT
+  
+              END SELECT
+  
+              CALL stack % Push( c )
+              
+           CASE ( Function_Token )
+  
+              CALL stack % Pop( a )
+  
+              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
+  
+              CALL stack % Push( b )
+              
+           CASE ( Monadic_Token )
+  
+             IF( TRIM(t % tokenString) == "-" )     THEN
+  
+                CALL stack % Pop( a )
+                a = -a
+                CALL stack % Push( a )
+  
+             END IF
+             
+           CASE DEFAULT
+  
+         END SELECT
+  
+       END DO
+  
+       CALL stack % Pop( a )
+       f = a
+  
+       CALL stack % Destruct( )
+
+     ENDIF
+         
+  END FUNCTION Evaluate_r1fp32
+
+  FUNCTION Evaluate_r1fp64( parser, x ) RESULT( f )
+    CLASS(EquationParser) :: parser
+    REAL(real64) :: x(:,:)
+    REAL(real64) :: f(lbound(x,1):ubound(x,1))
+    ! Local
+    INTEGER :: i, k
+    TYPE(Token) :: t
+    TYPE(r1fp64Stack) :: stack
+    real(real64) :: vnumber
+    REAL(real64) :: v(lbound(x,1):ubound(x,1))
+    real(real64) :: a(lbound(x,1):ubound(x,1))
+    real(real64) :: b(lbound(x,1):ubound(x,1))
+    real(real64) :: c(lbound(x,1):ubound(x,1))
+
+
+      CALL stack % Construct( Stack_Length, v )
+
+      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+
+        f = 0.0_real64
+
+      ELSE
+
+        DO k = 1, parser % postfix % top_index 
+  
+          t = parser % postfix % tokens(k) % Equals_Token( )
+          
+          SELECT CASE ( t % tokenType )
+           
+            CASE( Number_Token )
+  
+              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
+                 v = pi
+              ELSE
+                READ( t % tokenString, * ) vnumber
+                v = vnumber
+              END IF
+  
+              CALL stack % Push( v )
+                 
+            CASE ( Variable_Token )
+  
+              DO i = 1, parser % nIndepVars
+                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
+                  CALL stack % Push( x(:,i) )
+                  EXIT
+                ENDIF
+              ENDDO
+  
+            CASE ( Operator_Token )
+  
+              CALL stack % Pop( a )
+              CALL stack % Pop( b )
+  
+              SELECT CASE ( TRIM(t % tokenString) )
+  
+                 CASE ( "+" )
+  
+                    c = a + b
+  
+                 CASE ( "-" )
+  
+                    c = b - a
+  
+                 CASE ( "*" )
+  
+                    c = a*b
+  
+                 CASE ( "/" )
+  
+                    c = b/a
+  
+                 CASE ( "^" )
+  
+                    c = b**a
+                 CASE DEFAULT
+  
+              END SELECT
+  
+              CALL stack % Push( c )
+              
+           CASE ( Function_Token )
+  
+              CALL stack % Pop( a )
+  
+              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
+  
+              CALL stack % Push( b )
+              
+           CASE ( Monadic_Token )
+  
+             IF( TRIM(t % tokenString) == "-" )     THEN
+  
+                CALL stack % Pop( a )
+                a = -a
+                CALL stack % Push( a )
+  
+             END IF
+             
+           CASE DEFAULT
+  
+         END SELECT
+  
+       END DO
+  
+       CALL stack % Pop( a )
+       f = a
+  
+       CALL stack % Destruct( )
+
+     ENDIF
+         
+  END FUNCTION Evaluate_r1fp64
+
   SUBROUTINE Print_InfixTokens( parser )
     CLASS( EquationParser ), INTENT(in) :: parser
     ! Local
@@ -720,22 +950,22 @@ CONTAINS
 
   INTEGER FUNCTION Priority(parser, operatorString )
     class(EquationParser) :: parser
-    CHARACTER(1) :: operatorString
+    CHARACTER(*) :: operatorString
 
 
       IF( parser % func % IsFunction( operatorString ) )THEN
 
         Priority = 4
 
-      ELSEIF( operatorString == '^' )THEN
+      ELSEIF( operatorString(1:1) == '^' )THEN
 
         Priority = 3
 
-      ELSEIF( operatorString == '*' .OR. operatorString == '/' )THEN
+      ELSEIF( operatorString(1:1) == '*' .OR. operatorString(1:1) == '/' )THEN
 
         Priority = 2
 
-      ELSEIF( operatorString == '+' .OR. operatorString == '-' )THEN
+      ELSEIF( operatorString(1:1) == '+' .OR. operatorString(1:1) == '-' )THEN
    
         Priority = 1
  

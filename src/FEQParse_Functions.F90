@@ -83,14 +83,14 @@ contains
 
   LOGICAL FUNCTION IsFunction( functionhandler_obj, eqChar )
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-    CHARACTER(1) :: eqChar
+    CHARACTER(*) :: eqChar
     ! Local
     INTEGER :: i
 
       IsFunction = .FALSE.
       DO i = 1, functionhandler_obj %nFunctions
 
-        IF( eqChar == "\" ) THEN
+        IF( eqChar(1:1) == "\" ) THEN
           IsFunction = .TRUE.
         ENDIF
 
