@@ -67,10 +67,7 @@ jobs:
         run: |
           sudo apt-get update -y && sudo apt-get install lcov
           lcov --no-external \
-               --capture \
-               --initial \
-               --directory /home/runner/work/feq-parse \
-               --output-file /home/runner/work/lcov_base.info
+               --zerocounters
 
       - name: Run ctests
         run: |
@@ -84,19 +81,16 @@ jobs:
           lcov --no-external \
               --capture \
               --directory /home/runner/work/feq-parse \
-              --output-file /home/runner/work/lcov_test.info
-
-          lcov --add-tracefile /home/runner/work/lcov_base.info \
-              --add-tracefile /home/runner/work/lcov_test.info \ 
               --output-file /home/runner/work/lcov.info
 
-          rm /home/runner/work/lcov_test.info /home/runner/work/lcov_base.info
-
-      - name: Upload coverage reports to Codecov
+      - name: codecov
         if: ${{ matrix.build_type == 'coverage' }}
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./lcov.info
+          flags: ctests
 
       - name: Run memory checks with Valgrind (only Linux)
         if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
