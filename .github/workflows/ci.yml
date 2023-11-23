@@ -65,7 +65,7 @@ jobs:
       - name: Initialize coverage counters
         if: ${{ matrix.build_type == 'coverage' }}
         run: |
-          apt-get update -y && apt-get install lcov
+          sudo apt-get update -y && sudo apt-get install lcov
           lcov --no-external \
                --capture \
                --initial \
