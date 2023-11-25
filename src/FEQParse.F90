@@ -20,7 +20,8 @@ USE FEQParse_FloatStacks
 
 IMPLICIT NONE
 
-  REAL(real64), PARAMETER :: pi   = 4.0_real64*atan(1.0_real64)
+  REAL(real64), PARAMETER :: pi_real64   = 4.0_real64*atan(1.0_real64)
+  REAL(real32), PARAMETER :: pi_real32   = 4.0_real32*atan(1.0_real32)
 
   INTEGER, PARAMETER, PRIVATE :: Error_Message_Length = 256
   INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
@@ -435,7 +436,7 @@ CONTAINS
             CASE( Number_Token )
   
               IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi
+                 v = pi_real32
               ELSE
                 READ( t % tokenString, * ) v
               END IF
@@ -543,7 +544,7 @@ CONTAINS
             CASE( Number_Token )
   
               IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi
+                 v = pi_real64
               ELSE
                 READ( t % tokenString, * ) v
               END IF
@@ -639,8 +640,6 @@ CONTAINS
     real(real32) :: c(lbound(x,1):ubound(x,1))
          
       CALL stack % Construct( Stack_Length, v )
-      CALL parser % Print_InfixTokens()
-      CALL parser % Print_PostfixTokens()
 
       IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
 
@@ -656,7 +655,7 @@ CONTAINS
            
             CASE( Number_Token )
               IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi
+                 v = pi_real32
               ELSE
                 READ( t % tokenString, * ) vnumber 
                 v = vnumber
@@ -770,7 +769,7 @@ CONTAINS
             CASE( Number_Token )
   
               IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi
+                 v = pi_real64
               ELSE
                 READ( t % tokenString, * ) vnumber
                 v = vnumber

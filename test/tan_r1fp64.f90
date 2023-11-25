@@ -4,7 +4,7 @@ INTEGER FUNCTION tan_r1fp64() RESULT(r)
   use iso_fortran_env
   IMPLICIT NONE
   integer, parameter :: N=1000
-  !real(real64), parameter :: pi = 4.0_real64*atan(1.0_real64)
+  real(real64), parameter :: pi = 4.0_real64*atan(1.0_real64)
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
   CHARACTER(LEN=30) :: eqChar

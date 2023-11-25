@@ -63,4 +63,7 @@ add_fortran_test_executable (
     "linear_r1fp64.f90"
     "cos_r1fp64.f90"
     "sin_r1fp64.f90"
-    "tan_r1fp64.f90")
+    "tan_r1fp64.f90"
+    "cos_r1fp32.f90"
+    "sin_r1fp32.f90"
+    "tan_r1fp32.f90")

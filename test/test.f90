@@ -19,5 +19,8 @@ program test
     include "cos_r1fp64.f90"
     include "sin_r1fp64.f90"
     include "tan_r1fp64.f90"
+    include "cos_r1fp32.f90"
+    include "sin_r1fp32.f90"
+    include "tan_r1fp32.f90"
 
 end program test
