@@ -40,7 +40,6 @@ INTEGER, PARAMETER :: Token_Length = 48
       
       PROCEDURE :: Push      => Push_TokenStack
       PROCEDURE :: Pop       => Pop_TokenStack
-      PROCEDURE :: Peek      => Peek_TokenStack
 
       PROCEDURE :: IsEmpty   => IsEmpty_TokenStack
       PROCEDURE :: TopToken
@@ -92,18 +91,6 @@ CONTAINS
 
 
   END SUBROUTINE Pop_TokenStack
-
-  SUBROUTINE Peek_TokenStack( stack, tok ) 
-    CLASS(TokenStack), INTENT(in) :: stack
-    TYPE(Token), INTENT(out)     :: tok
-    
-      IF( stack % top_index <= 0 ) THEN
-        PRINT *, "Attempt to peek from empty token stack"
-      ELSE 
-        tok % tokenString = stack % tokens( stack % top_index ) % tokenString
-        tok % tokenType   = stack % tokens( stack % top_index ) % tokenType
-      END IF
-  END SUBROUTINE Peek_TokenStack
 
   LOGICAL FUNCTION IsEmpty_TokenStack( stack )
     CLASS( TokenStack ) :: stack

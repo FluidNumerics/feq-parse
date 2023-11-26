@@ -36,7 +36,6 @@ module FEQParse_FloatStacks
 
     procedure :: Push => Push_sfp32Stack
     procedure :: Pop => Pop_sfp32Stack
-    procedure :: Peek => Peek_sfp32Stack
 
   end type sfp32Stack
 
@@ -51,7 +50,6 @@ module FEQParse_FloatStacks
 
     procedure :: Push => Push_sfp64Stack
     procedure :: Pop => Pop_sfp64Stack
-    procedure :: Peek => Peek_sfp64Stack
 
   end type sfp64Stack
 
@@ -65,7 +63,6 @@ module FEQParse_FloatStacks
 
   procedure :: Push => Push_r1fp32Stack
   procedure :: Pop => Pop_r1fp32Stack
-  procedure :: Peek => Peek_r1fp32Stack
 
 end type r1fp32Stack
 
@@ -79,7 +76,6 @@ procedure :: Destruct => Destruct_r1fp64Stack
 
 procedure :: Push => Push_r1fp64Stack
 procedure :: Pop => Pop_r1fp64Stack
-procedure :: Peek => Peek_r1fp64Stack
 
 end type r1fp64Stack
 
@@ -137,18 +133,6 @@ contains
 
   end subroutine Pop_sfp32Stack
 
-  subroutine Peek_sfp32Stack(stack,tok)
-    class(sfp32Stack),intent(in) :: stack
-    real(real32),intent(out)      :: tok
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to peek from empty token stack"
-    else
-      tok = stack % tokens(stack % top_index)
-    end if
-  end subroutine Peek_sfp32Stack
-
-
   subroutine Construct_sfp64Stack(stack,N)
     class(sfp64Stack),intent(out) :: stack
     integer,intent(in)            :: N
@@ -187,17 +171,6 @@ contains
     end if
 
   end subroutine Pop_sfp64Stack
-
-  subroutine Peek_sfp64Stack(stack,tok)
-    class(sfp64Stack),intent(in) :: stack
-    real(real64),intent(out)        :: tok
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to peek from empty token stack"
-    else
-      tok = stack % tokens(stack % top_index)
-    end if
-  end subroutine Peek_sfp64Stack
 
   ! >> Rank 1 fp32, fp64 << !
   
@@ -248,17 +221,6 @@ contains
 
   end subroutine Pop_r1fp32Stack
 
-  subroutine Peek_r1fp32Stack(stack,tok)
-    class(r1fp32Stack),intent(in) :: stack
-    real(real32),intent(out)        :: tok(:)
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to peek from empty token stack"
-    else
-      tok(:) = stack % tokens(:,stack % top_index)
-    end if
-  end subroutine Peek_r1fp32Stack
-
   subroutine Construct_r1fp64Stack(stack,N,mold)
     class(r1fp64Stack),intent(out) :: stack
     integer,intent(in)            :: N
@@ -304,16 +266,5 @@ contains
     end if
 
   end subroutine Pop_r1fp64Stack
-
-  subroutine Peek_r1fp64Stack(stack,tok)
-    class(r1fp64Stack),intent(in) :: stack
-    real(real64),intent(out)      :: tok(:)
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to peek from empty token stack"
-    else
-      tok(:) = stack % tokens(:,stack % top_index)
-    end if
-  end subroutine Peek_r1fp64Stack
 
 end module FEQParse_FloatStacks
