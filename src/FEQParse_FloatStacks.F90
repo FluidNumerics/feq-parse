@@ -19,11 +19,6 @@ module FEQParse_FloatStacks
 
   type feqparse_floatstack
     integer :: top_index
-
-    contains
-
-    procedure :: IsEmpty => IsEmpty_feqparse_floatstack
-
   end type feqparse_floatstack
 
   type, extends(feqparse_floatstack) :: sfp32Stack
@@ -81,18 +76,6 @@ end type r1fp64Stack
 
 
 contains
-
-  logical function IsEmpty_feqparse_floatstack(stack)
-    class(feqparse_floatstack) :: stack
-
-    IsEmpty_feqparse_floatstack = .false.
-
-    if (stack % top_index <= 0) then
-      IsEmpty_feqparse_floatstack = .true.
-    end if
-
-  end function IsEmpty_feqparse_floatstack
-
 
   subroutine Construct_sfp32Stack(stack,N)
     class(sfp32Stack),intent(out) :: stack
