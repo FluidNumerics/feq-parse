@@ -7,20 +7,38 @@ program test
 
     write(*,*) gaussian3d_sfp32()
     write(*,*) gaussian3d_sfp64()
-    write(*,*) tanh_with_t()
 
     contains
 
+    
     include "gaussian3d_sfp32.f90"
+    include "cos_sfp32.f90"
+    include "sin_sfp32.f90"
+    include "tan_sfp32.f90"
+    include "tanh_sfp32.f90"
+
     include "gaussian3d_sfp64.f90"
-    include "tanh_with_t.f90"
+    include "cos_sfp64.f90"
+    include "sin_sfp64.f90"
+    include "tan_sfp64.f90"
+    include "tanh_sfp64.f90"
+
     include "linear_r1fp32.f90"
     include "linear_r1fp64.f90"
-    include "cos_r1fp64.f90"
-    include "sin_r1fp64.f90"
-    include "tan_r1fp64.f90"
+
+    include "gaussian3d_r1fp32.f90"
     include "cos_r1fp32.f90"
     include "sin_r1fp32.f90"
     include "tan_r1fp32.f90"
+    include "tanh_r1fp32.f90"
+
+    include "gaussian3d_r1fp64.f90"
+    include "cos_r1fp64.f90"
+    include "sin_r1fp64.f90"
+    include "tan_r1fp64.f90"
+    include "tanh_r1fp64.f90"
+
+
+
 
 end program test
