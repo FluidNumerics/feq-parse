@@ -25,7 +25,7 @@ IMPLICIT NONE
 
   INTEGER, PARAMETER, PRIVATE :: Error_Message_Length = 256
   INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
-  INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
+  !INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
   INTEGER, PARAMETER, PRIVATE :: Max_Variable_Length  = 12 
   INTEGER, PARAMETER, PRIVATE :: Stack_Length         = 128
 
@@ -279,7 +279,7 @@ CONTAINS
           parser % inFix % top_index = parser % inFix % top_index + 1
           parser % inFix % tokens( parser % inFix % top_index ) % tokenString = ''
 
-          j = FindLastFunctionIndex( parser % inFixFormula(i:i+Max_Function_Length-1) )
+          j = FindLastFunctionIndex( parser % inFixFormula(i:i+feqparse_function_maxlength-1) )
 
           parser % inFix % tokens( parser % inFix % top_index ) % tokenString = parser % inFixFormula(i:i+j)
           parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = Function_Token 
@@ -287,7 +287,7 @@ CONTAINS
 
           ! Check to see if the next string
           IF( parser % inFixFormula(i:i) /= "(" )THEN
-            errorMsg = "Missing opening parentheses after token : "//&
+            errorMsg = "Missing opening parentheses after token : "//& 
                        TRIM( parser % inFix % tokens( parser % inFix % top_index ) % tokenString )
 
             RETURN
@@ -324,7 +324,6 @@ CONTAINS
       tokenized = .TRUE.
 
   END SUBROUTINE Tokenize
-
 
   SUBROUTINE ConvertToPostFix( parser )
     CLASS( EquationParser ), INTENT(inout) :: parser
@@ -424,7 +423,7 @@ CONTAINS
       IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
 
         f = 0.0_real32
-
+        
       ELSE
 
         DO k = 1, parser % postfix % top_index 

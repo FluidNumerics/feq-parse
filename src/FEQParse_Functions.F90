@@ -100,10 +100,9 @@ contains
 
   FUNCTION FindLastFunctionIndex( eqChar ) RESULT( j )
     CHARACTER(*) :: eqChar
-    INTEGER                        :: i, j
+    INTEGER      :: i, j
 
       DO i = 1, LEN(eqChar)
-
         IF( eqChar(i:i) == "(" )THEN
           j = i-2
           EXIT
