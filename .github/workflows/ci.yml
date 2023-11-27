@@ -18,7 +18,7 @@ on:
 jobs:
   test:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.test_type }} - ${{ github.event_name }}
+    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.build_type }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -29,8 +29,17 @@ jobs:
               os_name: linux
               compiler: gfortran-9
               shell: bash
-              test_type: regular
-              coverage: false
+              build_type: coverage
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-10
+              shell: bash
+              build_type: debug
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-11
+              shell: bash
+              build_type: debug
     defaults:
       run:
         shell: ${{ matrix.shell }}
@@ -45,19 +54,49 @@ jobs:
         with:
           update: true
           install: git base-devel mingw-w64-x86_64-toolchain
+
       - name: Show version information
         run: |
           ${{ matrix.compiler }} --version
+
       - name: Build
         run: |
           cd build
-          FC=${{ matrix.compiler }} FFLAGS="-O0 -g" cmake ../
+          FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
-      - name: Run regular function tests
-        if: ${{ matrix.test_type == 'regular' }}
+
+      - name: Initialize coverage counters
+        if: ${{ matrix.build_type == 'coverage' }}
+        run: |
+          sudo apt-get update -y && sudo apt-get install lcov
+          lcov --no-external \
+               --directory /home/runner/work/feq-parse \
+               --zerocounters
+
+      - name: Run ctests
         run: |
           cd build/test
           ctest || ctest --rerun-failed --output-on-failure
+
+      - name: Create coverage report
+        if: ${{ matrix.build_type == 'coverage' }}
+        run: |
+          
+          lcov --no-external \
+              --capture \
+              --directory /home/runner/work/feq-parse \
+              --exclude '*/test/*' \
+              --output-file /home/runner/work/lcov.info
+
+      - name: codecov
+        if: ${{ matrix.build_type == 'coverage' }}
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: /home/runner/work/lcov.info
+          flags: ctests
+
       - name: Run memory checks with Valgrind (only Linux)
         if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
         run: |
