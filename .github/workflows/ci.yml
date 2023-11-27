@@ -40,6 +40,11 @@ jobs:
               compiler: gfortran-11
               shell: bash
               build_type: debug
+            - os: ubuntu-22.04
+              os_name: linux
+              compiler: gfortran-10
+              shell: bash
+              build_type: fpm
     defaults:
       run:
         shell: ${{ matrix.shell }}
@@ -59,11 +64,20 @@ jobs:
         run: |
           ${{ matrix.compiler }} --version
 
-      - name: Build
+      - name: Build with Cmake
+        if: ${{ matrix.build_type != 'fpm' }}
         run: |
           cd build
           FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
+
+      - name: fpm tests
+        if: ${{ matrix.build_type == 'fpm' }}
+        run: |
+          wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
+          chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
+          ./fpm install
+          ./fpm run --example "*"
 
       - name: Initialize coverage counters
         if: ${{ matrix.build_type == 'coverage' }}
@@ -74,6 +88,7 @@ jobs:
                --zerocounters
 
       - name: Run ctests
+        if: ${{ matrix.build_type != 'fpm' }}
         run: |
           cd build/test
           ctest || ctest --rerun-failed --output-on-failure

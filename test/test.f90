@@ -10,7 +10,7 @@ program test
 
     contains
 
-    
+    include "abs_r1fp32.f90"
     include "abs_r1fp64.f90"
     include "abs_sfp32.f90"
     include "abs_sfp64.f90"
@@ -73,4 +73,4 @@ program test
 
 
 
-end program testinclude "abs_r1fp32.f90"
+end program test
