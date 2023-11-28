@@ -5,8 +5,94 @@ program test
 
     implicit none
 
+    write(*,*) abs_r1fp32()
+    write(*,*) abs_r1fp64()
+    write(*,*) abs_sfp32()
+    write(*,*) abs_sfp64()
+    write(*,*) acos_r1fp32()
+    write(*,*) acos_r1fp64()
+    write(*,*) acos_sfp32()
+    write(*,*) acos_sfp64()
+    write(*,*) asin_r1fp32()
+    write(*,*) asin_r1fp64()
+    write(*,*) asin_sfp32()
+    write(*,*) asin_sfp64()
+    write(*,*) atan_r1fp32()
+    write(*,*) atan_r1fp64()
+    write(*,*) atan_sfp32()
+    write(*,*) atan_sfp64()
+    write(*,*) cos_r1fp32()
+    write(*,*) cos_r1fp64()
+    write(*,*) cos_sfp32()
+    write(*,*) cos_sfp64()
+    write(*,*) gaussian3d_r1fp32()
+    write(*,*) gaussian3d_r1fp64()
     write(*,*) gaussian3d_sfp32()
     write(*,*) gaussian3d_sfp64()
+    write(*,*) linear_r1fp32()
+    write(*,*) linear_r1fp64()
+    write(*,*) log10_r1fp32()
+    write(*,*) log10_r1fp64()
+    write(*,*) log10_sfp32()
+    write(*,*) log10_sfp64()
+    write(*,*) log_r1fp32()
+    write(*,*) log_r1fp64()
+    write(*,*) log_sfp32()
+    write(*,*) log_sfp64()
+    write(*,*) random_r1fp32()
+    write(*,*) random_r1fp64()
+    write(*,*) random_sfp32()
+    write(*,*) random_sfp64()
+    write(*,*) sech_r1fp32()
+    write(*,*) sech_r1fp64()
+    write(*,*) sech_sfp32()
+    write(*,*) sech_sfp64()
+    write(*,*) sin_r1fp32()
+    write(*,*) sin_r1fp64()
+    write(*,*) sin_sfp32()
+    write(*,*) sin_sfp64()
+    write(*,*) sqrt_r1fp32()
+    write(*,*) sqrt_r1fp64()
+    write(*,*) sqrt_sfp32()
+    write(*,*) sqrt_sfp64()
+    write(*,*) tanh_r1fp32()
+    write(*,*) tanh_r1fp64()
+    write(*,*) tanh_sfp32()
+    write(*,*) tanh_sfp64()
+    write(*,*) tan_r1fp32()
+    write(*,*) tan_r1fp64()
+    write(*,*) tan_sfp32()
+    write(*,*) tan_sfp64()
+    write(*,*) abs_r2fp32()
+    write(*,*) abs_r2fp64()
+    write(*,*) acos_r2fp32()
+    write(*,*) acos_r2fp64()
+    write(*,*) asin_r2fp32()
+    write(*,*) asin_r2fp64()
+    write(*,*) atan_r2fp32()
+    write(*,*) atan_r2fp64()
+    write(*,*) cos_r2fp32()
+    write(*,*) cos_r2fp64()
+    write(*,*) gaussian3d_r2fp32()
+    write(*,*) gaussian3d_r2fp64()
+    write(*,*) linear_r2fp32()
+    write(*,*) linear_r2fp64()
+    write(*,*) log10_r2fp32()
+    write(*,*) log10_r2fp64()
+    write(*,*) log_r2fp32()
+    write(*,*) log_r2fp64()
+    write(*,*) random_r2fp32()
+    write(*,*) random_r2fp64()
+    write(*,*) sech_r2fp32()
+    write(*,*) sech_r2fp64()
+    write(*,*) sin_r2fp32()
+    write(*,*) sin_r2fp64()
+    write(*,*) sqrt_r2fp32()
+    write(*,*) sqrt_r2fp64()
+    write(*,*) tanh_r2fp32()
+    write(*,*) tanh_r2fp64()
+    write(*,*) tan_r2fp32()
+    write(*,*) tan_r2fp64()
 
     contains
 
@@ -68,9 +154,35 @@ program test
     include "tan_r1fp64.f90"
     include "tan_sfp32.f90"
     include "tan_sfp64.f90"
-    
-
-
-
+    include "abs_r2fp32.f90"
+    include "abs_r2fp64.f90"
+    include "acos_r2fp32.f90"
+    include "acos_r2fp64.f90"
+    include "asin_r2fp32.f90"
+    include "asin_r2fp64.f90"
+    include "atan_r2fp32.f90"
+    include "atan_r2fp64.f90"
+    include "cos_r2fp32.f90"
+    include "cos_r2fp64.f90"
+    include "gaussian3d_r2fp32.f90"
+    include "gaussian3d_r2fp64.f90"
+    include "linear_r2fp32.f90"
+    include "linear_r2fp64.f90"
+    include "log10_r2fp32.f90"
+    include "log10_r2fp64.f90"
+    include "log_r2fp32.f90"
+    include "log_r2fp64.f90"
+    include "random_r2fp32.f90"
+    include "random_r2fp64.f90"
+    include "sech_r2fp32.f90"
+    include "sech_r2fp64.f90"
+    include "sin_r2fp32.f90"
+    include "sin_r2fp64.f90"
+    include "sqrt_r2fp32.f90"
+    include "sqrt_r2fp64.f90"
+    include "tanh_r2fp32.f90"
+    include "tanh_r2fp64.f90"
+    include "tan_r2fp32.f90"
+    include "tan_r2fp64.f90"
 
 end program test
