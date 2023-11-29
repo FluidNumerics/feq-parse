@@ -7,7 +7,7 @@ INTEGER FUNCTION sin_r2fp32() RESULT(r)
   real(real32), parameter :: pi = 4.0_real32*atan(1.0_real32)
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=1024) :: eqChar
   REAL(real32) :: x(1:N,1:N,1:3)
   REAL(real32) :: feval(1:N,1:N)
   REAL(real32) :: fexact(1:N,1:N)
@@ -17,7 +17,7 @@ INTEGER FUNCTION sin_r2fp32() RESULT(r)
     independentVars = (/ 'x', 'y', 'z' /)
 
     ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \sin( 2.0*pi*x )'
+    eqChar = 'f = \sin( 2.0*pi*x )*\sin( 2.0*pi*y )'
 
     ! Create the EquationParser object
     f = EquationParser(eqChar, independentVars)
@@ -27,7 +27,7 @@ INTEGER FUNCTION sin_r2fp32() RESULT(r)
       do i = 1,N
         x(i,j,1) = -1.0_real32 + (2.0_real32)/REAL(N,real32)*REAL(i-1,real32)
         x(i,j,2) = -1.0_real32 + (2.0_real32)/REAL(N,real32)*REAL(j-1,real32)
-      fexact(i,j) = sin(2.0_real32*pi*x(i,j,1))
+      fexact(i,j) = sin(2.0_real32*pi*x(i,j,1))*sin(2.0_real32*pi*x(i,j,2))
       enddo
     enddo
 
