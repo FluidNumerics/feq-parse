@@ -5,8 +5,9 @@ program scalar_function_product
   implicit none
   type(EquationParser) :: f
   character(LEN=1),dimension(2) :: independentVars
-  character(LEN=30) :: eqChar
+  character(LEN=2048) :: eqChar
   real :: x(2)
+  real :: feval
 
   ! Specify the independent variables
   independentVars = (/'x', 'y'/)
@@ -19,7 +20,9 @@ program scalar_function_product
 
   ! Evaluate the equation
   x = 0.5
-  print*, f % evaluate(x)
+  print*, "Getting ready to evaluate"
+  feval = f % evaluate(x)
+  print*, feval
 
   ! Clean up memory
   call f % Destruct()
