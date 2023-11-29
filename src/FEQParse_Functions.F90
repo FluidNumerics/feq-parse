@@ -1,5 +1,5 @@
 ! FEQParse.F03
-! 
+!
 ! Copyright 2020 Fluid Numerics LLC
 ! All rights reserved.
 !
@@ -13,12 +13,12 @@
 
 module FEQParse_Functions
 
-use ISO_FORTRAN_ENV
+  use iso_fortran_env
 
-implicit none
+  implicit none
 
-  integer, parameter, private :: nFunctions_default = 14
-  integer, parameter, public :: feqparse_function_maxlength = 10
+  integer,parameter,private :: nFunctions_default = 14
+  integer,parameter,public :: feqparse_function_maxlength = 10
 
   type FEQParse_Function
     character(feqparse_function_maxlength) :: str
@@ -26,35 +26,38 @@ implicit none
 
   type FEQParse_FunctionHandler
     integer :: nfunctions
-    type(FEQParse_Function), allocatable :: functions(:)
+    type(FEQParse_Function),allocatable :: functions(:)
 
-    contains
-    procedure, public :: Destruct => Destruct_FEQParse_FunctionHandler
-    procedure, public :: IsFunction
-    generic, public :: f_of_x => f_of_x_sfp32, &
-                                 f_of_x_r1fp32, &
-                                 f_of_x_sfp64, &
-                                 f_of_x_r1fp64
+  contains
+    procedure,public :: Destruct => Destruct_FEQParse_FunctionHandler
+    procedure,public :: IsFunction
+    generic,public :: f_of_x => f_of_x_sfp32, &
+      f_of_x_r1fp32, &
+      f_of_x_r2fp32, &
+      f_of_x_sfp64, &
+      f_of_x_r1fp64, &
+      f_of_x_r2fp64
 
-    procedure, private :: f_of_x_sfp32
-    procedure, private :: f_of_x_r1fp32
-    procedure, private :: f_of_x_sfp64
-    procedure, private :: f_of_x_r1fp64
+    procedure,private :: f_of_x_sfp32
+    procedure,private :: f_of_x_r1fp32
+    procedure,private :: f_of_x_r2fp32
+    procedure,private :: f_of_x_sfp64
+    procedure,private :: f_of_x_r1fp64
+    procedure,private :: f_of_x_r2fp64
 
   end type FEQParse_FunctionHandler
 
-  
   interface FEQParse_FunctionHandler
-  procedure Construct_FEQParse_FunctionHandler
+    procedure Construct_FEQParse_FunctionHandler
   end interface FEQParse_FunctionHandler
 
 contains
 
-  function Construct_FEQParse_FunctionHandler() result( functionhandler_obj )
+  function Construct_FEQParse_FunctionHandler() result(functionhandler_obj)
     type(FEQParse_FunctionHandler) :: functionhandler_obj
 
     functionhandler_obj % nfunctions = nFunctions_default
-    allocate( functionhandler_obj % functions(1:nFunctions_default))
+    allocate (functionhandler_obj % functions(1:nFunctions_default))
     functionhandler_obj % functions(1) % str = "\cos"
     functionhandler_obj % functions(2) % str = "\sin"
     functionhandler_obj % functions(3) % str = "\tan"
@@ -72,344 +75,489 @@ contains
 
   end function Construct_FEQParse_FunctionHandler
 
-  subroutine Destruct_FEQParse_FunctionHandler( functionhandler_obj )
-    class(FEQParse_FunctionHandler), intent(inout) :: functionhandler_obj
+  subroutine Destruct_FEQParse_FunctionHandler(functionhandler_obj)
+    class(FEQParse_FunctionHandler),intent(inout) :: functionhandler_obj
 
-    deallocate( functionhandler_obj % functions )
+    deallocate (functionhandler_obj % functions)
     functionhandler_obj % nfunctions = 0
 
   end subroutine Destruct_FEQParse_FunctionHandler
 
-
-  LOGICAL FUNCTION IsFunction( functionhandler_obj, eqChar )
+  logical function IsFunction(functionhandler_obj,eqChar)
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-    CHARACTER(*) :: eqChar
+    character(*) :: eqChar
     ! Local
-    INTEGER :: i
+    integer :: i
 
-      IsFunction = .FALSE.
-      DO i = 1, functionhandler_obj %nFunctions
+    IsFunction = .false.
+    do i = 1,functionhandler_obj % nFunctions
 
-        IF( eqChar(1:1) == "\" ) THEN
-          IsFunction = .TRUE.
-        ENDIF
+      if (eqChar(1:1) == "\") then
+        IsFunction = .true.
+      end if
 
-      ENDDO
+    end do
 
-  END FUNCTION IsFunction
+  end function IsFunction
 
-  FUNCTION FindLastFunctionIndex( eqChar ) RESULT( j )
-    CHARACTER(*) :: eqChar
-    INTEGER      :: i, j
+  function FindLastFunctionIndex(eqChar) result(j)
+    character(*) :: eqChar
+    integer      :: i,j
 
-      DO i = 1, LEN(eqChar)
-        IF( eqChar(i:i) == "(" )THEN
-          j = i-2
-          EXIT
-        ENDIF
+    do i = 1,len(eqChar)
+      if (eqChar(i:i) == "(") then
+        j = i - 2
+        exit
+      end if
 
-      ENDDO
-         
-  END FUNCTION FindLastFunctionIndex
+    end do
 
-  subroutine f_of_x_sfp32( functionhandler_obj, func, x, fx )
+  end function FindLastFunctionIndex
+
+  subroutine f_of_x_sfp32(functionhandler_obj,func,x,fx)
     !! Evaluates function for scalar fp32 input and output
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-    CHARACTER(*), intent(in) :: func
-    REAL(real32), intent(in) :: x
-    real(real32), intent(out) :: fx
+    character(*),intent(in) :: func
+    real(real32),intent(in) :: x
+    real(real32),intent(out) :: fx
     ! Local
-    REAL(real32)   :: r
+    real(real32)   :: r
 
-      IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
 
-        fx = cos( x )
+      fx = cos(x)
 
-      ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
 
-        fx = sin( x )
+      fx = sin(x)
 
-      ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
 
-        fx = tan( x )
+      fx = tan(x)
 
-      ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
 
-        fx = tanh( x )
+      fx = tanh(x)
 
-      ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
 
-        fx = 2.0_real32/( exp(x) + exp(-x) )
+      fx = 2.0_real32/(exp(x) + exp(-x))
 
-      ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
 
-        fx = sqrt( x )
+      fx = sqrt(x)
 
-      ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
 
-        fx = abs( x )
+      fx = abs(x)
 
-      ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
 
-        fx = exp( x )
+      fx = exp(x)
 
-      ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
 
-        fx = log( x )
+      fx = log(x)
 
-      ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
 
-        fx = log10( x )
+      fx = log10(x)
 
-      ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
 
-        fx = acos( x )
+      fx = acos(x)
 
-      ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
 
-        fx = asin( x )
+      fx = asin(x)
 
-      ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
 
-        fx = atan( x )
+      fx = atan(x)
 
-      ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
 
-        CALL RANDOM_NUMBER( r )
-        fx = r*x
+      call random_number(r)
+      fx = r*x
 
-      ELSE
- 
-        fx = 0.0_real32
+    else
 
-      ENDIF
+      fx = 0.0_real32
 
+    end if
 
   end subroutine f_of_x_sfp32
 
-  subroutine f_of_x_r1fp32( functionhandler_obj, func, x, fx )
+  subroutine f_of_x_r1fp32(functionhandler_obj,func,x,fx)
     !! Evaluates function for rank-1 array fp32 input and output
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-    CHARACTER(*), intent(in)  :: func
-    REAL(real32), intent(in)  :: x(:)
-    real(real32), intent(out) :: fx(:)
+    character(*),intent(in)  :: func
+    real(real32),intent(in)  :: x(:)
+    real(real32),intent(out) :: fx(:)
     ! Local
-    REAL(real32)   :: r
+    real(real32)   :: r
     integer :: i
 
-      IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
-        
-        fx = cos( x )
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
 
-      ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
+      fx = cos(x)
 
-        fx = sin( x )
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
 
-      ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
+      fx = sin(x)
 
-        fx = tan( x )
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
 
-      ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
+      fx = tan(x)
 
-        fx = tanh( x )
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
 
-      ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
+      fx = tanh(x)
 
-        fx = 2.0_real32/( exp(x) + exp(-x) )
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
 
-      ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
+      fx = 2.0_real32/(exp(x) + exp(-x))
 
-        fx = sqrt( x )
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
 
-      ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
+      fx = sqrt(x)
 
-        fx = abs( x )
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
 
-      ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
+      fx = abs(x)
 
-        fx = exp( x )
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
 
-      ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
+      fx = exp(x)
 
-        fx = log( x )
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
 
-      ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
+      fx = log(x)
 
-        fx = log10( x )
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
 
-      ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
+      fx = log10(x)
 
-        fx = acos( x )
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
 
-      ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
+      fx = acos(x)
 
-        fx = asin( x )
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
 
-      ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
+      fx = asin(x)
 
-        fx = atan( x )
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
 
-      ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
+      fx = atan(x)
 
-        CALL RANDOM_NUMBER( r )
-        fx = r*x
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
 
-      ELSE
- 
-        fx = 0.0_real32
+      call random_number(r)
+      fx = r*x
 
-      ENDIF
+    else
+
+      fx = 0.0_real32
+
+    end if
 
   end subroutine f_of_x_r1fp32
 
-  subroutine f_of_x_sfp64( functionhandler_obj, func, x, fx )
-  !! Evaluates function for scalar fp64 input and output
+  subroutine f_of_x_r2fp32(functionhandler_obj,func,x,fx)
+    !! Evaluates function for rank-1 array fp32 input and output
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-  CHARACTER(*), intent(in) :: func
-  REAL(real64), intent(in)  :: x
-  real(real64), intent(out) :: fx
-  ! Local
-  REAL(real64)   :: r
+    character(*),intent(in)  :: func
+    real(real32),intent(in)  :: x(:,:)
+    real(real32),intent(out) :: fx(:,:)
+    ! Local
+    real(real32)   :: r
+    integer :: i
 
-    IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
 
-      fx = cos( x )
+      fx = cos(x)
 
-    ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
 
-      fx = sin( x )
+      fx = sin(x)
 
-    ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
 
-      fx = tan( x )
+      fx = tan(x)
 
-    ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
 
-      fx = tanh( x )
+      fx = tanh(x)
 
-    ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
 
-      fx = 2.0_real64/( exp(x) + exp(-x) )
+      fx = 2.0_real32/(exp(x) + exp(-x))
 
-    ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
 
-      fx = sqrt( x )
+      fx = sqrt(x)
 
-    ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
 
-      fx = abs( x )
+      fx = abs(x)
 
-    ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
 
-      fx = exp( x )
+      fx = exp(x)
 
-    ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
 
-      fx = log( x )
+      fx = log(x)
 
-    ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
 
-      fx = log10( x )
+      fx = log10(x)
 
-    ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
 
-      fx = acos( x )
+      fx = acos(x)
 
-    ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
 
-      fx = asin( x )
+      fx = asin(x)
 
-    ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
 
-      fx = atan( x )
+      fx = atan(x)
 
-    ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
 
-      CALL RANDOM_NUMBER( r )
+      call random_number(r)
       fx = r*x
 
-    ELSE
+    else
+
+      fx = 0.0_real32
+
+    end if
+
+  end subroutine f_of_x_r2fp32
+
+  subroutine f_of_x_sfp64(functionhandler_obj,func,x,fx)
+  !! Evaluates function for scalar fp64 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in) :: func
+    real(real64),intent(in)  :: x
+    real(real64),intent(out) :: fx
+    ! Local
+    real(real64)   :: r
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real64/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
 
       fx = 0.0_real64
 
-    ENDIF
-
+    end if
 
   end subroutine f_of_x_sfp64
 
-  subroutine f_of_x_r1fp64( functionhandler_obj, func, x, fx )
+  subroutine f_of_x_r1fp64(functionhandler_obj,func,x,fx)
     !! Evaluates function for scalar fp64 input and output
     class(FEQParse_FunctionHandler) :: functionhandler_obj
-    CHARACTER(*), intent(in) :: func
-    REAL(real64), intent(in)  :: x(:)
-    real(real64), intent(out) :: fx(:)
+    character(*),intent(in) :: func
+    real(real64),intent(in)  :: x(:)
+    real(real64),intent(out) :: fx(:)
     ! Local
-    REAL(real64)   :: r
-  
-      IF( TRIM( func ) == "\cos" .OR. TRIM( func ) == "\COS" )THEN
-  
-        fx = cos( x )
-  
-      ELSEIF( TRIM( func ) == "\sin" .OR. TRIM( func ) == "\SIN" )THEN
-  
-        fx = sin( x )
-  
-      ELSEIF( TRIM( func ) == "\tan" .OR. TRIM( func ) == "\TAN" )THEN
-  
-        fx = tan( x )
-  
-      ELSEIF( TRIM( func ) == "\tanh" .OR. TRIM( func ) == "\TANH" )THEN
-  
-        fx = tanh( x )
-  
-      ELSEIF( TRIM( func ) == "\sech" .OR. TRIM( func ) == "\SECH" )THEN
-  
-        fx = 2.0_real64/( exp(x) + exp(-x) )
-  
-      ELSEIF( TRIM( func ) == "\sqrt" .OR. TRIM( func ) == "\SQRT" )THEN
-  
-        fx = sqrt( x )
-  
-      ELSEIF( TRIM( func ) == "\abs" .OR. TRIM( func ) == "\ABS" )THEN
-  
-        fx = abs( x )
-  
-      ELSEIF( TRIM( func ) == "\exp" .OR. TRIM( func ) == "\EXP" )THEN
-  
-        fx = exp( x )
-  
-      ELSEIF( TRIM( func ) == "\ln" .OR. TRIM( func ) == "\LN" )THEN
-  
-        fx = log( x )
-  
-      ELSEIF( TRIM( func ) == "\log" .OR. TRIM( func ) == "\LOG" )THEN
-  
-        fx = log10( x )
-  
-      ELSEIF( TRIM( func ) == "\acos" .OR. TRIM( func ) == "\ACOS" )THEN
-  
-        fx = acos( x )
-  
-      ELSEIF( TRIM( func ) == "\asin" .OR. TRIM( func ) == "\ASIN" )THEN
-  
-        fx = asin( x )
-  
-      ELSEIF( TRIM( func ) == "\atan" .OR. TRIM( func ) == "\ATAN" )THEN
-  
-        fx = atan( x )
-  
-      ELSEIF( TRIM( func ) == "\rand" .OR. TRIM( func ) == "\RAND" )THEN
-  
-        CALL RANDOM_NUMBER( r )
-        fx = r*x
-  
-      ELSE
-  
-        fx = 0.0_real64
-  
-      ENDIF
-  
-  
-    end subroutine f_of_x_r1fp64
+    real(real64)   :: r
 
-END MODULE FEQParse_Functions
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real64/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real64
+
+    end if
+
+  end subroutine f_of_x_r1fp64
+
+  subroutine f_of_x_r2fp64(functionhandler_obj,func,x,fx)
+    !! Evaluates function for scalar fp64 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in) :: func
+    real(real64),intent(in)  :: x(:,:)
+    real(real64),intent(out) :: fx(:,:)
+    ! Local
+    real(real64)   :: r
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real64/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real64
+
+    end if
+
+  end subroutine f_of_x_r2fp64
+
+end module FEQParse_Functions

@@ -1,5 +1,5 @@
 ! FEQParse.F03
-! 
+!
 ! Copyright 2020 Fluid Numerics LLC
 ! All rights reserved.
 !
@@ -11,968 +11,1187 @@
 !
 ! //////////////////////////////////////////////////////////////////////////////////////////////// !
 
-MODULE FEQParse
+module FEQParse
 
-USE ISO_FORTRAN_ENV
-USE FEQParse_Functions
-USE FEQParse_TokenStack
-USE FEQParse_FloatStacks
+  use iso_fortran_env
+  use FEQParse_Functions
+  use FEQParse_TokenStack
+  use FEQParse_FloatStacks
 
-IMPLICIT NONE
+  implicit none
 
-  REAL(real64), PARAMETER :: pi_real64   = 4.0_real64*atan(1.0_real64)
-  REAL(real32), PARAMETER :: pi_real32   = 4.0_real32*atan(1.0_real32)
+  real(real64),parameter :: pi_real64 = 4.0_real64*atan(1.0_real64)
+  real(real32),parameter :: pi_real32 = 4.0_real32*atan(1.0_real32)
 
-  INTEGER, PARAMETER, PRIVATE :: Error_Message_Length = 256
-  INTEGER, PARAMETER, PRIVATE :: Max_Equation_Length  = 1024 
+  integer,parameter,private :: Error_Message_Length = 256
+  integer,parameter,private :: Max_Equation_Length = 1024
   !INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
-  INTEGER, PARAMETER, PRIVATE :: Max_Variable_Length  = 12 
-  INTEGER, PARAMETER, PRIVATE :: Stack_Length         = 128
+  integer,parameter,private :: Max_Variable_Length = 12
+  integer,parameter,private :: Stack_Length = 128
 
-  ! Token types 
-  INTEGER, PARAMETER, PRIVATE :: None_Token               = 0
-  INTEGER, PARAMETER, PRIVATE :: Number_Token             = 1
-  INTEGER, PARAMETER, PRIVATE :: Variable_Token           = 2
-  INTEGER, PARAMETER, PRIVATE :: Operator_Token           = 3
-  INTEGER, PARAMETER, PRIVATE :: Function_Token           = 4
-  INTEGER, PARAMETER, PRIVATE :: OpeningParentheses_Token = 5
-  INTEGER, PARAMETER, PRIVATE :: ClosingParentheses_Token = 6
-  INTEGER, PARAMETER, PRIVATE :: Monadic_Token            = 7
+  ! Token types
+  integer,parameter,private :: None_Token = 0
+  integer,parameter,private :: Number_Token = 1
+  integer,parameter,private :: Variable_Token = 2
+  integer,parameter,private :: Operator_Token = 3
+  integer,parameter,private :: Function_Token = 4
+  integer,parameter,private :: OpeningParentheses_Token = 5
+  integer,parameter,private :: ClosingParentheses_Token = 6
+  integer,parameter,private :: Monadic_Token = 7
 
-  INTEGER, PARAMETER, PRIVATE :: nSeparators = 7
+  integer,parameter,private :: nSeparators = 7
 
-  CHARACTER(1), DIMENSION(7), PRIVATE  :: separators = (/ "+", "-", "*", "/", "(", ")", "^" /) 
-  CHARACTER(1), DIMENSION(5), PRIVATE  :: operators  = (/ "+", "-", "*", "/", "^" /) 
-  CHARACTER(1), DIMENSION(10), PRIVATE :: numbers    = (/ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" /)
+  character(1),dimension(7),private  :: separators = (/"+","-","*","/","(",")","^"/)
+  character(1),dimension(5),private  :: operators = (/"+","-","*","/","^"/)
+  character(1),dimension(10),private :: numbers = (/"0","1","2","3","4","5","6","7","8","9"/)
   ! Private Types !
 
- 
-  PRIVATE :: IsNumber, IsVariable, IsOperator, IsSeparator
+  private :: IsNumber,IsVariable,IsOperator,IsSeparator
 
+  type EquationParser
+    character(Max_Equation_Length)     :: equation
+    character(Max_Variable_Length)     :: variableName
+    character(Max_Equation_Length)     :: inFixFormula
+    integer                            :: nIndepVars
+    character(LEN=1),allocatable      :: indepVars(:)
+    type(TokenStack)                 :: inFix
+    type(TokenStack)                 :: postFix
+    type(FEQParse_FunctionHandler)   :: func
 
-  TYPE EquationParser
-    CHARACTER(Max_Equation_Length)     :: equation
-    CHARACTER(Max_Variable_Length)     :: variableName
-    CHARACTER(Max_Equation_Length)     :: inFixFormula
-    INTEGER                            :: nIndepVars
-    CHARACTER(LEN=1), ALLOCATABLE      :: indepVars(:) 
-    TYPE( TokenStack )                 :: inFix
-    TYPE( TokenStack )                 :: postFix
-    TYPE( FEQParse_FunctionHandler )   :: func
+  contains
 
-    CONTAINS
+    procedure :: Destruct => Destruct_EquationParser
+    procedure :: CleanEquation
+    procedure :: Tokenize
+    procedure :: ConvertToPostfix
 
-      PROCEDURE :: Destruct => Destruct_EquationParser
-      PROCEDURE :: CleanEquation
-      PROCEDURE :: Tokenize
-      PROCEDURE :: ConvertToPostfix
+    generic :: Evaluate => Evaluate_sfp32,Evaluate_sfp64, &
+      Evaluate_r1fp32,Evaluate_r1fp64,&
+      Evaluate_r2fp32,Evaluate_r2fp64
+    procedure,private :: Evaluate_sfp32,Evaluate_sfp64
+    procedure,private :: Evaluate_r1fp32,Evaluate_r1fp64
+    procedure,private :: Evaluate_r2fp32,Evaluate_r2fp64
 
-      GENERIC :: Evaluate => Evaluate_sfp32, Evaluate_sfp64, &
-                             Evaluate_r1fp32, Evaluate_r1fp64
-      PROCEDURE, PRIVATE :: Evaluate_sfp32, Evaluate_sfp64
-      PROCEDURE, PRIVATE :: Evaluate_r1fp32, Evaluate_r1fp64
+    procedure :: Print_InFixTokens
+    procedure :: Print_PostFixTokens
 
-      PROCEDURE :: Print_InFixTokens
-      PROCEDURE :: Print_PostFixTokens
+    procedure,private :: Priority
 
-      procedure, private :: Priority
+  end type EquationParser
 
-  END TYPE EquationParser
+  interface EquationParser
+    procedure Construct_EquationParser
+  end interface EquationParser
 
-  INTERFACE EquationParser
-    PROCEDURE Construct_EquationParser
-  END INTERFACE EquationParser
- 
+contains
 
-CONTAINS
-
-   FUNCTION Construct_EquationParser( equation, indepVars ) RESULT( parser )
-    TYPE( EquationParser ) :: parser
-    CHARACTER(*)           :: equation
-    CHARACTER(1)           :: indepVars(1:)    
+  function Construct_EquationParser(equation,indepVars) result(parser)
+    type(EquationParser) :: parser
+    character(*)           :: equation
+    character(1)           :: indepVars(1:)
     ! Local
-    INTEGER :: i
-    CHARACTER(Error_Message_Length) :: errorMsg
-    LOGICAL                         :: equationIsClean, tokenized, success
-    INTEGER                         :: nIndepVars
+    integer :: i
+    character(Error_Message_Length) :: errorMsg
+    logical                         :: equationIsClean,tokenized,success
+    integer                         :: nIndepVars
 
-      parser % func = FEQParse_FunctionHandler( )
+    parser % func = FEQParse_FunctionHandler()
 
-      nIndepVars = SIZE(indepVars)
-      ALLOCATE( parser % indepVars(1:nIndepVars) )
-      parser % nIndepVars = nIndepVars
-      DO i = 1, nIndepVars
-        parser % indepVars(i) = indepVars(i)
-      ENDDO
+    nIndepVars = size(indepVars)
+    allocate (parser % indepVars(1:nIndepVars))
+    parser % nIndepVars = nIndepVars
+    do i = 1,nIndepVars
+      parser % indepVars(i) = indepVars(i)
+    end do
 
-      parser % inFixFormula = " "
-      parser % equation = equation
-      errorMsg = " "
+    parser % inFixFormula = " "
+    parser % equation = equation
+    errorMsg = " "
 
-      CALL parser % CleanEquation( equationIsClean, errorMsg )
+    call parser % CleanEquation(equationIsClean,errorMsg)
 
-      IF( equationIsClean )THEN
+    if (equationIsClean) then
 
-        CALL parser % Tokenize( tokenized, errorMsg )
+      call parser % Tokenize(tokenized,errorMsg)
 
-        IF( tokenized )THEN
+      if (tokenized) then
 
-          CALL parser % ConvertToPostFix( )
-        
-        ELSE
+        call parser % ConvertToPostFix()
 
-           PRINT*, TRIM( errorMsg )
-           success = .false.
+      else
 
-        ENDIF
+        print *, trim(errorMsg)
+        success = .false.
 
-      END IF
-         
-  END FUNCTION Construct_EquationParser
+      end if
 
-  SUBROUTINE Destruct_EquationParser( parser )
-    IMPLICIT NONE
-    CLASS(EquationParser), INTENT(inout) :: parser
+    end if
 
-      DEALLOCATE( parser % indepVars )
-      parser % inFixFormula = ""
-      parser % equation = ""
+  end function Construct_EquationParser
 
-      CALL parser % inFix % Destruct()
-      CALL parser % postFix % Destruct()
-      call parser % func % Destruct()
+  subroutine Destruct_EquationParser(parser)
+    implicit none
+    class(EquationParser),intent(inout) :: parser
 
-  END SUBROUTINE Destruct_EquationParser
+    deallocate (parser % indepVars)
+    parser % inFixFormula = ""
+    parser % equation = ""
 
-  SUBROUTINE CleanEquation( parser, equationCleaned, errorMsg )
-    CLASS( EquationParser ), INTENT(inout)       :: parser
-    LOGICAL, INTENT(out)                         :: equationCleaned
-    CHARACTER(Error_Message_Length), INTENT(out) :: errorMsg
+    call parser % inFix % Destruct()
+    call parser % postFix % Destruct()
+    call parser % func % Destruct()
+
+  end subroutine Destruct_EquationParser
+
+  subroutine CleanEquation(parser,equationCleaned,errorMsg)
+    class(EquationParser),intent(inout)       :: parser
+    logical,intent(out)                         :: equationCleaned
+    character(Error_Message_Length),intent(out) :: errorMsg
     ! Local
-    INTEGER :: nChar, equalSignLoc, j, i
-   
+    integer :: nChar,equalSignLoc,j,i
 
-      equationCleaned = .FALSE.
-      parser % variableName    = '#noname'
+    equationCleaned = .false.
+    parser % variableName = '#noname'
 
-      nChar = LEN_TRIM( parser % equation )
-      equalSignLoc = INDEX( parser % equation, "=" )
+    nChar = len_trim(parser % equation)
+    equalSignLoc = index(parser % equation,"=")
 
-      IF( equalSignLoc == 0 )THEN
-        errorMsg = "No equal sign found"
-        RETURN
-      ENDIF
+    if (equalSignLoc == 0) then
+      errorMsg = "No equal sign found"
+      return
+    end if
 
-      parser % variableName = TRIM( parser % equation(1:equalSignLoc-1) )
+    parser % variableName = trim(parser % equation(1:equalSignLoc - 1))
 
-      ! Grab the formula to the right of the equal sign and left adjust the formula
-      parser % inFixFormula = parser % equation(equalSignLoc+1:)
-      parser % inFixFormula = ADJUSTL(parser % inFixFormula)
-  
+    ! Grab the formula to the right of the equal sign and left adjust the formula
+    parser % inFixFormula = parser % equation(equalSignLoc + 1:)
+    parser % inFixFormula = adjustl(parser % inFixFormula)
 
-      ! Remove any spaces
-      j = 1
-      DO i = 1, LEN_TRIM(parser % inFixFormula)
-        IF( parser % inFixFormula(i:i) /= " " )THEN
-          parser % inFixFormula(j:j) = parser % inFixFormula(i:i)
-          j = j + 1
-        ENDIF
-      ENDDO
+    ! Remove any spaces
+    j = 1
+    do i = 1,len_trim(parser % inFixFormula)
+      if (parser % inFixFormula(i:i) /= " ") then
+        parser % inFixFormula(j:j) = parser % inFixFormula(i:i)
+        j = j + 1
+      end if
+    end do
 
-      parser % inFixFormula(j:Max_Equation_Length) = " "
-  
-      equationCleaned = .TRUE.
+    parser % inFixFormula(j:Max_Equation_Length) = " "
 
-  END SUBROUTINE CleanEquation
+    equationCleaned = .true.
 
-  SUBROUTINE Tokenize( parser, tokenized, errorMsg )
-    CLASS( EquationParser ), INTENT(inout) :: parser
-    LOGICAL, INTENT(out)                   :: tokenized
-    CHARACTER(Error_Message_Length)        :: errorMsg
+  end subroutine CleanEquation
+
+  subroutine Tokenize(parser,tokenized,errorMsg)
+    class(EquationParser),intent(inout) :: parser
+    logical,intent(out)                   :: tokenized
+    character(Error_Message_Length)        :: errorMsg
     ! Local
-    INTEGER :: i, j 
- 
+    integer :: i,j
 
-      tokenized = .FALSE.
-      errorMsg  = " "
+    tokenized = .false.
+    errorMsg = " "
 
-      CALL parser % infix % Construct( Stack_Length )
+    call parser % infix % Construct(Stack_Length)
 
-      i = 1
-      DO WHILE( parser % inFixFormula(i:i) /= " " )
+    i = 1
+    do while (parser % inFixFormula(i:i) /= " ")
 
-        IF( IsVariable( parser % inFixFormula(i:i), parser % indepVars, parser % nIndepVars ) )THEN
-          
-          parser % inFix % top_index = parser % inFix % top_index + 1
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenString = parser % inFixFormula(i:i)
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = Variable_Token 
-          i = i+1
+      if (IsVariable(parser % inFixFormula(i:i),parser % indepVars,parser % nIndepVars)) then
 
-          ! Next item must be an operator, closing parentheses, or end of equation
+        parser % inFix % top_index = parser % inFix % top_index + 1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i)
+        parser % inFix % tokens(parser % inFix % top_index) % tokenType = Variable_Token
+        i = i + 1
 
-          IF( .NOT. IsOperator( parser % infixFormula(i:i) ) .AND. &
-              parser % inFixFormula(i:i) /= ")" .AND. parser % inFixFormula(i:i) /= " "  )THEN
+        ! Next item must be an operator, closing parentheses, or end of equation
 
-            errorMsg = "Missing operator or closing parentheses after token : "//&
-                       TRIM( parser % inFix % tokens( parser % inFix % top_index ) % tokenString )
-            RETURN
+        if (.not. IsOperator(parser % infixFormula(i:i)) .and. &
+            parser % inFixFormula(i:i) /= ")" .and. parser % inFixFormula(i:i) /= " ") then
 
-          ENDIF
+          errorMsg = "Missing operator or closing parentheses after token : "// &
+                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
+          return
 
-        ELSEIF( IsNumber( parser % inFixFormula(i:i) ) )THEN
+        end if
 
-          parser % inFix % top_index = parser % inFix % top_index + 1
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenString = ''
+      elseif (IsNumber(parser % inFixFormula(i:i))) then
 
+        parser % inFix % top_index = parser % inFix % top_index + 1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = ''
 
-          IF( parser % inFixFormula(i:i) == 'p' .OR. parser % inFixFormula(i:i) == 'P' )THEN
+        if (parser % inFixFormula(i:i) == 'p' .or. parser % inFixFormula(i:i) == 'P') then
 
-            ! Conditional for using built in "pi" definition
-            parser % inFix % tokens( parser % inFix % top_index ) % tokenString(1:2) = parser % inFixFormula(i:i+1)
-            j = 2
+          ! Conditional for using built in "pi" definition
+          parser % inFix % tokens(parser % inFix % top_index) % tokenString(1:2) = parser % inFixFormula(i:i + 1)
+          j = 2
 
-          ELSE
+        else
 
-            j = 0
-            DO WHILE( IsNumber( parser % inFixFormula(i+j:i+j) ) )
+          j = 0
+          do while (IsNumber(parser % inFixFormula(i + j:i + j)))
 
-              parser % inFix % tokens( parser % inFix % top_index ) % tokenString(j+1:j+1) = parser % inFixFormula(i+j:i+j) 
-              j = j+1
+     parser % inFix % tokens(parser % inFix % top_index) % tokenString(j + 1:j + 1) = parser % inFixFormula(i + j:i + j)
+            j = j + 1
 
-            ENDDO
+          end do
 
-          ENDIF
+        end if
 
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenType = Number_Token
-        
-          i = i + j
+        parser % inFix % tokens(parser % inFix % top_index) % tokenType = Number_Token
 
-          ! Next item must be an operator or a closing parentheses
-          IF( .NOT. IsOperator( parser % infixFormula(i:i) ) .AND. &
-              parser % inFixFormula(i:i) /= ")" .AND. parser % inFixFormula(i:i) /= " " )THEN
+        i = i + j
 
-            errorMsg = "Missing operator or closing parentheses after token : "//&
-                       TRIM( parser % inFix % tokens( parser % inFix % top_index ) % tokenString )
-            RETURN
+        ! Next item must be an operator or a closing parentheses
+        if (.not. IsOperator(parser % infixFormula(i:i)) .and. &
+            parser % inFixFormula(i:i) /= ")" .and. parser % inFixFormula(i:i) /= " ") then
 
-          ENDIF
+          errorMsg = "Missing operator or closing parentheses after token : "// &
+                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
+          return
 
-        ELSEIF( IsSeparator( parser % inFixFormula(i:i) ) )THEN
+        end if
 
+      elseif (IsSeparator(parser % inFixFormula(i:i))) then
 
-          parser % inFix % top_index = parser % inFix % top_index + 1 
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenString = parser % inFixFormula(i:i)
+        parser % inFix % top_index = parser % inFix % top_index + 1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i)
 
-          IF( parser % inFixFormula(i:i) == "(" )THEN
-            parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = OpeningParentheses_Token 
-          ELSEIF( parser % inFixFormula(i:i) == ")" )THEN
-            parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = ClosingParentheses_Token 
-          ELSE
-            parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = Operator_Token 
-          ENDIF
+        if (parser % inFixFormula(i:i) == "(") then
+          parser % inFix % tokens(parser % inFix % top_index) % tokenType = OpeningParentheses_Token
+        elseif (parser % inFixFormula(i:i) == ")") then
+          parser % inFix % tokens(parser % inFix % top_index) % tokenType = ClosingParentheses_Token
+        else
+          parser % inFix % tokens(parser % inFix % top_index) % tokenType = Operator_Token
+        end if
 
-          i = i + 1
+        i = i + 1
 
+      elseif (parser % func % IsFunction(parser % inFixFormula(i:i))) then
 
-        ELSEIF( parser % func % IsFunction( parser % inFixFormula(i:i) ) )THEN
-          
-          parser % inFix % top_index = parser % inFix % top_index + 1
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenString = ''
+        parser % inFix % top_index = parser % inFix % top_index + 1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = ''
 
-          j = FindLastFunctionIndex( parser % inFixFormula(i:i+feqparse_function_maxlength-1) )
+        j = FindLastFunctionIndex(parser % inFixFormula(i:i + feqparse_function_maxlength - 1))
 
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenString = parser % inFixFormula(i:i+j)
-          parser % inFix % tokens( parser % inFix % top_index ) % tokenType   = Function_Token 
-          i = i+j+1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i + j)
+        parser % inFix % tokens(parser % inFix % top_index) % tokenType = Function_Token
+        i = i + j + 1
 
-          ! Check to see if the next string
-          IF( parser % inFixFormula(i:i) /= "(" )THEN
-            errorMsg = "Missing opening parentheses after token : "//& 
-                       TRIM( parser % inFix % tokens( parser % inFix % top_index ) % tokenString )
+        ! Check to see if the next string
+        if (parser % inFixFormula(i:i) /= "(") then
+          errorMsg = "Missing opening parentheses after token : "// &
+                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
 
-            RETURN
-          ENDIF
+          return
+        end if
 
+      else
 
-        ELSE
+        errorMsg = "Invalid Token : "// &
+                   trim(parser % inFixFormula(i:i))
 
-          errorMsg = "Invalid Token : "//&
-                     TRIM( parser % inFixFormula(i:i) )
+        return
 
-          RETURN
+      end if
 
-        ENDIF
+    end do
 
-      ENDDO
+    if (parser % inFix % tokens(1) % tokenType == Operator_Token) then
+      if (trim(parser % inFix % tokens(1) % tokenString) == "+" .or. &
+          trim(parser % inFix % tokens(1) % tokenString) == "-") then
+        parser % inFix % tokens(1) % tokenType = Monadic_Token
+      end if
+    end if
 
-      
-      IF( parser % inFix % tokens(1) % tokenType == Operator_Token )THEN
-         IF( TRIM( parser % inFix % tokens(1) % tokenString ) == "+" .OR. &
-              TRIM( parser % inFix % tokens(1) % tokenString ) == "-" ) THEN
-            parser % inFix % tokens(1) % tokenType = Monadic_Token
-         END IF
-      END IF
-      
-      DO i = 2, parser % inFix % top_index
-         IF( parser % inFix % tokens(i) % tokenType == Operator_Token .AND. &
-              parser % inFix % tokens(i-1) % tokenType == OpeningParentheses_Token ) THEN
-            parser % inFix % tokens(i) % tokenType = Monadic_Token
-         END IF
-      END DO
+    do i = 2,parser % inFix % top_index
+      if (parser % inFix % tokens(i) % tokenType == Operator_Token .and. &
+          parser % inFix % tokens(i - 1) % tokenType == OpeningParentheses_Token) then
+        parser % inFix % tokens(i) % tokenType = Monadic_Token
+      end if
+    end do
 
-      
-      tokenized = .TRUE.
+    tokenized = .true.
 
-  END SUBROUTINE Tokenize
+  end subroutine Tokenize
 
-  SUBROUTINE ConvertToPostFix( parser )
-    CLASS( EquationParser ), INTENT(inout) :: parser
+  subroutine ConvertToPostFix(parser)
+    class(EquationParser),intent(inout) :: parser
     ! Local
-    CHARACTER(Error_Message_Length) :: errorMsg
-    TYPE( TokenStack )              :: operator_stack
-    TYPE( Token )                   :: tok
-    INTEGER                         :: i
-    
-      !success = .FALSE. 
+    character(Error_Message_Length) :: errorMsg
+    type(TokenStack)              :: operator_stack
+    type(Token)                   :: tok
+    integer                         :: i
 
-      CALL parser % postfix % Construct( Stack_Length )
-      CALL operator_stack % Construct( Stack_Length )
-  
-      DO i = 1, parser % infix % top_index
-     
-        IF( parser % inFix % tokens(i) % tokenType == Variable_Token .OR. &
-            parser % inFix % tokens(i) % tokenType == Number_Token )THEN
+    !success = .FALSE.
 
-          
-          CALL parser % postFix % push( parser % inFix % tokens(i) )
+    call parser % postfix % Construct(Stack_Length)
+    call operator_stack % Construct(Stack_Length)
 
-  
-        ELSEIF( parser % inFix % tokens(i) % tokenType == Function_Token )THEN
+    do i = 1,parser % infix % top_index
 
-          CALL operator_stack % push( parser % inFix % tokens(i) )
+      if (parser % inFix % tokens(i) % tokenType == Variable_Token .or. &
+          parser % inFix % tokens(i) % tokenType == Number_Token) then
 
-        ELSEIF( parser % inFix % tokens(i) % tokenType == Operator_Token &
-                .OR. parser % inFix % tokens(i) % tokenType == Monadic_Token )THEN
+        call parser % postFix % push(parser % inFix % tokens(i))
 
+      elseif (parser % inFix % tokens(i) % tokenType == Function_Token) then
 
-          IF( .NOT. operator_stack % IsEmpty( ) )THEN
+        call operator_stack % push(parser % inFix % tokens(i))
 
-            tok = operator_stack % TopToken( )
-              
-            DO WHILE( TRIM(tok % tokenString) /= "(" .AND. &
-                      parser % Priority( TRIM(tok % tokenString) ) > &
-                      parser % Priority( TRIM(parser % inFix % tokens(i) % tokenString) ) )
-       
-              CALL parser % postFix % push( tok )
-              CALL operator_stack % pop( tok )
-              tok = operator_stack % TopToken( )
+      elseif (parser % inFix % tokens(i) % tokenType == Operator_Token &
+              .or. parser % inFix % tokens(i) % tokenType == Monadic_Token) then
 
-            ENDDO
+        if (.not. operator_stack % IsEmpty()) then
 
-          ENDIF
+          tok = operator_stack % TopToken()
 
-          CALL operator_stack % push( parser % inFix % tokens(i) )
+          do while (trim(tok % tokenString) /= "(" .and. &
+                    parser % Priority(trim(tok % tokenString)) > &
+                    parser % Priority(trim(parser % inFix % tokens(i) % tokenString)))
 
-        ELSEIF( parser % inFix % tokens(i) % tokenType == OpeningParentheses_Token )THEN
+            call parser % postFix % push(tok)
+            call operator_stack % pop(tok)
+            tok = operator_stack % TopToken()
 
-          CALL operator_stack % push( parser % inFix % tokens(i) )
+          end do
 
+        end if
 
-        ELSEIF( parser % inFix % tokens(i) % tokenType == ClosingParentheses_Token )THEN
+        call operator_stack % push(parser % inFix % tokens(i))
 
-          tok = operator_stack % TopToken( )
+      elseif (parser % inFix % tokens(i) % tokenType == OpeningParentheses_Token) then
 
-          DO WHILE( .NOT.( operator_stack % IsEmpty( ) ) .AND. TRIM(tok % tokenString) /= "(" )
-            
-            CALL parser % postFix % push( tok )
-            CALL operator_stack % pop( tok )
-            tok = operator_stack % TopToken( )
+        call operator_stack % push(parser % inFix % tokens(i))
 
-          ENDDO
+      elseif (parser % inFix % tokens(i) % tokenType == ClosingParentheses_Token) then
 
-          ! Pop the opening parenthesis
-          CALL operator_stack % pop( tok )
+        tok = operator_stack % TopToken()
 
-        ENDIF
+        do while (.not. (operator_stack % IsEmpty()) .and. trim(tok % tokenString) /= "(")
 
-      ENDDO
+          call parser % postFix % push(tok)
+          call operator_stack % pop(tok)
+          tok = operator_stack % TopToken()
 
-      ! Pop the remaining operators
-      DO WHILE( .NOT.( operator_stack % IsEmpty( ) ) )
-        
-        tok = operator_stack % TopToken( )
-        CALL parser % postFix % push( tok )
-        CALL operator_stack % pop( tok )
-   
-      ENDDO
-      
-  END SUBROUTINE ConvertToPostFix
+        end do
 
-  FUNCTION Evaluate_sfp32( parser, x ) RESULT( f )
-    CLASS(EquationParser) :: parser
-    REAL(real32) :: x(1:parser % nIndepVars)
-    REAL(real32) :: f
+        ! Pop the opening parenthesis
+        call operator_stack % pop(tok)
+
+      end if
+
+    end do
+
+    ! Pop the remaining operators
+    do while (.not. (operator_stack % IsEmpty()))
+
+      tok = operator_stack % TopToken()
+      call parser % postFix % push(tok)
+      call operator_stack % pop(tok)
+
+    end do
+
+  end subroutine ConvertToPostFix
+
+  function Evaluate_sfp32(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real32) :: x(1:parser % nIndepVars)
+    real(real32) :: f
     ! Local
-    INTEGER :: i, k
-    TYPE(Token) :: t
-    TYPE(sfp32Stack) :: stack
-    REAL(real32) :: v, a, b, c
-         
-      CALL stack % Construct( Stack_Length )
+    integer :: i,k
+    type(Token) :: t
+    type(sfp32Stack) :: stack
+    real(real32) :: v,a,b,c
 
-      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+    call stack % Construct(Stack_Length)
 
-        f = 0.0_real32
-        
-      ELSE
+    if (.not. (allocated(parser % postfix % tokens))) then
 
-        DO k = 1, parser % postfix % top_index 
-  
-          t = parser % postfix % tokens(k) % Equals_Token( )
-  
-          SELECT CASE ( t % tokenType )
-           
-            CASE( Number_Token )
-  
-              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi_real32
-              ELSE
-                READ( t % tokenString, * ) v
-              END IF
-  
-              CALL stack % Push( v )
-                 
-            CASE ( Variable_Token )
-  
-              DO i = 1, parser % nIndepVars
-                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
-                  CALL stack % Push( x(i) )
-                  EXIT
-                ENDIF
-              ENDDO
-  
-            CASE ( Operator_Token )
-  
-              CALL stack % Pop( a )
-              CALL stack % Pop( b )
-  
-              SELECT CASE ( TRIM(t % tokenString) )
-  
-                 CASE ( "+" )
-  
-                    c = a + b
-  
-                 CASE ( "-" )
-  
-                    c = b - a
-  
-                 CASE ( "*" )
-  
-                    c = a*b
-  
-                 CASE ( "/" )
-  
-                    c = b/a
-  
-                 CASE ( "^" )
-  
-                    c = b**a
-                 CASE DEFAULT
-  
-              END SELECT
-  
-              CALL stack % Push( c )
-              
-           CASE ( Function_Token )
-  
-              CALL stack % Pop( a )
-  
-              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
-  
-              CALL stack % Push( b )
-              
-           CASE ( Monadic_Token )
-  
-             IF( TRIM(t % tokenString) == "-" )     THEN
-  
-                CALL stack % Pop( a )
-                a = -a
-                CALL stack % Push( a )
-  
-             END IF
-             
-           CASE DEFAULT
-  
-         END SELECT
-  
-       END DO
-  
-       CALL stack % Pop( a )
-       f = a
-  
-       CALL stack % Destruct( )
+      f = 0.0_real32
 
-     ENDIF
-         
-  END FUNCTION Evaluate_sfp32
+    else
 
-  FUNCTION Evaluate_sfp64( parser, x ) RESULT( f )
-    CLASS(EquationParser) :: parser
-    REAL(real64) :: x(1:parser % nIndepVars)
-    REAL(real64) :: f
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real32
+          else
+            read (t % tokenString,*) v
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_sfp32
+
+  function Evaluate_sfp64(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real64) :: x(1:parser % nIndepVars)
+    real(real64) :: f
     ! Local
-    INTEGER :: i, k
-    TYPE(Token) :: t
-    TYPE(sfp64Stack) :: stack
-    REAL(real64) :: v, a, b, c
+    integer :: i,k
+    type(Token) :: t
+    type(sfp64Stack) :: stack
+    real(real64) :: v,a,b,c
 
-      CALL stack % Construct( Stack_Length )
+    call stack % Construct(Stack_Length)
 
-      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+    if (.not. (allocated(parser % postfix % tokens))) then
 
-        f = 0.0_real64
+      f = 0.0_real64
 
-      ELSE
+    else
 
-        DO k = 1, parser % postfix % top_index 
-  
-          t = parser % postfix % tokens(k) % Equals_Token( )
-          
-          SELECT CASE ( t % tokenType )
-           
-            CASE( Number_Token )
-  
-              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi_real64
-              ELSE
-                READ( t % tokenString, * ) v
-              END IF
-  
-              CALL stack % Push( v )
-                 
-            CASE ( Variable_Token )
-  
-              DO i = 1, parser % nIndepVars
-                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
-                  CALL stack % Push( x(i) )
-                  EXIT
-                ENDIF
-              ENDDO
-  
-            CASE ( Operator_Token )
-  
-              CALL stack % Pop( a )
-              CALL stack % Pop( b )
-  
-              SELECT CASE ( TRIM(t % tokenString) )
-  
-                 CASE ( "+" )
-  
-                    c = a + b
-  
-                 CASE ( "-" )
-  
-                    c = b - a
-  
-                 CASE ( "*" )
-  
-                    c = a*b
-  
-                 CASE ( "/" )
-  
-                    c = b/a
-  
-                 CASE ( "^" )
-  
-                    c = b**a
-                 CASE DEFAULT
-  
-              END SELECT
-  
-              CALL stack % Push( c )
-              
-           CASE ( Function_Token )
-  
-              CALL stack % Pop( a )
-  
-              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
-  
-              CALL stack % Push( b )
-              
-           CASE ( Monadic_Token )
-  
-             IF( TRIM(t % tokenString) == "-" )     THEN
-  
-                CALL stack % Pop( a )
-                a = -a
-                CALL stack % Push( a )
-  
-             END IF
-             
-           CASE DEFAULT
-  
-         END SELECT
-  
-       END DO
-  
-       CALL stack % Pop( a )
-       f = a
-  
-       CALL stack % Destruct( )
+      do k = 1,parser % postfix % top_index
 
-     ENDIF
-         
-  END FUNCTION Evaluate_sfp64
+        t = parser % postfix % tokens(k) % Equals_Token()
 
-  FUNCTION Evaluate_r1fp32( parser, x ) RESULT( f )
-    CLASS(EquationParser) :: parser
-    REAL(real32) :: x(:,:)
-    REAL(real32) :: f(lbound(x,1):ubound(x,1))
+        select case (t % tokenType)
+
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real64
+          else
+            read (t % tokenString,*) v
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_sfp64
+
+  function Evaluate_r1fp32(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real32) :: x(:,:)
+    real(real32) :: f(lbound(x,1):ubound(x,1))
     ! Local
-    INTEGER :: i, k
-    TYPE(Token) :: t
-    TYPE(r1fp32Stack) :: stack
+    integer :: i,k
+    type(Token) :: t
+    type(r1fp32Stack) :: stack
     real(real32) :: vnumber
-    REAL(real32) :: v(lbound(x,1):ubound(x,1))
+    real(real32) :: v(lbound(x,1):ubound(x,1))
     real(real32) :: a(lbound(x,1):ubound(x,1))
     real(real32) :: b(lbound(x,1):ubound(x,1))
     real(real32) :: c(lbound(x,1):ubound(x,1))
-         
-      CALL stack % Construct( Stack_Length, v )
 
-      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+    call stack % Construct(Stack_Length,v)
 
-        f = 0.0_real32
+    if (.not. (allocated(parser % postfix % tokens))) then
 
-      ELSE
+      f = 0.0_real32
 
-        DO k = 1, parser % postfix % top_index 
-  
-          t = parser % postfix % tokens(k) % Equals_Token( )
-  
-          SELECT CASE ( t % tokenType )
-           
-            CASE( Number_Token )
-              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi_real32
-              ELSE
-                READ( t % tokenString, * ) vnumber 
-                v = vnumber
-              END IF
-  
-              CALL stack % Push( v )
-                 
-            CASE ( Variable_Token )
-  
-              DO i = 1, parser % nIndepVars
-                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
-                  CALL stack % Push( x(:,i) )
-                  EXIT
-                ENDIF
-              ENDDO
-  
-            CASE ( Operator_Token )
-  
-              CALL stack % Pop( a )
-              CALL stack % Pop( b )
-  
-              SELECT CASE ( TRIM(t % tokenString) )
-  
-                 CASE ( "+" )
-  
-                    c = a + b
-  
-                 CASE ( "-" )
-  
-                    c = b - a
-  
-                 CASE ( "*" )
-  
-                    c = a*b
-  
-                 CASE ( "/" )
-  
-                    c = b/a
-  
-                 CASE ( "^" )
-  
-                    c = b**a
-                 CASE DEFAULT
-  
-              END SELECT
-  
-              CALL stack % Push( c )
-              
-           CASE ( Function_Token )
-  
-              CALL stack % Pop( a )
-  
-              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
-  
-              CALL stack % Push( b )
-              
-           CASE ( Monadic_Token )
-  
-             IF( TRIM(t % tokenString) == "-" )     THEN
-  
-                CALL stack % Pop( a )
-                a = -a
-                CALL stack % Push( a )
-  
-             END IF
-             
-           CASE DEFAULT
-  
-         END SELECT
-  
-       END DO
-  
-       CALL stack % Pop( a )
-       f = a
-  
-       CALL stack % Destruct( )
+    else
 
-     ENDIF
-         
-  END FUNCTION Evaluate_r1fp32
+      do k = 1,parser % postfix % top_index
 
-  FUNCTION Evaluate_r1fp64( parser, x ) RESULT( f )
-    CLASS(EquationParser) :: parser
-    REAL(real64) :: x(:,:)
-    REAL(real64) :: f(lbound(x,1):ubound(x,1))
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real32
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r1fp32
+
+  function Evaluate_r1fp64(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real64) :: x(:,:)
+    real(real64) :: f(lbound(x,1):ubound(x,1))
     ! Local
-    INTEGER :: i, k
-    TYPE(Token) :: t
-    TYPE(r1fp64Stack) :: stack
+    integer :: i,k
+    type(Token) :: t
+    type(r1fp64Stack) :: stack
     real(real64) :: vnumber
-    REAL(real64) :: v(lbound(x,1):ubound(x,1))
+    real(real64) :: v(lbound(x,1):ubound(x,1))
     real(real64) :: a(lbound(x,1):ubound(x,1))
     real(real64) :: b(lbound(x,1):ubound(x,1))
     real(real64) :: c(lbound(x,1):ubound(x,1))
 
+    call stack % Construct(Stack_Length,v)
 
-      CALL stack % Construct( Stack_Length, v )
+    if (.not. (allocated(parser % postfix % tokens))) then
 
-      IF( .NOT.( ALLOCATED( parser % postfix % tokens ) ) )THEN
+      f = 0.0_real64
 
-        f = 0.0_real64
+    else
 
-      ELSE
+      do k = 1,parser % postfix % top_index
 
-        DO k = 1, parser % postfix % top_index 
-  
-          t = parser % postfix % tokens(k) % Equals_Token( )
-          
-          SELECT CASE ( t % tokenType )
-           
-            CASE( Number_Token )
-  
-              IF( t % tokenString == "pi" .OR. t % tokenString == "PI" )     THEN
-                 v = pi_real64
-              ELSE
-                READ( t % tokenString, * ) vnumber
-                v = vnumber
-              END IF
-  
-              CALL stack % Push( v )
-                 
-            CASE ( Variable_Token )
-  
-              DO i = 1, parser % nIndepVars
-                IF( TRIM( t % tokenString ) == parser % indepVars(i) )THEN
-                  CALL stack % Push( x(:,i) )
-                  EXIT
-                ENDIF
-              ENDDO
-  
-            CASE ( Operator_Token )
-  
-              CALL stack % Pop( a )
-              CALL stack % Pop( b )
-  
-              SELECT CASE ( TRIM(t % tokenString) )
-  
-                 CASE ( "+" )
-  
-                    c = a + b
-  
-                 CASE ( "-" )
-  
-                    c = b - a
-  
-                 CASE ( "*" )
-  
-                    c = a*b
-  
-                 CASE ( "/" )
-  
-                    c = b/a
-  
-                 CASE ( "^" )
-  
-                    c = b**a
-                 CASE DEFAULT
-  
-              END SELECT
-  
-              CALL stack % Push( c )
-              
-           CASE ( Function_Token )
-  
-              CALL stack % Pop( a )
-  
-              call parser % func % f_of_x( TRIM(t % tokenString), a, b )
-  
-              CALL stack % Push( b )
-              
-           CASE ( Monadic_Token )
-  
-             IF( TRIM(t % tokenString) == "-" )     THEN
-  
-                CALL stack % Pop( a )
-                a = -a
-                CALL stack % Push( a )
-  
-             END IF
-             
-           CASE DEFAULT
-  
-         END SELECT
-  
-       END DO
-  
-       CALL stack % Pop( a )
-       f = a
-  
-       CALL stack % Destruct( )
+        t = parser % postfix % tokens(k) % Equals_Token()
 
-     ENDIF
-         
-  END FUNCTION Evaluate_r1fp64
+        select case (t % tokenType)
 
-  SUBROUTINE Print_InfixTokens( parser )
-    CLASS( EquationParser ), INTENT(in) :: parser
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real64
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r1fp64
+
+  function Evaluate_r2fp32(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real32) :: x(:,:,:)
+    real(real32) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
     ! Local
-    INTEGER :: i
+    integer :: i,k
+    type(Token) :: t
+    type(r2fp32Stack) :: stack
+    real(real32) :: vnumber
+    real(real32) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real32) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real32) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real32) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
 
-      DO i = 1, parser % inFix % top_index
-        PRINT*, TRIM( parser % inFix % tokens(i) % tokenString )
-      ENDDO
+    call stack % Construct(Stack_Length,v)
 
-  END SUBROUTINE Print_InfixTokens
+    if (.not. (allocated(parser % postfix % tokens))) then
 
-  SUBROUTINE Print_PostfixTokens( parser )
-    CLASS( EquationParser ), INTENT(in) :: parser
+      f = 0.0_real32
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real32
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r2fp32
+
+  function Evaluate_r2fp64(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real64) :: x(:,:,:)
+    real(real64) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
     ! Local
-    INTEGER :: i
+    integer :: i,k
+    type(Token) :: t
+    type(r2fp64Stack) :: stack
+    real(real64) :: vnumber
+    real(real64) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real64) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real64) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
+    real(real64) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2))
 
-      DO i = 1, parser % postFix % top_index
-        PRINT*, TRIM( parser % postFix % tokens(i) % tokenString ), parser % postFix % tokens(i) % tokenType
-      ENDDO
+    call stack % Construct(Stack_Length,v)
 
-  END SUBROUTINE Print_PostfixTokens
+    if (.not. (allocated(parser % postfix % tokens))) then
+
+      f = 0.0_real64
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real64
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r2fp64
+
+  subroutine Print_InfixTokens(parser)
+    class(EquationParser),intent(in) :: parser
+    ! Local
+    integer :: i
+
+    do i = 1,parser % inFix % top_index
+      print *, trim(parser % inFix % tokens(i) % tokenString)
+    end do
+
+  end subroutine Print_InfixTokens
+
+  subroutine Print_PostfixTokens(parser)
+    class(EquationParser),intent(in) :: parser
+    ! Local
+    integer :: i
+
+    do i = 1,parser % postFix % top_index
+      print *, trim(parser % postFix % tokens(i) % tokenString),parser % postFix % tokens(i) % tokenType
+    end do
+
+  end subroutine Print_PostfixTokens
 
   ! Support Functions !
 
-  LOGICAL FUNCTION IsSeparator( eqChar )
-    CHARACTER(1) :: eqChar
+  logical function IsSeparator(eqChar)
+    character(1) :: eqChar
     ! Local
-    INTEGER :: i
+    integer :: i
 
-      IsSeparator = .FALSE.
-      DO i = 1, nSeparators 
+    IsSeparator = .false.
+    do i = 1,nSeparators
 
-        IF( eqChar == separators(i) )THEN
-          IsSeparator = .TRUE.
-        ENDIF
+      if (eqChar == separators(i)) then
+        IsSeparator = .true.
+      end if
 
-      ENDDO
+    end do
 
-  END FUNCTION IsSeparator
+  end function IsSeparator
 
-  LOGICAL FUNCTION IsNumber( eqChar )
-    CHARACTER(1) :: eqChar
+  logical function IsNumber(eqChar)
+    character(1) :: eqChar
     ! Local
-    INTEGER :: i
+    integer :: i
 
-      IsNumber = .FALSE.
+    IsNumber = .false.
 
-      IF( eqChar == '.' .OR. eqChar == 'p' .OR. eqChar == 'P' )THEN
-        IsNumber = .TRUE.
-        RETURN
-      ENDIF
-         
-      DO i = 1, 10
+    if (eqChar == '.' .or. eqChar == 'p' .or. eqChar == 'P') then
+      IsNumber = .true.
+      return
+    end if
 
-        IF( eqChar == numbers(i) )THEN
-          IsNumber = .TRUE.
-        ENDIF
+    do i = 1,10
 
-      ENDDO
+      if (eqChar == numbers(i)) then
+        IsNumber = .true.
+      end if
 
-  END FUNCTION IsNumber
+    end do
 
-  LOGICAL FUNCTION IsVariable( eqChar, variables, nvariables )
-    CHARACTER(1) :: eqChar
-    INTEGER      :: nvariables
-    CHARACTER(1) :: variables(1:nvariables)
+  end function IsNumber
+
+  logical function IsVariable(eqChar,variables,nvariables)
+    character(1) :: eqChar
+    integer      :: nvariables
+    character(1) :: variables(1:nvariables)
     ! Local
-    INTEGER :: i
+    integer :: i
 
-      IsVariable = .FALSE.
-      DO i = 1, nvariables
+    IsVariable = .false.
+    do i = 1,nvariables
 
-        IF( eqChar == variables(i) )THEN
-          IsVariable = .TRUE.
-        ENDIF
+      if (eqChar == variables(i)) then
+        IsVariable = .true.
+      end if
 
-      ENDDO
+    end do
 
-  END FUNCTION IsVariable
+  end function IsVariable
 
-  LOGICAL FUNCTION IsOperator( eqChar )
-    CHARACTER(1) :: eqChar
+  logical function IsOperator(eqChar)
+    character(1) :: eqChar
     ! Local
-    INTEGER :: i
+    integer :: i
 
-      IsOperator = .FALSE.
-      DO i = 1, 5
+    IsOperator = .false.
+    do i = 1,5
 
-        IF( eqChar == operators(i) )THEN
-          IsOperator = .TRUE.
-        ENDIF
+      if (eqChar == operators(i)) then
+        IsOperator = .true.
+      end if
 
-      ENDDO
+    end do
 
-  END FUNCTION IsOperator
+  end function IsOperator
 
-  INTEGER FUNCTION Priority(parser, operatorString )
+  integer function Priority(parser,operatorString)
     class(EquationParser) :: parser
-    CHARACTER(*) :: operatorString
+    character(*) :: operatorString
 
+    if (parser % func % IsFunction(operatorString)) then
 
-      IF( parser % func % IsFunction( operatorString ) )THEN
+      Priority = 4
 
-        Priority = 4
+    elseif (operatorString(1:1) == '^') then
 
-      ELSEIF( operatorString(1:1) == '^' )THEN
+      Priority = 3
 
-        Priority = 3
+    elseif (operatorString(1:1) == '*' .or. operatorString(1:1) == '/') then
 
-      ELSEIF( operatorString(1:1) == '*' .OR. operatorString(1:1) == '/' )THEN
+      Priority = 2
 
-        Priority = 2
+    elseif (operatorString(1:1) == '+' .or. operatorString(1:1) == '-') then
 
-      ELSEIF( operatorString(1:1) == '+' .OR. operatorString(1:1) == '-' )THEN
-   
-        Priority = 1
- 
-      ELSE
+      Priority = 1
 
-        Priority = 0
-      
-      ENDIF
+    else
 
-  END FUNCTION Priority
+      Priority = 0
 
-END MODULE FEQParse
+    end if
+
+  end function Priority
+
+end module FEQParse
