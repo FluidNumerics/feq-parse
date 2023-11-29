@@ -7,7 +7,7 @@ INTEGER FUNCTION acos_sfp64() RESULT(r)
   integer, parameter :: N=1000
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=2048) :: eqChar
   REAL(real64) :: x(1:3)
   REAL(real64) :: feval
   REAL(real64) :: fexact

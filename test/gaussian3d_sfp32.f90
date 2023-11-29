@@ -6,7 +6,7 @@ INTEGER FUNCTION gaussian3d_sfp32() RESULT(r)
 
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=2048) :: eqChar
   REAL(real32) :: x(1:3)
 
     ! Specify the independent variables
