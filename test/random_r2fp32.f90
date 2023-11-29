@@ -1,42 +1,42 @@
 
-INTEGER FUNCTION random_r2fp32() RESULT(r)
-  USE FEQParse
+integer function random_r2fp32() result(r)
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=1024) :: eqChar
-  REAL(real32) :: x(1:N,1:N,1:3)
-  REAL(real32) :: feval(1:N,1:N)
+  implicit none
+  integer,parameter :: N = 1000
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=1024) :: eqChar
+  real(real32) :: x(1:N,1:N,1:3)
+  real(real32) :: feval(1:N,1:N)
   integer :: i,j
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \random( x )*\random( y )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \random( x )*\random( y )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real32
-    do j = 1,N
-      do i = 1,N
-        x(i,j,1) = -1.0_real64 + (2.0_real64)/REAL(N,real64)*REAL(i-1,real64)
-        x(i,j,2) = -1.0_real64 + (2.0_real64)/REAL(N,real64)*REAL(j-1,real64)
-      enddo
-    enddo
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( MAXVAL(ABS(feval)) <= 1.0_real32 )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  x = 0.0_real32
+  do j = 1,N
+    do i = 1,N
+      x(i,j,1) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(i - 1,real64)
+      x(i,j,2) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(j - 1,real64)
+    end do
+  end do
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if (maxval(abs(feval)) <= 1.0_real32) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION random_r2fp32
+  ! Clean up memory
+  call f % Destruct()
+
+end function random_r2fp32

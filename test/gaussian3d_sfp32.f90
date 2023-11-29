@@ -1,32 +1,32 @@
 
-INTEGER FUNCTION gaussian3d_sfp32() RESULT(r)
-  USE FEQParse
-  USE iso_fortran_env
-  IMPLICIT NONE
+integer function gaussian3d_sfp32() result(r)
+  use FEQParse
+  use iso_fortran_env
+  implicit none
 
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=2048) :: eqChar
-  REAL(real32) :: x(1:3)
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=2048) :: eqChar
+  real(real32) :: x(1:3)
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    ! Evaluate the equation 
-    x = (/ 0.0, 0.0, 0.0 /) 
-    IF( ABS(f % evaluate( x ) - 1.0) <= epsilon(1.0) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  x = (/0.0,0.0,0.0/)
+  if (abs(f % evaluate(x) - 1.0) <= epsilon(1.0)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION gaussian3d_sfp32
+  ! Clean up memory
+  call f % Destruct()
+
+end function gaussian3d_sfp32

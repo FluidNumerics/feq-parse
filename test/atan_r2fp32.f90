@@ -1,44 +1,44 @@
 
-INTEGER FUNCTION atan_r2fp32() RESULT(r)
-  USE FEQParse
+integer function atan_r2fp32() result(r)
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=1024) :: eqChar
-  REAL(real32) :: x(1:N,1:N,1:3)
-  REAL(real32) :: feval(1:N,1:N)
-  REAL(real32) :: fexact(1:N,1:N)
+  implicit none
+  integer,parameter :: N = 1000
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=1024) :: eqChar
+  real(real32) :: x(1:N,1:N,1:3)
+  real(real32) :: feval(1:N,1:N)
+  real(real32) :: fexact(1:N,1:N)
   integer :: i,j
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \atan( x )*\atan( y )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \atan( x )*\atan( y )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real32
-    do j = 1,N
-      do i = 1,N
-        x(i,j,1) = -1.0_real32 + (2.0_real32)/REAL(N,real32)*REAL(i-1,real32)
-        x(i,j,2) = -1.0_real32 + (2.0_real32)/REAL(N,real32)*REAL(j-1,real32)
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
+
+  x = 0.0_real32
+  do j = 1,N
+    do i = 1,N
+      x(i,j,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32)
+      x(i,j,2) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(j - 1,real32)
       fexact(i,j) = atan(x(i,j,1))*atan(x(i,j,2))
-      enddo
-    enddo
+    end do
+  end do
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( MAXVAL(ABS(feval-fexact)) <= epsilon(1.0_real32) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real32)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Clean up memory
+  call f % Destruct()
 
-END FUNCTION atan_r2fp32
+end function atan_r2fp32

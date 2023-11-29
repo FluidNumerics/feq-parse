@@ -34,16 +34,25 @@ module FEQParse_Functions
     generic,public :: f_of_x => f_of_x_sfp32, &
       f_of_x_r1fp32, &
       f_of_x_r2fp32, &
+      f_of_x_r3fp32, &
+      f_of_x_r4fp32,&
       f_of_x_sfp64, &
       f_of_x_r1fp64, &
-      f_of_x_r2fp64
+      f_of_x_r2fp64, &
+      f_of_x_r3fp64, &
+      f_of_x_r4fp64
+
 
     procedure,private :: f_of_x_sfp32
     procedure,private :: f_of_x_r1fp32
     procedure,private :: f_of_x_r2fp32
+    procedure,private :: f_of_x_r3fp32
+    procedure,private :: f_of_x_r4fp32
     procedure,private :: f_of_x_sfp64
     procedure,private :: f_of_x_r1fp64
     procedure,private :: f_of_x_r2fp64
+    procedure,private :: f_of_x_r3fp64
+    procedure,private :: f_of_x_r4fp64
 
   end type FEQParse_FunctionHandler
 
@@ -264,7 +273,7 @@ contains
   end subroutine f_of_x_r1fp32
 
   subroutine f_of_x_r2fp32(functionhandler_obj,func,x,fx)
-    !! Evaluates function for rank-1 array fp32 input and output
+    !! Evaluates function for rank-2 array fp32 input and output
     class(FEQParse_FunctionHandler) :: functionhandler_obj
     character(*),intent(in)  :: func
     real(real32),intent(in)  :: x(:,:)
@@ -337,6 +346,156 @@ contains
     end if
 
   end subroutine f_of_x_r2fp32
+
+  subroutine f_of_x_r3fp32(functionhandler_obj,func,x,fx)
+    !! Evaluates function for rank-3 array fp32 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in)  :: func
+    real(real32),intent(in)  :: x(:,:,:)
+    real(real32),intent(out) :: fx(:,:,:)
+    ! Local
+    real(real32)   :: r
+    integer :: i
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real32/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real32
+
+    end if
+
+  end subroutine f_of_x_r3fp32
+
+  subroutine f_of_x_r4fp32(functionhandler_obj,func,x,fx)
+    !! Evaluates function for rank-4 array fp32 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in)  :: func
+    real(real32),intent(in)  :: x(:,:,:,:)
+    real(real32),intent(out) :: fx(:,:,:,:)
+    ! Local
+    real(real32)   :: r
+    integer :: i
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real32/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real32
+
+    end if
+
+  end subroutine f_of_x_r4fp32
 
   subroutine f_of_x_sfp64(functionhandler_obj,func,x,fx)
   !! Evaluates function for scalar fp64 input and output
@@ -559,5 +718,155 @@ contains
     end if
 
   end subroutine f_of_x_r2fp64
+
+  subroutine f_of_x_r3fp64(functionhandler_obj,func,x,fx)
+    !! Evaluates function for rank-3 array fp64 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in)  :: func
+    real(real64),intent(in)  :: x(:,:,:)
+    real(real64),intent(out) :: fx(:,:,:)
+    ! Local
+    real(real64)   :: r
+    integer :: i
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real64/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real64
+
+    end if
+
+  end subroutine f_of_x_r3fp64
+
+  subroutine f_of_x_r4fp64(functionhandler_obj,func,x,fx)
+    !! Evaluates function for rank-4 array fp64 input and output
+    class(FEQParse_FunctionHandler) :: functionhandler_obj
+    character(*),intent(in)  :: func
+    real(real64),intent(in)  :: x(:,:,:,:)
+    real(real64),intent(out) :: fx(:,:,:,:)
+    ! Local
+    real(real64)   :: r
+    integer :: i
+
+    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+
+      fx = cos(x)
+
+    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+
+      fx = sin(x)
+
+    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+
+      fx = tan(x)
+
+    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+
+      fx = tanh(x)
+
+    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+
+      fx = 2.0_real64/(exp(x) + exp(-x))
+
+    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+
+      fx = sqrt(x)
+
+    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+
+      fx = abs(x)
+
+    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+
+      fx = exp(x)
+
+    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+
+      fx = log10(x)
+
+    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+
+      fx = acos(x)
+
+    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+
+      fx = asin(x)
+
+    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+
+      fx = atan(x)
+
+    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+
+      call random_number(r)
+      fx = r*x
+
+    else
+
+      fx = 0.0_real64
+
+    end if
+
+  end subroutine f_of_x_r4fp64
 
 end module FEQParse_Functions

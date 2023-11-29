@@ -25,7 +25,6 @@ module FEQParse
 
   integer,parameter,private :: Error_Message_Length = 256
   integer,parameter,private :: Max_Equation_Length = 1024
-  !INTEGER, PARAMETER, PRIVATE :: Max_Function_Length  = 6
   integer,parameter,private :: Max_Variable_Length = 12
   integer,parameter,private :: Stack_Length = 128
 
@@ -67,10 +66,14 @@ module FEQParse
 
     generic :: Evaluate => Evaluate_sfp32,Evaluate_sfp64, &
       Evaluate_r1fp32,Evaluate_r1fp64,&
-      Evaluate_r2fp32,Evaluate_r2fp64
+      Evaluate_r2fp32,Evaluate_r2fp64,&
+      Evaluate_r3fp32,Evaluate_r3fp64,&
+      Evaluate_r4fp32,Evaluate_r4fp64
     procedure,private :: Evaluate_sfp32,Evaluate_sfp64
     procedure,private :: Evaluate_r1fp32,Evaluate_r1fp64
     procedure,private :: Evaluate_r2fp32,Evaluate_r2fp64
+    procedure,private :: Evaluate_r3fp32,Evaluate_r3fp64
+    procedure,private :: Evaluate_r4fp32,Evaluate_r4fp64
 
     procedure :: Print_InFixTokens
     procedure :: Print_PostFixTokens
@@ -1069,6 +1072,506 @@ contains
     end if
 
   end function Evaluate_r2fp64
+
+  function Evaluate_r3fp32(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real32) :: x(:,:,:,:)
+    real(real32) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    ! Local
+    integer :: i,k
+    type(Token) :: t
+    type(r3fp32Stack) :: stack
+    real(real32) :: vnumber
+    real(real32) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real32) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real32) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real32) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+
+    call stack % Construct(Stack_Length,v)
+
+    if (.not. (allocated(parser % postfix % tokens))) then
+
+      f = 0.0_real32
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real32
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r3fp32
+
+  function Evaluate_r3fp64(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real64) :: x(:,:,:,:)
+    real(real64) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    ! Local
+    integer :: i,k
+    type(Token) :: t
+    type(r3fp64Stack) :: stack
+    real(real64) :: vnumber
+    real(real64) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real64) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real64) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+    real(real64) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3))
+
+    call stack % Construct(Stack_Length,v)
+
+    if (.not. (allocated(parser % postfix % tokens))) then
+
+      f = 0.0_real64
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real64
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r3fp64
+
+  function Evaluate_r4fp32(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real32) :: x(:,:,:,:,:)
+    real(real32) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    ! Local
+    integer :: i,k
+    type(Token) :: t
+    type(r4fp32Stack) :: stack
+    real(real32) :: vnumber
+    real(real32) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real32) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real32) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real32) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+
+    call stack % Construct(Stack_Length,v)
+
+    if (.not. (allocated(parser % postfix % tokens))) then
+
+      f = 0.0_real32
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real32
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r4fp32
+
+  function Evaluate_r4fp64(parser,x) result(f)
+    class(EquationParser) :: parser
+    real(real64) :: x(:,:,:,:,:)
+    real(real64) :: f(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    ! Local
+    integer :: i,k
+    type(Token) :: t
+    type(r4fp64Stack) :: stack
+    real(real64) :: vnumber
+    real(real64) :: v(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real64) :: a(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real64) :: b(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+    real(real64) :: c(lbound(x,1):ubound(x,1),&
+                      lbound(x,2):ubound(x,2),&
+                      lbound(x,3):ubound(x,3),&
+                      lbound(x,4):ubound(x,4))
+
+    call stack % Construct(Stack_Length,v)
+
+    if (.not. (allocated(parser % postfix % tokens))) then
+
+      f = 0.0_real64
+
+    else
+
+      do k = 1,parser % postfix % top_index
+
+        t = parser % postfix % tokens(k) % Equals_Token()
+
+        select case (t % tokenType)
+
+        case (Number_Token)
+
+          if (t % tokenString == "pi" .or. t % tokenString == "PI") then
+            v = pi_real64
+          else
+            read (t % tokenString,*) vnumber
+            v = vnumber
+          end if
+
+          call stack % Push(v)
+
+        case (Variable_Token)
+
+          do i = 1,parser % nIndepVars
+            if (trim(t % tokenString) == parser % indepVars(i)) then
+              call stack % Push(x(:,:,:,:,i))
+              exit
+            end if
+          end do
+
+        case (Operator_Token)
+
+          call stack % Pop(a)
+          call stack % Pop(b)
+
+          select case (trim(t % tokenString))
+
+          case ("+")
+
+            c = a + b
+
+          case ("-")
+
+            c = b - a
+
+          case ("*")
+
+            c = a*b
+
+          case ("/")
+
+            c = b/a
+
+          case ("^")
+
+            c = b**a
+          case DEFAULT
+
+          end select
+
+          call stack % Push(c)
+
+        case (Function_Token)
+
+          call stack % Pop(a)
+
+          call parser % func % f_of_x(trim(t % tokenString),a,b)
+
+          call stack % Push(b)
+
+        case (Monadic_Token)
+
+          if (trim(t % tokenString) == "-") then
+
+            call stack % Pop(a)
+            a = -a
+            call stack % Push(a)
+
+          end if
+
+        case DEFAULT
+
+        end select
+
+      end do
+
+      call stack % Pop(a)
+      f = a
+
+      call stack % Destruct()
+
+    end if
+
+  end function Evaluate_r4fp64
 
   subroutine Print_InfixTokens(parser)
     class(EquationParser),intent(in) :: parser
