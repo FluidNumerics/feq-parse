@@ -6,7 +6,7 @@ INTEGER FUNCTION log10_r2fp64() RESULT(r)
   integer, parameter :: N=1000
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=1024) :: eqChar
   REAL(real64) :: x(1:N,1:N,1:3)
   REAL(real64) :: feval(1:N,1:N)
   REAL(real64) :: fexact(1:N,1:N)

@@ -7,7 +7,7 @@ INTEGER FUNCTION sin_sfp32() RESULT(r)
   real(real32), parameter :: pi = 4.0_real32*atan(1.0_real32)
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=2048) :: eqChar
   REAL(real32) :: x(1:3)
   REAL(real32) :: feval
   REAL(real32) :: fexact

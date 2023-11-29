@@ -31,3 +31,8 @@ main = "array_with_scalar_eval.f90"
 name = "scalar_with_scalar_eval"
 source-dir = "example"
 main = "scalar_with_scalar_eval.f90"
+
+[[example]]
+name = "scalar_function_product"
+source-dir = "example"
+main = "scalar_function_product.f90"

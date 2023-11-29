@@ -6,7 +6,7 @@ INTEGER FUNCTION gaussian3d_r2fp32() RESULT(r)
   integer, parameter :: N=1000
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=1024) :: eqChar
   REAL(real32) :: x(1:N,1:N,1:3)
   REAL(real32) :: feval(1:N,1:N)
   REAL(real32) :: fexact(1:N,1:N)

@@ -7,7 +7,7 @@ INTEGER FUNCTION cos_sfp64() RESULT(r)
   real(real64), parameter :: pi = 4.0_real64*atan(1.0_real64)
   TYPE(EquationParser) :: f
   CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
+  CHARACTER(LEN=2048) :: eqChar
   REAL(real64) :: x(1:3)
   REAL(real64) :: feval
   REAL(real64) :: fexact
