@@ -44,7 +44,7 @@ integer function division_r4fp64() result(r)
     do k = 1,N
     do j = 1,N
       do i = 1,N
-        fexact(i,j,k,l) = -(x(i,j,k,l,1) + 1.0_real64)*(x(i,j,k,l,2) + 1.0_real64)*(x(i,j,k,l,3) + 1.0_real64)
+        fexact(i,j,k,l) = -(x(i,j,k,l,1) + 1.0_real64)*(x(i,j,k,l,2) + 1.0_real64)*(x(i,j,k,l,3) + 1.0_real64)/10.0_real64
       end do
     end do
     end do

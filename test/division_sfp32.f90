@@ -1,5 +1,5 @@
 
-integer function abs_sfp32() result(r)
+integer function division_sfp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
@@ -35,4 +35,4 @@ integer function abs_sfp32() result(r)
   ! Clean up memory
   call f % Destruct()
 
-end function abs_sfp32
+end function division_sfp32
