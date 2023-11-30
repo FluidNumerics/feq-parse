@@ -409,11 +409,6 @@ contains
 
     call stack % Construct(Stack_Length)
 
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real32
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -501,8 +496,6 @@ contains
 
       call stack % Destruct()
 
-    end if
-
   end function Evaluate_sfp32
 
   function Evaluate_sfp64(parser,x) result(f)
@@ -516,12 +509,6 @@ contains
     real(real64) :: v,a,b,c
 
     call stack % Construct(Stack_Length)
-
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real64
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -608,8 +595,6 @@ contains
       f = a
 
       call stack % Destruct()
-
-    end if
 
   end function Evaluate_sfp64
 
@@ -629,12 +614,6 @@ contains
 
     call stack % Construct(Stack_Length,v)
 
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real32
-
-    else
-
       do k = 1,parser % postfix % top_index
 
         t = parser % postfix % tokens(k) % Equals_Token()
@@ -721,8 +700,6 @@ contains
 
       call stack % Destruct()
 
-    end if
-
   end function Evaluate_r1fp32
 
   function Evaluate_r1fp64(parser,x) result(f)
@@ -740,12 +717,6 @@ contains
     real(real64) :: c(lbound(x,1):ubound(x,1))
 
     call stack % Construct(Stack_Length,v)
-
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real64
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -833,8 +804,6 @@ contains
       f = a
 
       call stack % Destruct()
-
-    end if
 
   end function Evaluate_r1fp64
 
@@ -859,12 +828,6 @@ contains
 
     call stack % Construct(Stack_Length,v)
 
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real32
-
-    else
-
       do k = 1,parser % postfix % top_index
 
         t = parser % postfix % tokens(k) % Equals_Token()
@@ -951,8 +914,6 @@ contains
 
       call stack % Destruct()
 
-    end if
-
   end function Evaluate_r2fp32
 
   function Evaluate_r2fp64(parser,x) result(f)
@@ -975,12 +936,6 @@ contains
                       lbound(x,2):ubound(x,2))
 
     call stack % Construct(Stack_Length,v)
-
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real64
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -1068,8 +1023,6 @@ contains
       f = a
 
       call stack % Destruct()
-
-    end if
 
   end function Evaluate_r2fp64
 
@@ -1099,12 +1052,6 @@ contains
 
     call stack % Construct(Stack_Length,v)
 
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real32
-
-    else
-
       do k = 1,parser % postfix % top_index
 
         t = parser % postfix % tokens(k) % Equals_Token()
@@ -1191,8 +1138,6 @@ contains
 
       call stack % Destruct()
 
-    end if
-
   end function Evaluate_r3fp32
 
   function Evaluate_r3fp64(parser,x) result(f)
@@ -1220,12 +1165,6 @@ contains
                       lbound(x,3):ubound(x,3))
 
     call stack % Construct(Stack_Length,v)
-
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real64
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -1313,8 +1252,6 @@ contains
       f = a
 
       call stack % Destruct()
-
-    end if
 
   end function Evaluate_r3fp64
 
@@ -1349,12 +1286,6 @@ contains
 
     call stack % Construct(Stack_Length,v)
 
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real32
-
-    else
-
       do k = 1,parser % postfix % top_index
 
         t = parser % postfix % tokens(k) % Equals_Token()
@@ -1441,8 +1372,6 @@ contains
 
       call stack % Destruct()
 
-    end if
-
   end function Evaluate_r4fp32
 
   function Evaluate_r4fp64(parser,x) result(f)
@@ -1475,12 +1404,6 @@ contains
                       lbound(x,4):ubound(x,4))
 
     call stack % Construct(Stack_Length,v)
-
-    if (.not. (allocated(parser % postfix % tokens))) then
-
-      f = 0.0_real64
-
-    else
 
       do k = 1,parser % postfix % top_index
 
@@ -1568,8 +1491,6 @@ contains
       f = a
 
       call stack % Destruct()
-
-    end if
 
   end function Evaluate_r4fp64
 
