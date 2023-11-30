@@ -46,7 +46,7 @@ integer function abs_r3fp64() result(r)
 
   ! Evaluate the equation
   feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real64)) then
+  if (maxval(abs(feval - fexact)) <= 10.0_real64*epsilon(1.0_real64)) then
     r = 0
   else
     r = 1

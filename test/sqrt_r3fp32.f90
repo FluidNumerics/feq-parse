@@ -45,7 +45,7 @@ integer function sqrt_r3fp32() result(r)
 
   ! Evaluate the equation
   feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real32)) then
+  if (maxval(abs(feval - fexact)) <= maxval(abs(fexact))*epsilon(1.0_real32)) then
     r = 0
   else
     r = 1

@@ -270,7 +270,7 @@ contains
 
         i = i + 1
 
-      elseif (parser % func % IsFunction(parser % inFixFormula(i:i))) then
+      elseif (IsFunction(parser % inFixFormula(i:i))) then
 
         parser % inFix % top_index = parser % inFix % top_index + 1
         parser % inFix % tokens(parser % inFix % top_index) % tokenString = ''
@@ -1673,7 +1673,7 @@ contains
     class(EquationParser) :: parser
     character(*) :: operatorString
 
-    if (parser % func % IsFunction(operatorString)) then
+    if (IsFunction(operatorString)) then
 
       Priority = 4
 
@@ -1696,5 +1696,28 @@ contains
     end if
 
   end function Priority
+  logical function IsFunction(eqChar)
+  character(*) :: eqChar
+
+  IsFunction = .false.
+  if (eqChar(1:1) == "\") then
+    IsFunction = .true.
+  end if
+
+end function IsFunction
+
+function FindLastFunctionIndex(eqChar) result(j)
+  character(*) :: eqChar
+  integer      :: i,j
+
+  do i = 1,len(eqChar)
+    if (eqChar(i:i) == "(") then
+      j = i - 2
+      exit
+    end if
+
+  end do
+
+end function FindLastFunctionIndex
 
 end module FEQParse

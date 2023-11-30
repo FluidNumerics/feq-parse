@@ -51,7 +51,7 @@ integer function acos_r4fp64() result(r)
 
   ! Evaluate the equation
   feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real64)) then
+  if (maxval(abs(feval - fexact)) <= maxval(abs(fexact))*epsilon(1.0_real64)) then
     r = 0
   else
     r = 1

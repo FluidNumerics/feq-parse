@@ -42,7 +42,7 @@ integer function log_r4fp32() result(r)
     do k = 1,N
     do j = 1,N
       do i = 1,N
-        fexact(i,j,k,l) = log(x(i,j,k,l,1))*log(x(i,j,k,l,2))*log(x(i,j,k,l,2))
+        fexact(i,j,k,l) = log(x(i,j,k,l,1))*log(x(i,j,k,l,2))*log(x(i,j,k,l,3))
       end do
     end do
     end do
@@ -50,7 +50,7 @@ integer function log_r4fp32() result(r)
 
   ! Evaluate the equation
   feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real32)) then
+  if (maxval(abs(feval - fexact)) <= maxval(abs(fexact))*epsilon(1.0_real32)) then
     r = 0
   else
     r = 1

@@ -30,7 +30,7 @@ module FEQParse_Functions
 
   contains
     procedure,public :: Destruct => Destruct_FEQParse_FunctionHandler
-    procedure,public :: IsFunction
+    !procedure,public :: IsFunction
     generic,public :: f_of_x => f_of_x_sfp32, &
       f_of_x_r1fp32, &
       f_of_x_r2fp32, &
@@ -91,37 +91,6 @@ contains
     functionhandler_obj % nfunctions = 0
 
   end subroutine Destruct_FEQParse_FunctionHandler
-
-  logical function IsFunction(functionhandler_obj,eqChar)
-    class(FEQParse_FunctionHandler) :: functionhandler_obj
-    character(*) :: eqChar
-    ! Local
-    integer :: i
-
-    IsFunction = .false.
-    do i = 1,functionhandler_obj % nFunctions
-
-      if (eqChar(1:1) == "\") then
-        IsFunction = .true.
-      end if
-
-    end do
-
-  end function IsFunction
-
-  function FindLastFunctionIndex(eqChar) result(j)
-    character(*) :: eqChar
-    integer      :: i,j
-
-    do i = 1,len(eqChar)
-      if (eqChar(i:i) == "(") then
-        j = i - 2
-        exit
-      end if
-
-    end do
-
-  end function FindLastFunctionIndex
 
   subroutine f_of_x_sfp32(functionhandler_obj,func,x,fx)
     !! Evaluates function for scalar fp32 input and output

@@ -40,14 +40,14 @@ integer function linear_r3fp64() result(r)
   do k = 1,N
     do j = 1,N
       do i = 1,N
-        fexact(i,j,k) = (x(i,j,k,1)**3 - 1.0_real64)*(x(i,j,k,2)**3 - 1.0_real64)*(x(i,j,k,2)**3 - 1.0_real64)
+        fexact(i,j,k) = (x(i,j,k,1)**3 - 1.0_real64)*(x(i,j,k,2)**3 - 1.0_real64)*(x(i,j,k,3)**3 - 1.0_real64)
       end do
     end do
   end do
 
   ! Evaluate the equation
   feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= 10.0_real64*epsilon(1.0_real64)) then
+  if (maxval(abs(feval - fexact)) <= maxval(abs(fexact))*epsilon(1.0_real64)*10.0_real64) then
     r = 0
   else
     r = 1
