@@ -223,5 +223,6 @@ add_fortran_test_executable (
     "tan_r4fp32.f90"
     "tan_r4fp64.f90"
     "tan_sfp32.f90"
-    "tan_sfp64.f90")
+    "tan_sfp64.f90"
+    "print_tokens.f90")
     
