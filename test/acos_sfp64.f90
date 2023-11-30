@@ -1,39 +1,39 @@
 
-INTEGER FUNCTION acos_sfp64() RESULT(r)
+integer function acos_sfp64() result(r)
   ! WARNING - acos(x) accurate only to single precision with gfortran 11.4.0
-  USE FEQParse
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
-  REAL(real64) :: x(1:3)
-  REAL(real64) :: feval
-  REAL(real64) :: fexact
+  implicit none
+  integer,parameter :: N = 1000
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=2048) :: eqChar
+  real(real64) :: x(1:3)
+  real(real64) :: feval
+  real(real64) :: fexact
   integer :: i
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \acos( x )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \acos( x )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real64
-    fexact = acos(x(1))
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( (ABS(feval-fexact)) <= epsilon(1.0_real32) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  x = 0.0_real64
+  fexact = acos(x(1))
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if ((abs(feval - fexact)) <= epsilon(1.0_real32)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION acos_sfp64
+  ! Clean up memory
+  call f % Destruct()
+
+end function acos_sfp64

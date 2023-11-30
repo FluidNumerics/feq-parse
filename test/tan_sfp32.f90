@@ -1,39 +1,39 @@
 
-INTEGER FUNCTION tan_sfp32() RESULT(r)
-  USE FEQParse
+integer function tan_sfp32() result(r)
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  real(real32), parameter :: pi = 4.0_real32*atan(1.0_real32)
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
-  REAL(real32) :: x(1:3)
-  REAL(real32) :: feval
-  REAL(real32) :: fexact
+  implicit none
+  integer,parameter :: N = 1000
+  real(real32),parameter :: pi = 4.0_real32*atan(1.0_real32)
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=2048) :: eqChar
+  real(real32) :: x(1:3)
+  real(real32) :: feval
+  real(real32) :: fexact
   integer :: i
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \tan( 0.5*pi*x )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \tan( 0.5*pi*x )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real32
-    fexact = tan(0.5_real32*pi*x(1))
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( (ABS(feval-fexact)) <= epsilon(1.0_real32) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  x = 0.0_real32
+  fexact = tan(0.5_real32*pi*x(1))
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if ((abs(feval - fexact)) <= epsilon(1.0_real32)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION tan_sfp32
+  ! Clean up memory
+  call f % Destruct()
+
+end function tan_sfp32

@@ -1,42 +1,42 @@
 
-INTEGER FUNCTION cos_r1fp32() RESULT(r)
-  USE FEQParse
+integer function cos_r1fp32() result(r)
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  real(real32), parameter :: pi = 4.0_real32*atan(1.0_real32)
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
-  REAL(real32) :: x(1:N,1:3)
-  REAL(real32) :: feval(1:N)
-  REAL(real32) :: fexact(1:N)
+  implicit none
+  integer,parameter :: N = 1000
+  real(real32),parameter :: pi = 4.0_real32*atan(1.0_real32)
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=2048) :: eqChar
+  real(real32) :: x(1:N,1:3)
+  real(real32) :: feval(1:N)
+  real(real32) :: fexact(1:N)
   integer :: i
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \cos( 2.0*pi*x )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \cos( 2.0*pi*x )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real32
-    do i = 1,N
-      x(i,1) = -1.0_real32 + (2.0_real32)/REAL(N,real32)*REAL(i-1,real32)
-      fexact(i) = cos(2.0_real32*pi*x(i,1))
-    enddo
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( MAXVAL(ABS(feval-fexact)) <= epsilon(1.0_real32) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  x = 0.0_real32
+  do i = 1,N
+    x(i,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32)
+    fexact(i) = cos(2.0_real32*pi*x(i,1))
+  end do
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real32)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION cos_r1fp32
+  ! Clean up memory
+  call f % Destruct()
+
+end function cos_r1fp32

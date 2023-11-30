@@ -1,38 +1,38 @@
 
-INTEGER FUNCTION sech_sfp32() RESULT(r)
-  USE FEQParse
+integer function sech_sfp32() result(r)
+  use FEQParse
   use iso_fortran_env
-  IMPLICIT NONE
-  integer, parameter :: N=1000
-  TYPE(EquationParser) :: f
-  CHARACTER(LEN=1), DIMENSION(1:3) :: independentVars
-  CHARACTER(LEN=30) :: eqChar
-  REAL(real32) :: x(1:3)
-  REAL(real32) :: feval
-  REAL(real32) :: fexact
+  implicit none
+  integer,parameter :: N = 1000
+  type(EquationParser) :: f
+  character(LEN=1),dimension(1:3) :: independentVars
+  character(LEN=2048) :: eqChar
+  real(real32) :: x(1:3)
+  real(real32) :: feval
+  real(real32) :: fexact
   integer :: i
 
-    ! Specify the independent variables
-    independentVars = (/ 'x', 'y', 'z' /)
+  ! Specify the independent variables
+  independentVars = (/'x','y','z'/)
 
-    ! Specify an equation string that we want to evaluate 
-    eqChar = 'f = \sech( x )'
+  ! Specify an equation string that we want to evaluate
+  eqChar = 'f = \sech( x )'
 
-    ! Create the EquationParser object
-    f = EquationParser(eqChar, independentVars)
-   
-    x = 0.0_real32
-    fexact = 2.0_real32/( exp(x(1)) + exp(-x(1)) )
+  ! Create the EquationParser object
+  f = EquationParser(eqChar,independentVars)
 
-    ! Evaluate the equation 
-    feval = f % evaluate( x )
-    IF( (ABS(feval-fexact)) <= epsilon(1.0_real32) )THEN
-      r = 0
-    ELSE
-      r = 1
-    ENDIF
+  x = 0.0_real32
+  fexact = 2.0_real32/(exp(x(1)) + exp(-x(1)))
 
-    ! Clean up memory
-    CALL f % Destruct()
+  ! Evaluate the equation
+  feval = f % evaluate(x)
+  if ((abs(feval - fexact)) <= epsilon(1.0_real32)) then
+    r = 0
+  else
+    r = 1
+  end if
 
-END FUNCTION sech_sfp32
+  ! Clean up memory
+  call f % Destruct()
+
+end function sech_sfp32
