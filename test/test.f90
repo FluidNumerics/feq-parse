@@ -55,6 +55,16 @@ program test
     write(*,*) "cos_r4fp64()", cos_r4fp64()
     write(*,*) "cos_sfp32()", cos_sfp32()
     write(*,*) "cos_sfp64()", cos_sfp64()
+    write(*,*) "division_r1fp32()", division_r1fp32()
+    write(*,*) "division_r1fp64()", division_r1fp64()
+    write(*,*) "division_r2fp32()", division_r2fp32()
+    write(*,*) "division_r2fp64()", division_r2fp64()
+    write(*,*) "division_r3fp32()", division_r3fp32()
+    write(*,*) "division_r3fp64()", division_r3fp64()
+    write(*,*) "division_r4fp32()", division_r4fp32()
+    write(*,*) "division_r4fp64()", division_r4fp64()
+    write(*,*) "division_sfp32()", division_sfp32()
+    write(*,*) "division_sfp64()", division_sfp64()
     write(*,*) "gaussian3d_r1fp32()", gaussian3d_r1fp32()
     write(*,*) "gaussian3d_r1fp64()", gaussian3d_r1fp64()
     write(*,*) "gaussian3d_r2fp32()", gaussian3d_r2fp32()
@@ -101,6 +111,8 @@ program test
     write(*,*) "monadic_r3fp64()", monadic_r3fp64()
     write(*,*) "monadic_r4fp32()", monadic_r4fp32()
     write(*,*) "monadic_r4fp64()", monadic_r4fp64()
+    write(*,*) "monadic_sfp32()", monadic_sfp32()
+    write(*,*) "monadic_sfp64()", monadic_sfp64()
     write(*,*) "random_r1fp32()", random_r1fp32()
     write(*,*) "random_r1fp64()", random_r1fp64()
     write(*,*) "random_r2fp32()", random_r2fp32()
@@ -214,6 +226,16 @@ program test
     include "cos_r4fp64.f90"
     include "cos_sfp32.f90"
     include "cos_sfp64.f90"
+    include "division_r1fp32.f90"
+    include "division_r1fp64.f90"
+    include "division_r2fp32.f90"
+    include "division_r2fp64.f90"
+    include "division_r3fp32.f90"
+    include "division_r3fp64.f90"
+    include "division_r4fp32.f90"
+    include "division_r4fp64.f90"
+    include "division_sfp32.f90"
+    include "division_sfp64.f90"
     include "gaussian3d_r1fp32.f90"
     include "gaussian3d_r1fp64.f90"
     include "gaussian3d_r2fp32.f90"
@@ -260,6 +282,8 @@ program test
     include "monadic_r3fp64.f90"
     include "monadic_r4fp32.f90"
     include "monadic_r4fp64.f90"
+    include "monadic_sfp32.f90"
+    include "monadic_sfp64.f90"
     include "random_r1fp32.f90"
     include "random_r1fp64.f90"
     include "random_r2fp32.f90"
