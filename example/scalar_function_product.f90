@@ -20,7 +20,6 @@ program scalar_function_product
 
   ! Evaluate the equation
   x = 0.5
-  print*, "Getting ready to evaluate"
   feval = f % evaluate(x)
   print*, feval
 

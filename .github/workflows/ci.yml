@@ -77,6 +77,7 @@ jobs:
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
           ./fpm install
+          ./fpm test
           ./fpm run --example "*"
 
       - name: Initialize coverage counters
