@@ -17,7 +17,7 @@ on:
 env:
   # Modify this variable to change the ifort compiler version - do NOT hardcode the version
   # anywhere else!
-  INTEL_ONEAPI_VERSION: 2024.0
+  INTEL_ONEAPI_VERSION: 2023.2.1
 
 jobs:
   test:
