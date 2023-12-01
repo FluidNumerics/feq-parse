@@ -36,12 +36,21 @@ jobs:
               ccompiler: gcc-9
               shell: bash
               build_type: coverage
+
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: gfortran-9
+              ccompiler: gcc-9
+              shell: bash
+              build_type: debug
+
             - os: ubuntu-22.04
               os_name: linux
               fcompiler: gfortran-10
               ccompiler: gcc-10
               shell: bash
               build_type: debug
+
             - os: ubuntu-22.04
               os_name: linux
               fcompiler: gfortran-11
@@ -49,6 +58,26 @@ jobs:
               shell: bash
               build_type: debug
 
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: gfortran-12
+              ccompiler: gcc-12
+              shell: bash
+              build_type: debug
+
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: ifx
+              ccompiler: icx-cc
+              shell: bash
+              build_type: debug
+
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: gfortran-9
+              ccompiler: gcc-9
+              shell: bash
+              build_type: fpm
 
             - os: ubuntu-22.04
               os_name: linux
@@ -56,12 +85,29 @@ jobs:
               ccompiler: gcc-10
               shell: bash
               build_type: fpm
+
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: gfortran-11
+              ccompiler: gcc-11
+              shell: bash
+              build_type: fpm
+
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: gfortran-12
+              ccompiler: gcc-12
+              shell: bash
+              build_type: fpm
+
             - os: ubuntu-22.04
               os_name: linux
               fcompiler: ifx
               ccompiler: icx-cc
               shell: bash
-              build_type: debug
+              build_type: fpm
+
+
             # Windows
             - os: windows-latest
               os_name: windows
@@ -69,6 +115,7 @@ jobs:
               ccompiler: gcc
               shell: 'msys2 {0}'
               test_type: debug
+
     defaults:
       run:
         shell: ${{ matrix.shell }}
