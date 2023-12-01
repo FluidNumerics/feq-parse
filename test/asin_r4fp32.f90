@@ -52,6 +52,7 @@ integer function asin_r4fp32() result(r)
   if (maxval(abs(feval - fexact)) <= epsilon(1.0_real32)) then
     r = 0
   else
+    print*, maxval(abs(feval - fexact)),epsilon(1.0_real32)
     r = 1
   end if
 
