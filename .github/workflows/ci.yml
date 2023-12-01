@@ -48,6 +48,8 @@ jobs:
               ccompiler: gcc-11
               shell: bash
               build_type: debug
+
+
             - os: ubuntu-22.04
               os_name: linux
               fcompiler: gfortran-10
@@ -168,7 +170,7 @@ jobs:
           flags: ctests
 
       - name: Run memory checks with Valgrind (only Linux)
-        if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'valgrind' }}
+        if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'debug' }}
         run: |
           sudo apt-get install -y valgrind
-          valgrind --error-exitcode=1 -s ./test/testsuite -A
+          valgrind --error-exitcode=1 -s ./build/test/testsuite -A
