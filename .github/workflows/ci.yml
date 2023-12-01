@@ -17,12 +17,12 @@ on:
 env:
   # Modify this variable to change the ifort compiler version - do NOT hardcode the version
   # anywhere else!
-  INTEL_ONEAPI_VERSION: 2023.2.1
+  INTEL_ONEAPI_VERSION: 2024.0
 
 jobs:
   test:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os_name }} - ${{ matrix.compiler }} - ${{ matrix.build_type }} - ${{ github.event_name }}
+    name: ${{ matrix.os_name }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -31,33 +31,39 @@ jobs:
             # Linux
             - os: ubuntu-22.04
               os_name: linux
-              compiler: gfortran-9
+              fcompiler: gfortran-9
+              ccompiler: gcc-9
               shell: bash
               build_type: coverage
             - os: ubuntu-22.04
               os_name: linux
-              compiler: gfortran-10
+              fcompiler: gfortran-10
+              ccompiler: gcc-10
               shell: bash
               build_type: debug
             - os: ubuntu-22.04
               os_name: linux
-              compiler: gfortran-11
+              fcompiler: gfortran-11
+              ccompiler: gcc-11
               shell: bash
               build_type: debug
             - os: ubuntu-22.04
               os_name: linux
-              compiler: gfortran-10
+              fcompiler: gfortran-10
+              ccompiler: gcc-10
               shell: bash
               build_type: fpm
             - os: ubuntu-22.04
               os_name: linux
-              compiler: ifort
+              fcompiler: ifx
+              ccompiler: icx-cc
               shell: bash
               build_type: debug
             # Windows
             - os: windows-latest
               os_name: windows
-              compiler: gfortran
+              fcompiler: gfortran
+              ccompiler: gcc
               shell: 'msys2 {0}'
               test_type: debug
     defaults:
@@ -79,9 +85,9 @@ jobs:
         id: cache
         with:
           path: /opt/intel/oneapi
-          key: ${{ matrix.os }}-${{ matrix.compiler }}-${{ env.INTEL_ONEAPI_VERSION }}
+          key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
       - name: Install Intel oneAPI Fortran compiler
-        if: matrix.compiler == 'ifort' && steps.cache.outputs.cache-hit != 'true'
+        if: matrix.fcompiler == 'ifx' && steps.cache.outputs.cache-hit != 'true'
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -91,14 +97,15 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
 
           # update package index and install Fortran compiler
-          sudo apt update
-          sudo apt-get install intel-oneapi-compiler-fortran-$INTEL_ONEAPI_VERSION
+          sudo apt update -y
+          sudo apt-get -y install intel-oneapi-compiler-fortran-$INTEL_ONEAPI_VERSION intel-oneapi-dpcpp-cpp-$INTEL_ONEAPI_VERSION
 
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
           env | grep oneapi >> $GITHUB_ENV
+
       - name: Use existing Intel oneAPI Fortran compiler
-        if: matrix.compiler == 'ifort' && steps.cache.outputs.cache-hit == 'true'
+        if: matrix.fcompiler == 'ifx' && steps.cache.outputs.cache-hit == 'true'
         run: |
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
@@ -106,13 +113,14 @@ jobs:
 
       - name: Show version information
         run: |
-          ${{ matrix.compiler }} --version
+          ${{ matrix.fcompiler }} --version
+          ${{ matrix.ccompiler }} --version
 
       - name: Build with Cmake
         if: ${{ matrix.build_type != 'fpm' }}
         run: |
           cd build
-          FC=${{ matrix.compiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
+          FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
 
       - name: fpm tests
@@ -120,7 +128,7 @@ jobs:
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
-          ./fpm install
+          ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
           ./fpm test
           ./fpm run --example "*"
 
