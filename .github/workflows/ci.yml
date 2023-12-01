@@ -129,8 +129,8 @@ jobs:
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
           ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          ./fpm test
-          ./fpm run --example "*"
+          ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
+          ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
 
       - name: Initialize coverage counters
         if: ${{ matrix.build_type == 'coverage' }}
