@@ -119,6 +119,7 @@ jobs:
       - name: Build with Cmake
         if: ${{ matrix.build_type != 'fpm' }}
         run: |
+          mkdir build
           cd build
           FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
