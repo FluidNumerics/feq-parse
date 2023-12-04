@@ -2,7 +2,7 @@ program test
 
     !! a main program to include the test case, so it
     !! can be compiled with FPM.
-
+    use FEQParse
     implicit none
 
     write(*,*) "abs_r1fp32()", abs_r1fp32()
