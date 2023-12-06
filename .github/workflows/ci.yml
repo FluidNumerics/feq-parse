@@ -143,14 +143,14 @@ jobs:
           update: true
           install: git base-devel mingw-w64-x86_64-toolchain cmake
 
-      - uses: actions/cache@v3
-        id: cache
-        with:
-          path: /opt/intel/oneapi
-          key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
+      # - uses: actions/cache@v3
+      #   id: cache
+      #   with:
+      #     path: /opt/intel/oneapi
+      #     key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
 
       - name: Install Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ startsWith(matrix.fcompiler,'if') }}
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -168,7 +168,7 @@ jobs:
           env | grep oneapi >> $GITHUB_ENV
 
       - name: Use existing Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ startsWith(matrix.fcompiler,'if') }}
         run: |
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
