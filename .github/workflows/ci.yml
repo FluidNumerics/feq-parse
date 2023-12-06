@@ -188,7 +188,7 @@ jobs:
           make VERBOSE=1
 
       - name: fpm tests (ifx)
-        if: ${{ matrix.build_type == 'fpm' }} && ${{ matrix.compiler == 'ifx' }}
+        if: ${{ (matrix.build_type == 'fpm') && (matrix.compiler == 'ifx') }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
@@ -197,7 +197,7 @@ jobs:
           ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback" --example "*"
 
       - name: fpm tests (not ifx)
-        if: ${{ matrix.build_type == 'fpm' }} && ${{ matrix.compiler != 'ifx' }}
+        if: ${{ (matrix.build_type == 'fpm') && (matrix.compiler != 'ifx') }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
