@@ -136,9 +136,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      # - name: Add msbuild to PATH
-      #   if: ${{ matrix.os_name == 'windows-latest' }}
-      #   uses: microsoft/setup-msbuild@v1.0.2
+
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.os == 'windows-latest' }}
         with:
@@ -150,8 +148,9 @@ jobs:
         with:
           path: /opt/intel/oneapi
           key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
+
       - name: Install Intel oneAPI Fortran compiler
-        if: ${{ (matrix.fcompiler == 'ifx' || matrix.fcompiler == 'ifort') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ startsWith(matrix.fcompiler,'if') && steps.cache.outputs.cache-hit != 'true' }}
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -169,7 +168,7 @@ jobs:
           env | grep oneapi >> $GITHUB_ENV
 
       - name: Use existing Intel oneAPI Fortran compiler
-        if: ${{ (matrix.fcompiler == 'ifx' || matrix.fcompiler == 'ifort') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ startsWith(matrix.fcompiler,'if') && steps.cache.outputs.cache-hit != 'true' }}
         run: |
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
