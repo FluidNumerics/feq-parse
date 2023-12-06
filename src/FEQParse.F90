@@ -90,8 +90,8 @@ contains
 
   function Construct_EquationParser(equation,indepVars) result(parser)
     type(EquationParser) :: parser
-    character(*)           :: equation
-    character(1)           :: indepVars(1:)
+    character(*)         :: equation
+    character(1)         :: indepVars(1:)
     ! Local
     integer :: i
     character(Error_Message_Length) :: errorMsg
@@ -109,6 +109,7 @@ contains
 
     parser % inFixFormula = " "
     parser % equation = equation
+    parser % variableName = '#noname'
     errorMsg = " "
 
     call parser % CleanEquation(equationIsClean,errorMsg)
@@ -147,14 +148,14 @@ contains
   end subroutine Destruct_EquationParser
 
   subroutine CleanEquation(parser,equationCleaned,errorMsg)
-    class(EquationParser),intent(inout)       :: parser
+    class(EquationParser),intent(inout)         :: parser
     logical,intent(out)                         :: equationCleaned
     character(Error_Message_Length),intent(out) :: errorMsg
     ! Local
     integer :: nChar,equalSignLoc,j,i
+    character(Max_Equation_Length) :: infixformula
 
     equationCleaned = .false.
-    parser % variableName = '#noname'
 
     nChar = len_trim(parser % equation)
     equalSignLoc = index(parser % equation,"=")
@@ -164,23 +165,24 @@ contains
       return
     end if
 
-    parser % variableName = trim(parser % equation(1:equalSignLoc - 1))
+    parser % variableName = parser % equation(1:equalSignLoc - 1)
+   ! print*, "variable : "//parser % variableName
 
     ! Grab the formula to the right of the equal sign and left adjust the formula
-    parser % inFixFormula = parser % equation(equalSignLoc + 1:)
-    parser % inFixFormula = adjustl(parser % inFixFormula)
-
+    inFixFormula = parser % equation(equalSignLoc + 1:Max_Equation_Length)
+   ! print*, "infix : "//inFixFormula
+   ! print*, "len_trim(infix) : ", len_trim(inFixFormula)
     ! Remove any spaces
     j = 1
-    do i = 1,len_trim(parser % inFixFormula)
-      if (parser % inFixFormula(i:i) /= " ") then
-        parser % inFixFormula(j:j) = parser % inFixFormula(i:i)
+    do i = 1,len_trim(inFixFormula)
+      if (inFixFormula(i:i) /= " ") then
+        parser % inFixFormula(j:j) = inFixFormula(i:i)
         j = j + 1
       end if
     end do
 
     parser % inFixFormula(j:Max_Equation_Length) = " "
-
+   ! print*, "parser % infixformula : ", parser % infixformula
     equationCleaned = .true.
 
   end subroutine CleanEquation

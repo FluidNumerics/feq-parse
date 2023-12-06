@@ -23,7 +23,7 @@ jobs:
   test:
     timeout-minutes: 5
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os_name }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }} - ${{ github.event_name }}
+    name: ${{ matrix.os_name }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -74,6 +74,13 @@ jobs:
 
             - os: ubuntu-22.04
               os_name: linux
+              fcompiler: ifort
+              ccompiler: icx-cc
+              shell: bash
+              build_type: debug
+
+            - os: ubuntu-22.04
+              os_name: linux
               fcompiler: gfortran-9
               ccompiler: gcc-9
               shell: bash
@@ -103,6 +110,13 @@ jobs:
             - os: ubuntu-22.04
               os_name: linux
               fcompiler: ifx
+              ccompiler: icx-cc
+              shell: bash
+              build_type: fpm
+            
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: ifort
               ccompiler: icx-cc
               shell: bash
               build_type: fpm
@@ -137,7 +151,7 @@ jobs:
           path: /opt/intel/oneapi
           key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
       - name: Install Intel oneAPI Fortran compiler
-        if: matrix.fcompiler == 'ifx' && steps.cache.outputs.cache-hit != 'true'
+        if: ${{ (matrix.fcompiler == 'ifx' || matrix.fcompiler == 'ifort') && steps.cache.outputs.cache-hit != 'true' }}
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -155,7 +169,7 @@ jobs:
           env | grep oneapi >> $GITHUB_ENV
 
       - name: Use existing Intel oneAPI Fortran compiler
-        if: matrix.fcompiler == 'ifx' && steps.cache.outputs.cache-hit == 'true'
+        if: ${{ (matrix.fcompiler == 'ifx' || matrix.fcompiler == 'ifort') && steps.cache.outputs.cache-hit != 'true' }}
         run: |
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
