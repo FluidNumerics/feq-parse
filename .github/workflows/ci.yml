@@ -21,7 +21,7 @@ env:
 
 jobs:
   test:
-    timeout-minutes: 5
+    timeout-minutes: 8
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     name: ${{ matrix.os_name }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
@@ -107,12 +107,12 @@ jobs:
               shell: bash
               build_type: fpm
 
-            # - os: ubuntu-22.04
-            #   os_name: linux
-            #   fcompiler: ifx
-            #   ccompiler: icx-cc
-            #   shell: bash
-            #   build_type: fpm
+            - os: ubuntu-22.04
+              os_name: linux
+              fcompiler: ifx
+              ccompiler: icx-cc
+              shell: bash
+              build_type: fpm
             
             - os: ubuntu-22.04
               os_name: linux
@@ -187,8 +187,17 @@ jobs:
           FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
 
-      - name: fpm tests
-        if: ${{ matrix.build_type == 'fpm' }}
+      - name: fpm tests (ifx)
+        if: ${{ matrix.build_type == 'fpm' && matrix.compiler == 'ifx' }}
+        run: |
+          wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
+          chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
+          ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
+          ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
+          ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback" --example "*"
+
+      - name: fpm tests (ifx)
+        if: ${{ matrix.build_type == 'fpm' && matrix.compiler != 'ifx' }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
