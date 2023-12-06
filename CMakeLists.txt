@@ -28,7 +28,7 @@ if( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
 
 elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
     set( CMAKE_Fortran_FLAGS "-fpp" )
-    set( CMAKE_Fortran_FLAGS_DEBUG "-debug all" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -debug all -check all -traceback" )
     set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG} -prof-gen=srcpos")
     set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
     set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )

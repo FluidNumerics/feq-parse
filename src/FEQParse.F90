@@ -270,7 +270,7 @@ contains
 
         i = i + 1
 
-      elseif (IsFunction(parser % inFixFormula(i:i))) then
+      elseif (parser % infixFormula(i:i) == "\") then
 
         parser % inFix % top_index = parser % inFix % top_index + 1
         parser % inFix % tokens(parser % inFix % top_index) % tokenString = ''
@@ -324,7 +324,7 @@ contains
     character(Error_Message_Length) :: errorMsg
     type(TokenStack)              :: operator_stack
     type(Token)                   :: tok
-    integer                         :: i
+    integer                       :: i
 
     !success = .FALSE.
 
@@ -332,7 +332,7 @@ contains
     call operator_stack % Construct(Stack_Length)
 
     do i = 1,parser % infix % top_index
-
+      !print*, parser % inFix % tokens(i) % tokenString
       if (parser % inFix % tokens(i) % tokenType == Variable_Token .or. &
           parser % inFix % tokens(i) % tokenType == Number_Token) then
 
@@ -348,10 +348,12 @@ contains
         if (.not. operator_stack % IsEmpty()) then
 
           tok = operator_stack % TopToken()
+          ! print*, "tok : "//tok % tokenString
+          ! print*, "token(i) : "//parser % inFix % tokens(i) % tokenString
 
           do while (trim(tok % tokenString) /= "(" .and. &
-                    parser % Priority(trim(tok % tokenString)) > &
-                    parser % Priority(trim(parser % inFix % tokens(i) % tokenString)))
+                    parser % Priority(tok % tokenString) > &
+                    parser % Priority(parser % inFix % tokens(i) % tokenString))
 
             call parser % postFix % push(tok)
             call operator_stack % pop(tok)
@@ -607,11 +609,16 @@ contains
     type(Token) :: t
     type(r1fp32Stack) :: stack
     real(real32) :: vnumber
-    real(real32) :: v(lbound(x,1):ubound(x,1))
-    real(real32) :: a(lbound(x,1):ubound(x,1))
-    real(real32) :: b(lbound(x,1):ubound(x,1))
-    real(real32) :: c(lbound(x,1):ubound(x,1))
+    real(real32), allocatable :: v(:)
+    real(real32), allocatable :: a(:)
+    real(real32), allocatable :: b(:)
+    real(real32), allocatable :: c(:)
 
+    allocate( v(lbound(x,1):ubound(x,1)), &
+              a(lbound(x,1):ubound(x,1)), &
+              b(lbound(x,1):ubound(x,1)), &
+              c(lbound(x,1):ubound(x,1)) )
+            
     call stack % Construct(Stack_Length,v)
 
       do k = 1,parser % postfix % top_index
@@ -699,6 +706,7 @@ contains
       f = a
 
       call stack % Destruct()
+      deallocate( v, a, b, c )
 
   end function Evaluate_r1fp32
 
@@ -711,10 +719,15 @@ contains
     type(Token) :: t
     type(r1fp64Stack) :: stack
     real(real64) :: vnumber
-    real(real64) :: v(lbound(x,1):ubound(x,1))
-    real(real64) :: a(lbound(x,1):ubound(x,1))
-    real(real64) :: b(lbound(x,1):ubound(x,1))
-    real(real64) :: c(lbound(x,1):ubound(x,1))
+    real(real64), allocatable :: v(:)
+    real(real64), allocatable :: a(:)
+    real(real64), allocatable :: b(:)
+    real(real64), allocatable :: c(:)
+
+    allocate( v(lbound(x,1):ubound(x,1)), &
+              a(lbound(x,1):ubound(x,1)), &
+              b(lbound(x,1):ubound(x,1)), &
+              c(lbound(x,1):ubound(x,1)) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -804,6 +817,7 @@ contains
       f = a
 
       call stack % Destruct()
+      deallocate( v, a, b, c )
 
   end function Evaluate_r1fp64
 
@@ -817,14 +831,20 @@ contains
     type(Token) :: t
     type(r2fp32Stack) :: stack
     real(real32) :: vnumber
-    real(real32) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real32) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real32) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real32) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
+    real(real32), allocatable :: v(:,:)
+    real(real32), allocatable :: a(:,:)
+    real(real32), allocatable :: b(:,:)
+    real(real32), allocatable :: c(:,:)
+    integer :: l1, l2, u1, u2
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    allocate( v(l1:u1,l2:u2),&
+              a(l1:u1,l2:u2),&
+              b(l1:u1,l2:u2),&
+              c(l1:u1,l2:u2) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -913,6 +933,7 @@ contains
       f = a
 
       call stack % Destruct()
+      deallocate( v, a, b, c )
 
   end function Evaluate_r2fp32
 
@@ -926,14 +947,20 @@ contains
     type(Token) :: t
     type(r2fp64Stack) :: stack
     real(real64) :: vnumber
-    real(real64) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real64) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real64) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
-    real(real64) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2))
+    real(real64), allocatable :: v(:,:)
+    real(real64), allocatable :: a(:,:)
+    real(real64), allocatable :: b(:,:)
+    real(real64), allocatable :: c(:,:)
+    integer :: l1, l2, u1, u2
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    allocate( v(l1:u1,l2:u2),&
+              a(l1:u1,l2:u2),&
+              b(l1:u1,l2:u2),&
+              c(l1:u1,l2:u2) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -1023,6 +1050,7 @@ contains
       f = a
 
       call stack % Destruct()
+      deallocate(v,a,b,c)
 
   end function Evaluate_r2fp64
 
@@ -1037,18 +1065,22 @@ contains
     type(Token) :: t
     type(r3fp32Stack) :: stack
     real(real32) :: vnumber
-    real(real32) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real32) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real32) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real32) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
+    real(real32), allocatable :: v(:,:,:)
+    real(real32), allocatable :: a(:,:,:)
+    real(real32), allocatable :: b(:,:,:)
+    real(real32), allocatable :: c(:,:,:)
+    integer :: l1, l2, l3, u1, u2, u3
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    l3 = lbound(x,3)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    u3 = ubound(x,3)
+    allocate( v(l1:u1,l2:u2,l3:u3),&
+              a(l1:u1,l2:u2,l3:u3),&
+              b(l1:u1,l2:u2,l3:u3),&
+              c(l1:u1,l2:u2,l3:u3) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -1137,6 +1169,7 @@ contains
       f = a
 
       call stack % Destruct()
+      deallocate( v, a, b, c )
 
   end function Evaluate_r3fp32
 
@@ -1151,18 +1184,22 @@ contains
     type(Token) :: t
     type(r3fp64Stack) :: stack
     real(real64) :: vnumber
-    real(real64) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real64) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real64) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
-    real(real64) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3))
+    real(real64), allocatable :: v(:,:,:)
+    real(real64), allocatable :: a(:,:,:)
+    real(real64), allocatable :: b(:,:,:)
+    real(real64), allocatable :: c(:,:,:)
+    integer :: l1, l2, l3, u1, u2, u3
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    l3 = lbound(x,3)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    u3 = ubound(x,3)
+    allocate( v(l1:u1,l2:u2,l3:u3),&
+              a(l1:u1,l2:u2,l3:u3),&
+              b(l1:u1,l2:u2,l3:u3),&
+              c(l1:u1,l2:u2,l3:u3) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -1252,6 +1289,8 @@ contains
       f = a
 
       call stack % Destruct()
+
+      deallocate( v, a, b, c )
 
   end function Evaluate_r3fp64
 
@@ -1267,22 +1306,24 @@ contains
     type(Token) :: t
     type(r4fp32Stack) :: stack
     real(real32) :: vnumber
-    real(real32) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real32) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real32) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real32) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
+    real(real32), allocatable :: v(:,:,:,:)
+    real(real32), allocatable :: a(:,:,:,:)
+    real(real32), allocatable :: b(:,:,:,:)
+    real(real32), allocatable :: c(:,:,:,:)
+    integer :: l1, l2, l3, l4, u1, u2, u3, u4
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    l3 = lbound(x,3)
+    l4 = lbound(x,3)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    u3 = ubound(x,3)
+    u4 = ubound(x,4)
+    allocate( v(l1:u1,l2:u2,l3:u3,l4:u4),&
+              a(l1:u1,l2:u2,l3:u3,l4:u4),&
+              b(l1:u1,l2:u2,l3:u3,l4:u4),&
+              c(l1:u1,l2:u2,l3:u3,l4:u4) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -1372,6 +1413,8 @@ contains
 
       call stack % Destruct()
 
+      deallocate( v, a, b, c )
+
   end function Evaluate_r4fp32
 
   function Evaluate_r4fp64(parser,x) result(f)
@@ -1386,22 +1429,24 @@ contains
     type(Token) :: t
     type(r4fp64Stack) :: stack
     real(real64) :: vnumber
-    real(real64) :: v(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real64) :: a(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real64) :: b(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
-    real(real64) :: c(lbound(x,1):ubound(x,1),&
-                      lbound(x,2):ubound(x,2),&
-                      lbound(x,3):ubound(x,3),&
-                      lbound(x,4):ubound(x,4))
+    real(real64), allocatable :: v(:,:,:,:)
+    real(real64), allocatable :: a(:,:,:,:)
+    real(real64), allocatable :: b(:,:,:,:)
+    real(real64), allocatable :: c(:,:,:,:)
+    integer :: l1, l2, l3, l4, u1, u2, u3, u4
+
+    l1 = lbound(x,1)
+    l2 = lbound(x,2)
+    l3 = lbound(x,3)
+    l4 = lbound(x,3)
+    u1 = ubound(x,1)
+    u2 = ubound(x,2)
+    u3 = ubound(x,3)
+    u4 = ubound(x,4)
+    allocate( v(l1:u1,l2:u2,l3:u3,l4:u4),&
+              a(l1:u1,l2:u2,l3:u3,l4:u4),&
+              b(l1:u1,l2:u2,l3:u3,l4:u4),&
+              c(l1:u1,l2:u2,l3:u3,l4:u4) )
 
     call stack % Construct(Stack_Length,v)
 
@@ -1491,6 +1536,8 @@ contains
       f = a
 
       call stack % Destruct()
+
+      deallocate( v, a, b, c )
 
   end function Evaluate_r4fp64
 
@@ -1594,7 +1641,7 @@ contains
     class(EquationParser) :: parser
     character(*) :: operatorString
 
-    if (IsFunction(operatorString)) then
+    if (operatorString(1:1) == "\") then
 
       Priority = 4
 
@@ -1617,15 +1664,6 @@ contains
     end if
 
   end function Priority
-  logical function IsFunction(eqChar)
-  character(*) :: eqChar
-
-  IsFunction = .false.
-  if (eqChar(1:1) == "\") then
-    IsFunction = .true.
-  end if
-
-end function IsFunction
 
 function FindLastFunctionIndex(eqChar) result(j)
   character(*) :: eqChar
