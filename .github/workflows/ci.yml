@@ -107,12 +107,12 @@ jobs:
               shell: bash
               build_type: fpm
 
-            - os: ubuntu-22.04
-              os_name: linux
-              fcompiler: ifx
-              ccompiler: icx-cc
-              shell: bash
-              build_type: fpm
+            # - os: ubuntu-22.04
+            #   os_name: linux
+            #   fcompiler: ifx
+            #   ccompiler: icx-cc
+            #   shell: bash
+            #   build_type: fpm
             
             - os: ubuntu-22.04
               os_name: linux

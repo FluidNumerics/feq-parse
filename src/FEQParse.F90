@@ -371,7 +371,7 @@ contains
 
         tok = operator_stack % TopToken()
 
-        do while (.not. (operator_stack % IsEmpty()) .and. trim(tok % tokenString) /= "(")
+        do while (.not. (operator_stack % IsEmpty()) .and. tok % tokenString(1:1) /= "(")
 
           call parser % postFix % push(tok)
           call operator_stack % pop(tok)
