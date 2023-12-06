@@ -8,11 +8,15 @@ integer function cos_r2fp64() result(r)
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
-  real(real64) :: x(1:N,1:N,1:3)
-  real(real64) :: feval(1:N,1:N)
-  real(real64) :: fexact(1:N,1:N)
+  real(real64),allocatable :: x(:,:,:)
+  real(real64),allocatable :: feval(:,:)
+  real(real64),allocatable :: fexact(:,:)
   integer :: i,j
 
+  allocate (x(1:N,1:N,1:3), &
+            feval(1:N,1:N), &
+            fexact(1:N,1:N))
+            
   ! Specify the independent variables
   independentVars = (/'x','y','z'/)
 
@@ -41,5 +45,6 @@ integer function cos_r2fp64() result(r)
 
   ! Clean up memory
   call f % Destruct()
+  deallocate (x,feval,fexact)
 
 end function cos_r2fp64

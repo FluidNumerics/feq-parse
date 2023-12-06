@@ -35,7 +35,7 @@ module FEQParse_FloatStacks
   end type sfp32Stack
 
   type,extends(feqparse_floatstack) :: sfp64Stack
-    real(real32),allocatable :: tokens(:)
+    real(real64),allocatable :: tokens(:)
 
   contains
 

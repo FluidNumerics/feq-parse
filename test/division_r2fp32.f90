@@ -9,11 +9,15 @@ integer function division_r2fp32() result(r)
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
-  real(real32) :: x(1:N,1:N,1:3)
-  real(real32) :: feval(1:N,1:N)
-  real(real32) :: fexact(1:N,1:N)
+  real(real32),allocatable :: x(:,:,:)
+  real(real32),allocatable :: feval(:,:)
+  real(real32),allocatable :: fexact(:,:)
   integer :: i,j
 
+  allocate (x(1:N,1:N,1:3), &
+            feval(1:N,1:N), &
+            fexact(1:N,1:N))
+            
   ! Specify the independent variables
   independentVars = (/'x','y','z'/)
 
@@ -42,5 +46,6 @@ integer function division_r2fp32() result(r)
 
   ! Clean up memory
   call f % Destruct()
+  deallocate (x,feval,fexact)
 
 end function division_r2fp32

@@ -36,3 +36,8 @@ main = "scalar_with_scalar_eval.f90"
 name = "scalar_function_product"
 source-dir = "example"
 main = "scalar_function_product.f90"
+
+[[example]]
+name = "gaussian_scalar_multivar"
+source-dir = "example"
+main = "gaussian_scalar_multivar.f90"
