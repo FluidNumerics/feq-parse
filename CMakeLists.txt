@@ -36,7 +36,7 @@ elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
 
 elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_Fortran_FLAGS "-fpp" )
-    set( CMAKE_Fortran_FLAGS_DEBUG "-debug all" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "-debug all -check all,nouninit -traceback" )
     set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
     set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
     set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
