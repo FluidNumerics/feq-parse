@@ -166,12 +166,9 @@ contains
     end if
 
     parser % variableName = parser % equation(1:equalSignLoc - 1)
-   ! print*, "variable : "//parser % variableName
 
     ! Grab the formula to the right of the equal sign and left adjust the formula
     inFixFormula = parser % equation(equalSignLoc + 1:Max_Equation_Length)
-   ! print*, "infix : "//inFixFormula
-   ! print*, "len_trim(infix) : ", len_trim(inFixFormula)
     ! Remove any spaces
     j = 1
     do i = 1,len_trim(inFixFormula)
@@ -182,7 +179,6 @@ contains
     end do
 
     parser % inFixFormula(j:Max_Equation_Length) = " "
-   ! print*, "parser % infixformula : ", parser % infixformula
     equationCleaned = .true.
 
   end subroutine CleanEquation
