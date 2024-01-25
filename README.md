@@ -93,14 +93,14 @@ Refer to the [spack documentation](https://spack.readthedocs.io/en/latest/) for 
 
 ## Supported Compilers
 
-The following combinations are tested on the default branch of stdlib:
+The following combinations are tested on the main branch of feq-parse:
 
-Name | Version | Platform | Architecture
---- | --- | --- | ---
-GCC Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | x86_64
-GCC Fortran (MSYS) | 10 | Windows Server 2022 (10.0.20348 Build 1547) | x86_64
-Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | x86_64
-Intel oneAPI classic | 2021.1 | Ubuntu 22.04.2 LTS | x86_64
+Name | Version | Platform | Build System | Architecture
+--- | --- | --- | --- | --- |
+GCC Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+GCC Fortran (MSYS2) | 10 | Windows Server 2022 (10.0.20348 Build 1547) | `cmake` | x86_64
+Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+Intel oneAPI classic | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 
 
 ## Usage
