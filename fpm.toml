@@ -19,7 +19,7 @@ library = true
 
 [[test]]
 name = "unit-tests"
-source-dir = "test"
+source-dir = "test/fpm"
 main = "test.f90"
 
 [[example]]
