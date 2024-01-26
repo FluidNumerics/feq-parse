@@ -70,7 +70,7 @@ jobs:
           FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
 
-      - name: fpm tests (not ifx)
+      - name: fpm tests
         if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
         run: |
           fpm install --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
