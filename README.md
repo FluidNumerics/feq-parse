@@ -53,7 +53,7 @@ fpm test --profile release
 
 You can also run the examples included in the `example/` subdirectory :
 ```
-fpm run --example "*"
+fpm run --example="*"
 ```
 
 To use `feq-parse` within your fpm project, add the following to your `fpm.toml` file:
