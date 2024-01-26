@@ -97,10 +97,10 @@ The following combinations are tested on the main branch of feq-parse:
 
 Name | Version | Platform | Build System | Architecture
 --- | --- | --- | --- | --- |
-GCC Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
-GCC Fortran (MSYS2) | 10 | Windows Server 2022 (10.0.20348 Build 1547) | `cmake` | x86_64
+GNU Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+GNU Fortran | 13.2.0 | Windows Server 2022 (10.0.20348 Build 1547) (MSYS2) | `fpm`, `cmake` | x86_64
 Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
-Intel oneAPI classic | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 
 
 ## Usage
