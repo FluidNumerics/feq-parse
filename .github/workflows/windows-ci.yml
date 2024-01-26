@@ -75,7 +75,7 @@ jobs:
         run: |
           fpm install --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
           fpm test --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          fpm run --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
+          fpm run --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example="*"
 
       - name: Run ctests
         if: ${{ matrix.build_type != 'fpm' }}
