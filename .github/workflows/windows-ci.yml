@@ -73,9 +73,9 @@ jobs:
       - name: fpm tests (not ifx)
         if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
         run: |
-          fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
+          fpm install --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
+          fpm test --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
+          fpm run --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
 
       - name: Run ctests
         if: ${{ matrix.build_type != 'fpm' }}
