@@ -1,4 +1,4 @@
-name: ci
+name: linux-ci
 
 on:
   push:
@@ -20,10 +20,10 @@ env:
   INTEL_ONEAPI_VERSION: 2023.2.1
 
 jobs:
-  test:
+  linux-tests:
     timeout-minutes: 8
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os_name }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
+    name: ${{ matrix.os }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -31,104 +31,96 @@ jobs:
         include:
             # Linux
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-9
               ccompiler: gcc-9
               shell: bash
               build_type: coverage
+              memcheck: true
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-9
               ccompiler: gcc-9
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-10
               ccompiler: gcc-10
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-11
               ccompiler: gcc-11
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-12
               ccompiler: gcc-12
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: ifx
               ccompiler: icx-cc
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: ifort
               ccompiler: icx-cc
               shell: bash
               build_type: debug
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-9
               ccompiler: gcc-9
               shell: bash
               build_type: fpm
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-10
               ccompiler: gcc-10
               shell: bash
               build_type: fpm
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-11
               ccompiler: gcc-11
               shell: bash
               build_type: fpm
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: gfortran-12
               ccompiler: gcc-12
               shell: bash
               build_type: fpm
+              memcheck: false
 
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: ifx
               ccompiler: icx-cc
               shell: bash
               build_type: fpm
+              memcheck: false
             
             - os: ubuntu-22.04
-              os_name: linux
               fcompiler: ifort
               ccompiler: icx-cc
               shell: bash
               build_type: fpm
+              memcheck: false
 
-
-            # Windows
-            - os: windows-latest
-              os_name: windows
-              fcompiler: gfortran
-              ccompiler: gcc
-              shell: 'msys2 {0}'
-              test_type: debug
 
     defaults:
       run:
@@ -137,20 +129,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.os == 'windows-latest' }}
-        with:
-          update: true
-          install: git base-devel mingw-w64-x86_64-toolchain cmake
-
-      # - uses: actions/cache@v3
-      #   id: cache
-      #   with:
-      #     path: /opt/intel/oneapi
-      #     key: ${{ matrix.os }}-${{ matrix.fcompiler }}-${{ env.INTEL_ONEAPI_VERSION }}
-
       - name: Install Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if') }}
+        if: ${{ startsWith(matrix.fcompiler,'if')  }}
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -196,7 +176,7 @@ jobs:
           ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
           ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback" --example "*"
 
-      - name: fpm tests (not ifx)
+      - name: fpm tests 
         if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
@@ -238,8 +218,8 @@ jobs:
           files: /home/runner/work/lcov.info
           flags: ctests
 
-      - name: Run memory checks with Valgrind (only Linux)
-        if: ${{ matrix.os_name == 'linux' && matrix.test_type == 'debug' }}
+      - name: Run memory checks with Valgrind (only Linux and GNU compilers)
+        if: ${{ matrix.memcheck }}
         run: |
           sudo apt-get install -y valgrind
           valgrind --error-exitcode=1 -s ./build/test/testsuite -A

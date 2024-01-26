@@ -12,7 +12,7 @@ Copyright 2020 Fluid Numerics LLC
 `feq-parse` can be installed using either CMake, [Fortran Package Manager (fpm)](https://github.com/fortran-lang/fpm), or with [Spack](https://spack.io).
 
 ### Prerequisites
-All you need is a Fortran compiler that is compliant with the Fortran 2008 standard and supports C interoperability. You can see which compilers are regularly tested on the [Github actions page](https://github.com/FluidNumerics/feq-parse/actions/workflows/ci.yml)
+All you need is a Fortran compiler that is compliant with the Fortran 2008 standard and supports C interoperability. You can see which compilers are regularly tested on the [Github actions page](https://github.com/FluidNumerics/feq-parse/actions/workflows/ci.yml). Additionally, the table below lists the [supported compilers](#supported-compilers)
 
 If you are installing with CMake, you will need to have CMake version 3.0.2 or greated
 
@@ -53,7 +53,7 @@ fpm test --profile release
 
 You can also run the examples included in the `example/` subdirectory :
 ```
-fpm run --example "*"
+fpm run --example="*"
 ```
 
 To use `feq-parse` within your fpm project, add the following to your `fpm.toml` file:
@@ -90,6 +90,18 @@ spack install feq-parse@1.1.0
 ```
 
 Refer to the [spack documentation](https://spack.readthedocs.io/en/latest/) for further guidance on using Spack.
+
+## Supported Compilers
+
+The following combinations are tested on the main branch of feq-parse:
+
+Name | Version | Platform | Build System | Architecture
+--- | --- | --- | --- | --- |
+GNU Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+GNU Fortran | 13.2.0 | Windows Server 2022 (10.0.20348 Build 1547) (MSYS2) | `fpm`, `cmake` | x86_64
+Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
+
 
 ## Usage
 

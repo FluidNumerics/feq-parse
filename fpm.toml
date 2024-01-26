@@ -17,6 +17,11 @@ source-dir = "src"
 [install]
 library = true
 
+[[test]]
+name = "unit-tests"
+source-dir = "test/fpm"
+main = "test.f90"
+
 [[example]]
 name = "array_with_array_eval"
 source-dir = "example"
