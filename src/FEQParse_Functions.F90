@@ -17,17 +17,16 @@ module FEQParse_Functions
 
   implicit none
 
-  integer,parameter,private :: nFunctions_default = 14
-  integer,parameter,public :: feqparse_function_maxlength = 10
+  integer,parameter,private :: nFunctions_default = 17
 
   type FEQParse_Function
-    character(feqparse_function_maxlength) :: str
+    character(:), allocatable :: str
   end type FEQParse_Function
 
   type FEQParse_FunctionHandler
     integer :: nfunctions
     type(FEQParse_Function),allocatable :: functions(:)
-
+    integer :: maxFunctionLength
   contains
     procedure,public :: Destruct => Destruct_FEQParse_FunctionHandler
     !procedure,public :: IsFunction
@@ -64,24 +63,26 @@ contains
 
   function Construct_FEQParse_FunctionHandler() result(functionhandler_obj)
     type(FEQParse_FunctionHandler) :: functionhandler_obj
-
     functionhandler_obj % nfunctions = nFunctions_default
     allocate (functionhandler_obj % functions(1:nFunctions_default))
-    functionhandler_obj % functions(1) % str = "\cos"
-    functionhandler_obj % functions(2) % str = "\sin"
-    functionhandler_obj % functions(3) % str = "\tan"
-    functionhandler_obj % functions(4) % str = "\tanh"
-    functionhandler_obj % functions(5) % str = "\sqrt"
-    functionhandler_obj % functions(6) % str = "\abs"
-    functionhandler_obj % functions(7) % str = "\exp"
-    functionhandler_obj % functions(8) % str = "\ln"
-    functionhandler_obj % functions(9) % str = "\log"
-    functionhandler_obj % functions(10) % str = "\acos"
-    functionhandler_obj % functions(11) % str = "\asin"
-    functionhandler_obj % functions(12) % str = "\atan"
-    functionhandler_obj % functions(13) % str = "\sech"
-    functionhandler_obj % functions(14) % str = "\rand"
-
+    functionhandler_obj % functions(1) % str = "cos"
+    functionhandler_obj % functions(2) % str = "cosh"
+    functionhandler_obj % functions(3) % str = "sin"
+    functionhandler_obj % functions(4) % str = "sinh"
+    functionhandler_obj % functions(5) % str = "tan"
+    functionhandler_obj % functions(6) % str = "tanh"
+    functionhandler_obj % functions(7) % str = "sqrt"
+    functionhandler_obj % functions(8) % str = "abs"
+    functionhandler_obj % functions(9) % str = "exp"
+    functionhandler_obj % functions(10) % str = "ln"
+    functionhandler_obj % functions(11) % str = "log"
+    functionhandler_obj % functions(12) % str = "log10"
+    functionhandler_obj % functions(13) % str = "acos"
+    functionhandler_obj % functions(14) % str = "asin"
+    functionhandler_obj % functions(15) % str = "atan"
+    functionhandler_obj % functions(16) % str = "sech"
+    functionhandler_obj % functions(17) % str = "rand"
+    functionhandler_obj%maxFunctionLength = 5
   end function Construct_FEQParse_FunctionHandler
 
   subroutine Destruct_FEQParse_FunctionHandler(functionhandler_obj)
@@ -101,59 +102,71 @@ contains
     ! Local
     real(real32)   :: r
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+      
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real32/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -176,59 +189,71 @@ contains
     real(real32)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real32/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -251,59 +276,71 @@ contains
     real(real32)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real32/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -326,59 +363,71 @@ contains
     real(real32)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real32/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -401,59 +450,71 @@ contains
     real(real32)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real32/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -475,59 +536,71 @@ contains
     ! Local
     real(real64)   :: r
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real64/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+      
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
 
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -549,59 +622,71 @@ contains
     ! Local
     real(real64)   :: r
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real64/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
-
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+      
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -623,59 +708,71 @@ contains
     ! Local
     real(real64)   :: r
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real64/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
-
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+      
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -698,59 +795,71 @@ contains
     real(real64)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real64/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
-
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+      
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
@@ -773,59 +882,71 @@ contains
     real(real64)   :: r
     integer :: i
 
-    if (trim(func) == "\cos" .or. trim(func) == "\COS") then
+    if (trim(func) == "cos") then
 
       fx = cos(x)
 
-    elseif (trim(func) == "\sin" .or. trim(func) == "\SIN") then
+    elseif (trim(func) == "cosh") then
+
+      fx = cosh(x)
+      
+    elseif (trim(func) == "sin") then
 
       fx = sin(x)
+      
+    elseif (trim(func) == "sinh") then
 
-    elseif (trim(func) == "\tan" .or. trim(func) == "\TAN") then
+      fx = sinh(x)
+
+    elseif (trim(func) == "tan") then
 
       fx = tan(x)
 
-    elseif (trim(func) == "\tanh" .or. trim(func) == "\TANH") then
+    elseif (trim(func) == "tanh") then
 
       fx = tanh(x)
 
-    elseif (trim(func) == "\sech" .or. trim(func) == "\SECH") then
+    elseif (trim(func) == "sech") then
 
       fx = 2.0_real64/(exp(x) + exp(-x))
 
-    elseif (trim(func) == "\sqrt" .or. trim(func) == "\SQRT") then
+    elseif (trim(func) == "sqrt") then
 
       fx = sqrt(x)
 
-    elseif (trim(func) == "\abs" .or. trim(func) == "\ABS") then
+    elseif (trim(func) == "abs") then
 
       fx = abs(x)
 
-    elseif (trim(func) == "\exp" .or. trim(func) == "\EXP") then
+    elseif (trim(func) == "exp") then
 
       fx = exp(x)
 
-    elseif (trim(func) == "\ln" .or. trim(func) == "\LN") then
+    elseif (trim(func) == "ln") then
 
       fx = log(x)
 
-    elseif (trim(func) == "\log" .or. trim(func) == "\LOG") then
+    elseif (trim(func) == "log") then
+
+      fx = log(x)
+
+    elseif (trim(func) == "log10") then
 
       fx = log10(x)
-
-    elseif (trim(func) == "\acos" .or. trim(func) == "\ACOS") then
+      
+    elseif (trim(func) == "acos") then
 
       fx = acos(x)
 
-    elseif (trim(func) == "\asin" .or. trim(func) == "\ASIN") then
+    elseif (trim(func) == "asin") then
 
       fx = asin(x)
 
-    elseif (trim(func) == "\atan" .or. trim(func) == "\ATAN") then
+    elseif (trim(func) == "atan") then
 
       fx = atan(x)
 
-    elseif (trim(func) == "\rand" .or. trim(func) == "\RAND") then
+    elseif (trim(func) == "rand") then
 
       call random_number(r)
       fx = r*x
