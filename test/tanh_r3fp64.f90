@@ -20,7 +20,7 @@ integer function tanh_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \tanh( x )*\tanh( y )*\tanh( z )'
+  eqChar = 'f = tanh( x )*\tanh( y )*\tanh( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

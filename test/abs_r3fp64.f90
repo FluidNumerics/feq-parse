@@ -20,7 +20,7 @@ integer function abs_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \abs( x + y + z )'
+  eqChar = 'f = abs( x + y + z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

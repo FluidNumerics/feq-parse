@@ -16,7 +16,7 @@ integer function acos_r1fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \acos( x )'
+  eqChar = 'f = acos( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

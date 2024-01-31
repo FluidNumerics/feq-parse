@@ -21,7 +21,7 @@ integer function sech_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \sech( x )*\sech( y )*\sech(z)'
+  eqChar = 'f = sech( x )*\sech( y )*\sech(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

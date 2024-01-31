@@ -16,7 +16,7 @@ integer function asin_r1fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \asin( x )'
+  eqChar = 'f = asin( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

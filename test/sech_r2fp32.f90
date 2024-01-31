@@ -15,12 +15,12 @@ integer function sech_r2fp32() result(r)
   allocate (x(1:N,1:N,1:3), &
             feval(1:N,1:N), &
             fexact(1:N,1:N))
-            
+
   ! Specify the independent variables
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \sech( x )*\sech( y )'
+  eqChar = 'f = sech( x )*\sech( y )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

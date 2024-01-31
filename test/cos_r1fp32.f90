@@ -17,7 +17,7 @@ integer function cos_r1fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \cos( 2.0*pi*x )'
+  eqChar = 'f = cos( 2.0*pi*x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

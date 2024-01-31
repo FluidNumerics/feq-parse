@@ -15,7 +15,7 @@ integer function random_r1fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \random( x )'
+  eqChar = 'f = random( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

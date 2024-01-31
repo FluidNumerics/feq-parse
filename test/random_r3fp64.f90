@@ -20,7 +20,7 @@ integer function random_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \random( x )*\random( y )*\random(z)'
+  eqChar = 'f = random( x )*\random( y )*\random(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

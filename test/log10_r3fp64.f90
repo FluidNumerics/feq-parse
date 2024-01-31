@@ -20,7 +20,7 @@ integer function log10_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \log( x )*\log(y)*\log(z)'
+  eqChar = 'f = log( x )*\log(y)*\log(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

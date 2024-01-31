@@ -16,7 +16,7 @@ integer function gaussian3d_r1fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
+  eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

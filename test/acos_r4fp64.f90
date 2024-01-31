@@ -21,7 +21,7 @@ integer function acos_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \acos( x )*\acos( y )*\acos( z )'
+  eqChar = 'f = acos( x )*\acos( y )*\acos( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

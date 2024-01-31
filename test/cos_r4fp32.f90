@@ -22,7 +22,7 @@ integer function cos_r4fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \cos( 2.0*pi*x )*\cos( 2.0*pi*y )*\cos( 2.0*pi*z )'
+  eqChar = 'f = cos( 2.0*pi*x )*\cos( 2.0*pi*y )*\cos( 2.0*pi*z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

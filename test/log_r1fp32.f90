@@ -16,7 +16,7 @@ integer function log_r1fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \ln( x )'
+  eqChar = 'f = ln( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

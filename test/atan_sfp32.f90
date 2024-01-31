@@ -16,7 +16,7 @@ integer function atan_sfp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \atan( x )'
+  eqChar = 'f = atan( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

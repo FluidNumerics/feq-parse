@@ -21,7 +21,7 @@ integer function asin_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \asin( x )*\asin( y )*\asin( z )'
+  eqChar = 'f = asin( x )*\asin( y )*\asin( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

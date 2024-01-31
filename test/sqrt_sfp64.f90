@@ -16,7 +16,7 @@ integer function sqrt_sfp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \sqrt( x )'
+  eqChar = 'f = sqrt( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

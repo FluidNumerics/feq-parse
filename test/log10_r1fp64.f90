@@ -16,7 +16,7 @@ integer function log10_r1fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \log( x )'
+  eqChar = 'f = log( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

@@ -16,12 +16,12 @@ integer function tan_r2fp64() result(r)
   allocate (x(1:N,1:N,1:3), &
             feval(1:N,1:N), &
             fexact(1:N,1:N))
-            
+
   ! Specify the independent variables
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \tan( 0.5*pi*x )*\tan( 0.5*pi*y )'
+  eqChar = 'f = tan( 0.5*pi*x )*\tan( 0.5*pi*y )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

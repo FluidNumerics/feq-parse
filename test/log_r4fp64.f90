@@ -21,7 +21,7 @@ integer function log_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \ln( x )*\ln(y)*\ln(z)'
+  eqChar = 'f = ln( x )*\ln(y)*\ln(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

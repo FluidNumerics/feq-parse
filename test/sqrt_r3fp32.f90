@@ -20,7 +20,7 @@ integer function sqrt_r3fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \sqrt( x )*\sqrt( y )*\sqrt(z)'
+  eqChar = 'f = sqrt( x )*\sqrt( y )*\sqrt(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

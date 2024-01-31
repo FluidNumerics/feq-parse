@@ -21,7 +21,7 @@ integer function atan_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \atan( x )*\atan( y )*\atan( z )'
+  eqChar = 'f = atan( x )*\atan( y )*\atan( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

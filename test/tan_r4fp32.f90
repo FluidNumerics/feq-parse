@@ -22,7 +22,7 @@ integer function tan_r4fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \tan( 0.5*pi*x )*\tan( 0.5*pi*y )*\tan( 0.5*pi*z )'
+  eqChar = 'f = tan( 0.5*pi*x )*\tan( 0.5*pi*y )*\tan( 0.5*pi*z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)

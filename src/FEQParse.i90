@@ -1,3 +1,4 @@
+# 1 "c:\Users\dev\Documents\GitHub\sandbox\feq-parse\src\FEQParse.F90"
 ! FEQParse.F03
 !
 ! Copyright 2020 Fluid Numerics LLC
@@ -28,7 +29,7 @@ module FEQParse
   integer,parameter,private :: Max_Variable_Length = 12
   integer,parameter,private :: Stack_Length = 256
 
-  ! Token types
+! Token types
   integer,parameter,private :: None_Token = 0
   integer,parameter,private :: Number_Token = 1
   integer,parameter,private :: Variable_Token = 2
@@ -43,7 +44,7 @@ module FEQParse
   character(1),dimension(7),private  :: separators = (/"+","-","*","/","(",")","^"/)
   character(1),dimension(5),private  :: operators = (/"+","-","*","/","^"/)
   character(1),dimension(10),private :: numbers = (/"0","1","2","3","4","5","6","7","8","9"/)
-  ! Private Types !
+! Private Types !
 
   private :: IsNumber,IsVariable,IsOperator,IsSeparator
 
@@ -96,7 +97,7 @@ contains
     type(EquationParser) :: parser
     character(*)         :: equation
     character(*)         :: indepVars(1:)
-    ! Local
+! Local
     integer :: i
     character(Error_Message_Length) :: errorMsg
     logical                         :: equationIsClean,tokenized,success
@@ -155,7 +156,7 @@ contains
     class(EquationParser),intent(inout)         :: parser
     logical,intent(out)                         :: equationCleaned
     character(Error_Message_Length),intent(out) :: errorMsg
-    ! Local
+! Local
     integer :: nChar,equalSignLoc,j,i
     character(Max_Equation_Length) :: infixformula
 
@@ -169,16 +170,16 @@ contains
       errorMsg = "No variable name found."
     end if
     
-    !Replace ** for ^
+!Replace ** for ^
     if (index(parser % equation,"**") /=0) then
         parser % equation = ReplaceStr(parser % equation, "**", "^")
     end if
     nChar = len_trim(parser % equation)
     parser % variableName = parser % equation(1:equalSignLoc - 1)
 
-    ! Grab the formula to the right of the equal sign and left adjust the formula
+! Grab the formula to the right of the equal sign and left adjust the formula
     inFixFormula = parser % equation(equalSignLoc + 1:Max_Equation_Length)
-    ! Remove any spaces
+! Remove any spaces
     j = 1
     do i = 1,len_trim(inFixFormula)
       if (inFixFormula(i:i) /= " ") then
@@ -225,7 +226,7 @@ contains
     class(EquationParser),intent(inout) :: parser
     logical,intent(out)                   :: tokenized
     character(Error_Message_Length)        :: errorMsg
-    ! Local
+! Local
     integer :: i,j, k
     integer, allocatable :: maxVarLen, varLen
 
@@ -250,7 +251,7 @@ contains
         parser % inFix % tokens(parser % inFix % top_index) % tokenType = Function_Token
         i = i + j
 
-        ! Check to see if the next string
+! Check to see if the next string
         if (parser % inFixFormula(i:i) /= "(") then
           errorMsg = "Missing opening parentheses after token : "// &
                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
@@ -264,7 +265,7 @@ contains
         parser % inFix % tokens(parser % inFix % top_index) % tokenType = Variable_Token
         i = i + varLen
 
-        ! Next item must be an operator, closing parentheses, or end of equation
+! Next item must be an operator, closing parentheses, or end of equation
 
         if (.not. IsOperator(parser % infixFormula(i:i)) .and. &
             parser % inFixFormula(i:i) /= ")" .and. parser % inFixFormula(i:i) /= " ") then
@@ -282,7 +283,7 @@ contains
 
         if (parser % inFixFormula(i:i) == 'p' .or. parser % inFixFormula(i:i) == 'P') then
 
-          ! Conditional for using built in "pi" definition
+! Conditional for using built in "pi" definition
           parser % inFix % tokens(parser % inFix % top_index) % tokenString(1:2) = parser % inFixFormula(i:i + 1)
           j = 2
 
@@ -302,7 +303,7 @@ contains
 
         i = i + j
 
-        ! Next item must be an operator or a closing parentheses
+! Next item must be an operator or a closing parentheses
         if (.not. IsOperator(parser % infixFormula(i:i)) .and. &
             parser % inFixFormula(i:i) /= ")" .and. parser % inFixFormula(i:i) /= " ") then
 
@@ -356,19 +357,19 @@ contains
 
   subroutine ConvertToPostFix(parser)
     class(EquationParser),intent(inout) :: parser
-    ! Local
+! Local
     character(Error_Message_Length) :: errorMsg
     type(TokenStack)              :: operator_stack
     type(Token)                   :: tok
     integer                       :: i
 
-    !success = .FALSE.
+!success = .FALSE.
 
     call parser % postfix % Construct(Stack_Length)
     call operator_stack % Construct(Stack_Length)
 
     do i = 1,parser % infix % top_index
-      !print*, parser % inFix % tokens(i) % tokenString
+!print*, parser % inFix % tokens(i) % tokenString
       if (parser % inFix % tokens(i) % tokenType == Variable_Token .or. &
           parser % inFix % tokens(i) % tokenType == Number_Token) then
 
@@ -384,8 +385,8 @@ contains
         if (.not. operator_stack % IsEmpty()) then
 
           tok = operator_stack % TopToken()
-          ! print*, "tok : "//tok % tokenString
-          ! print*, "token(i) : "//parser % inFix % tokens(i) % tokenString
+! print*, "tok : "//tok % tokenString
+! print*, "token(i) : "//parser % inFix % tokens(i) % tokenString
 
           do while (trim(tok % tokenString) /= "(" .and. &
                     parser % Priority(tok) > &
@@ -417,14 +418,14 @@ contains
 
         end do
 
-        ! Pop the opening parenthesis
+! Pop the opening parenthesis
         call operator_stack % pop(tok)
 
       end if
 
     end do
 
-    ! Pop the remaining operators
+! Pop the remaining operators
     do while (.not. (operator_stack % IsEmpty()))
 
       tok = operator_stack % TopToken()
@@ -439,7 +440,7 @@ contains
     class(EquationParser) :: parser
     real(real32) :: x(1:parser % nIndepVars)
     real(real32) :: f
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(sfp32Stack) :: stack
@@ -540,7 +541,7 @@ contains
     class(EquationParser) :: parser
     real(real64) :: x(1:parser % nIndepVars)
     real(real64) :: f
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(sfp64Stack) :: stack
@@ -640,7 +641,7 @@ contains
     class(EquationParser) :: parser
     real(real32) :: x(:,:)
     real(real32) :: f(lbound(x,1):ubound(x,1))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r1fp32Stack) :: stack
@@ -750,7 +751,7 @@ contains
     class(EquationParser) :: parser
     real(real64) :: x(:,:)
     real(real64) :: f(lbound(x,1):ubound(x,1))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r1fp64Stack) :: stack
@@ -862,7 +863,7 @@ contains
     real(real32) :: x(:,:,:)
     real(real32) :: f(lbound(x,1):ubound(x,1),&
                       lbound(x,2):ubound(x,2))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r2fp32Stack) :: stack
@@ -978,7 +979,7 @@ contains
     real(real64) :: x(:,:,:)
     real(real64) :: f(lbound(x,1):ubound(x,1),&
                       lbound(x,2):ubound(x,2))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r2fp64Stack) :: stack
@@ -1096,7 +1097,7 @@ contains
     real(real32) :: f(lbound(x,1):ubound(x,1),&
                       lbound(x,2):ubound(x,2),&
                       lbound(x,3):ubound(x,3))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r3fp32Stack) :: stack
@@ -1215,7 +1216,7 @@ contains
     real(real64) :: f(lbound(x,1):ubound(x,1),&
                       lbound(x,2):ubound(x,2),&
                       lbound(x,3):ubound(x,3))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r3fp64Stack) :: stack
@@ -1337,7 +1338,7 @@ contains
                       lbound(x,2):ubound(x,2),&
                       lbound(x,3):ubound(x,3),&
                       lbound(x,4):ubound(x,4))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r4fp32Stack) :: stack
@@ -1460,7 +1461,7 @@ contains
                       lbound(x,2):ubound(x,2),&
                       lbound(x,3):ubound(x,3),&
                       lbound(x,4):ubound(x,4))
-    ! Local
+! Local
     integer :: i,k
     type(Token) :: t
     type(r4fp64Stack) :: stack
@@ -1579,7 +1580,7 @@ contains
 
   subroutine Print_InfixTokens(parser)
     class(EquationParser),intent(in) :: parser
-    ! Local
+! Local
     integer :: i
 
     do i = 1,parser % inFix % top_index
@@ -1590,7 +1591,7 @@ contains
 
   subroutine Print_PostfixTokens(parser)
     class(EquationParser),intent(in) :: parser
-    ! Local
+! Local
     integer :: i
 
     do i = 1,parser % postFix % top_index
@@ -1599,11 +1600,11 @@ contains
 
   end subroutine Print_PostfixTokens
 
-  ! Support Functions !
+! Support Functions !
 
   logical function IsSeparator(eqChar)
     character(1) :: eqChar
-    ! Local
+! Local
     integer :: i
 
     IsSeparator = .false.
@@ -1619,7 +1620,7 @@ contains
 
   logical function IsNumber(eqChar)
     character(1) :: eqChar
-    ! Local
+! Local
     integer :: i
 
     IsNumber = .false.
@@ -1644,7 +1645,7 @@ contains
     character(*), intent(in) :: eqChar
     integer      :: nvariables
     type(IndepVar) :: variables(1:nvariables)
-    ! Local
+! Local
     integer :: i
 
     IsVariable = .false.
@@ -1663,7 +1664,7 @@ contains
 
   logical function IsOperator(eqChar)
     character(1) :: eqChar
-    ! Local
+! Local
     integer :: i
 
     IsOperator = .false.
@@ -1682,7 +1683,7 @@ contains
     character(*), intent(in) :: eqChar
     integer      :: nfunctions
     type(FEQParse_Function) :: functions(1:nfunctions)
-    ! Local
+! Local
     integer :: i
 
     IsFunction = .false.
