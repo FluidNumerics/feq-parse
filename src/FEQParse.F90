@@ -24,9 +24,9 @@ module FEQParse
   real(real32),parameter :: pi_real32 = 4.0_real32*atan(1.0_real32)
 
   integer,parameter,private :: Error_Message_Length = 256
-  integer,parameter,private :: Max_Equation_Length = 1024
+  integer,parameter,private :: Max_Equation_Length = 2048
   integer,parameter,private :: Max_Variable_Length = 12
-  integer,parameter,private :: Stack_Length = 128
+  integer,parameter,private :: Stack_Length = 256
 
   ! Token types
   integer,parameter,private :: None_Token = 0
@@ -52,7 +52,7 @@ module FEQParse
     character(Max_Variable_Length)     :: variableName
     character(Max_Equation_Length)     :: inFixFormula
     integer                            :: nIndepVars
-    character(LEN=1),allocatable      :: indepVars(:)
+    type(IndepVar), allocatable      :: indepVars(:)
     type(TokenStack)                 :: inFix
     type(TokenStack)                 :: postFix
     type(FEQParse_FunctionHandler)   :: func
@@ -81,6 +81,10 @@ module FEQParse
     procedure,private :: Priority
 
   end type EquationParser
+  
+  type IndepVar
+    character(:), allocatable :: value
+  end type
 
   interface EquationParser
     procedure Construct_EquationParser
@@ -91,7 +95,7 @@ contains
   function Construct_EquationParser(equation,indepVars) result(parser)
     type(EquationParser) :: parser
     character(*)         :: equation
-    character(1)         :: indepVars(1:)
+    character(*)         :: indepVars(1:)
     ! Local
     integer :: i
     character(Error_Message_Length) :: errorMsg
@@ -104,7 +108,7 @@ contains
     allocate (parser % indepVars(1:nIndepVars))
     parser % nIndepVars = nIndepVars
     do i = 1,nIndepVars
-      parser % indepVars(i) = indepVars(i)
+      parser % indepVars(i)%value = trim(indepVars(i))
     end do
 
     parser % inFixFormula = " "
@@ -157,14 +161,18 @@ contains
 
     equationCleaned = .false.
 
-    nChar = len_trim(parser % equation)
+    
     equalSignLoc = index(parser % equation,"=")
-
     if (equalSignLoc == 0) then
-      errorMsg = "No equal sign found"
-      return
+      parser % equation = parser % variableName // "=" //parser % equation
+      equalSignLoc = len(parser % variableName) + 1
     end if
-
+    
+    !Replace ** for ^
+    if (index(parser % equation,"**") /=0) then
+        parser % equation = ReplaceStr(parser % equation, "**", "^")
+    end if
+    nChar = len_trim(parser % equation)
     parser % variableName = parser % equation(1:equalSignLoc - 1)
 
     ! Grab the formula to the right of the equal sign and left adjust the formula
@@ -182,28 +190,77 @@ contains
     equationCleaned = .true.
 
   end subroutine CleanEquation
+  
+  pure recursive function ReplaceStr(string,search,substitute) result(modifiedString)
+        implicit none
+        character(len=*), intent(in)  :: string, search, substitute
+        character(len=:), allocatable :: modifiedString
+        integer                       :: i, stringLen, searchLen
+        stringLen = len(string)
+        searchLen = len(search)
+        if (stringLen==0 .or. searchLen==0) then
+            modifiedString = ""
+            return
+        elseif (stringLen<searchLen) then
+            modifiedString = string
+            return
+        end if
+        i = 1
+        do
+            if (string(i:i+searchLen-1)==search) then
+                modifiedString = string(1:i-1) // substitute // replaceStr(string(i+searchLen:stringLen),search,substitute)
+                exit
+            end if
+            if (i+searchLen>stringLen) then
+                modifiedString = string
+                exit
+            end if
+            i = i + 1
+            cycle
+        end do
+    end function ReplaceStr
 
   subroutine Tokenize(parser,tokenized,errorMsg)
     class(EquationParser),intent(inout) :: parser
     logical,intent(out)                   :: tokenized
     character(Error_Message_Length)        :: errorMsg
     ! Local
-    integer :: i,j
+    integer :: i,j, k
+    integer, allocatable :: maxVarLen, varLen
 
     tokenized = .false.
     errorMsg = " "
 
     call parser % infix % Construct(Stack_Length)
 
+    maxVarLen = 0
+    do k = 1, parser % nIndepVars
+        maxVarLen = max(maxVarLen, len(parser % indepVars(k) % value))
+    end do
+    
     i = 1
     do while (parser % inFixFormula(i:i) /= " ")
-
-      if (IsVariable(parser % inFixFormula(i:i),parser % indepVars,parser % nIndepVars)) then
-
+      varLen = maxVarLen
+      if (IsFunction(j, parser % infixFormula(i: i + parser % func % maxFunctionLength - 1), parser % func % functions, parser % func % nfunctions)) then
+        
         parser % inFix % top_index = parser % inFix % top_index + 1
-        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i)
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = ToLowerCase(parser % inFixFormula(i:i + j - 1))
+        parser % inFix % tokens(parser % inFix % top_index) % tokenType = Function_Token
+        i = i + j
+
+        ! Check to see if the next string
+        if (parser % inFixFormula(i:i) /= "(") then
+          errorMsg = "Missing opening parentheses after token : "// &
+                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
+
+          return
+        end if
+        
+      elseif (IsVariable(varLen, parser % inFixFormula(i:i + varLen-1), parser % indepVars, parser % nIndepVars)) then
+        parser % inFix % top_index = parser % inFix % top_index + 1
+        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i + varLen - 1)
         parser % inFix % tokens(parser % inFix % top_index) % tokenType = Variable_Token
-        i = i + 1
+        i = i + varLen
 
         ! Next item must be an operator, closing parentheses, or end of equation
 
@@ -268,24 +325,7 @@ contains
 
         i = i + 1
 
-      elseif (parser % infixFormula(i:i) == "\") then
-
-        parser % inFix % top_index = parser % inFix % top_index + 1
-        parser % inFix % tokens(parser % inFix % top_index) % tokenString = ''
-
-        j = FindLastFunctionIndex(parser % inFixFormula(i:i + feqparse_function_maxlength - 1))
-
-        parser % inFix % tokens(parser % inFix % top_index) % tokenString = parser % inFixFormula(i:i + j)
-        parser % inFix % tokens(parser % inFix % top_index) % tokenType = Function_Token
-        i = i + j + 1
-
-        ! Check to see if the next string
-        if (parser % inFixFormula(i:i) /= "(") then
-          errorMsg = "Missing opening parentheses after token : "// &
-                     trim(parser % inFix % tokens(parser % inFix % top_index) % tokenString)
-
-          return
-        end if
+      
 
       else
 
@@ -350,8 +390,8 @@ contains
           ! print*, "token(i) : "//parser % inFix % tokens(i) % tokenString
 
           do while (trim(tok % tokenString) /= "(" .and. &
-                    parser % Priority(tok % tokenString) > &
-                    parser % Priority(parser % inFix % tokens(i) % tokenString))
+                    parser % Priority(tok) > &
+                    parser % Priority(parser % inFix % tokens(i)))
 
             call parser % postFix % push(tok)
             call operator_stack % pop(tok)
@@ -429,7 +469,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(i))
               exit
             end if
@@ -529,7 +569,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(i))
               exit
             end if
@@ -638,7 +678,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,i))
               exit
             end if
@@ -749,7 +789,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,i))
               exit
             end if
@@ -865,7 +905,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,i))
               exit
             end if
@@ -982,7 +1022,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,i))
               exit
             end if
@@ -1101,7 +1141,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,:,i))
               exit
             end if
@@ -1221,7 +1261,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,:,i))
               exit
             end if
@@ -1344,7 +1384,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,:,:,i))
               exit
             end if
@@ -1468,7 +1508,7 @@ contains
         case (Variable_Token)
 
           do i = 1,parser % nIndepVars
-            if (trim(t % tokenString) == parser % indepVars(i)) then
+            if (trim(t % tokenString) == parser % indepVars(i) % value) then
               call stack % Push(x(:,:,:,:,i))
               exit
             end if
@@ -1601,22 +1641,26 @@ contains
 
   end function IsNumber
 
-  logical function IsVariable(eqChar,variables,nvariables)
-    character(1) :: eqChar
+  logical function IsVariable(varlen, eqChar, variables, nvariables)
+    integer, intent(inout) :: varlen
+    character(*), intent(in) :: eqChar
     integer      :: nvariables
-    character(1) :: variables(1:nvariables)
+    type(IndepVar) :: variables(1:nvariables)
     ! Local
     integer :: i
 
     IsVariable = .false.
-    do i = 1,nvariables
-
-      if (eqChar == variables(i)) then
+    varlen = 0
+    do i = 1, nvariables
+      
+      if (index(eqChar, variables(i) % value) == 1) then
         IsVariable = .true.
+        
+        if (len(variables(i) % value) > varlen) then
+            varlen = len(variables(i) % value)
+        end if
       end if
-
     end do
-
   end function IsVariable
 
   logical function IsOperator(eqChar)
@@ -1635,23 +1679,65 @@ contains
 
   end function IsOperator
 
-  integer function Priority(parser,operatorString)
-    class(EquationParser) :: parser
-    character(*) :: operatorString
+  logical function IsFunction(varlen, eqChar, functions, nfunctions)
+    integer, intent(inout) :: varlen
+    character(*), intent(in) :: eqChar
+    integer      :: nfunctions
+    type(FEQParse_Function) :: functions(1:nfunctions)
+    ! Local
+    integer :: i
 
-    if (operatorString(1:1) == "\") then
+    IsFunction = .false.
+    varlen = 0
+    do i = 1, nfunctions
+      
+      if (index(ToLowerCase(eqChar), functions(i) % str) == 1) then
+        IsFunction = .true.
+        
+        if (len(functions(i) % str) > varlen) then
+            varlen = len(functions(i) % str)
+        end if
+      end if
+    end do
+  end function
+  
+  function ToLowerCase(str) result(res)
+     character(*), intent(in) :: str
+     character(:), allocatable :: res
+     integer :: i
+     
+     res = str
+     do i = 1, len(res)
+       select case(res(i:i))
+         case("A":"Z")
+           res(i:i) = achar(iachar(res(i:i))+32)
+       end select
+     end do  
+   end function ToLowerCase
+  
+  integer function Priority(parser,toke)
+    class(EquationParser) :: parser
+    type(Token) :: toke
+    
+    
+    
+    if (toke % tokenType == Function_Token) then
+        
+      Priority = 5
+        
+    elseif (toke % tokenString(1:1) == '^') then
 
       Priority = 4
-
-    elseif (operatorString(1:1) == '^') then
-
+      
+    elseif (toke % tokenString(1:1) == '/') then
+        
       Priority = 3
 
-    elseif (operatorString(1:1) == '*' .or. operatorString(1:1) == '/') then
+    elseif (toke % tokenString(1:1) == '*') then
 
       Priority = 2
 
-    elseif (operatorString(1:1) == '+' .or. operatorString(1:1) == '-') then
+    elseif (toke % tokenString(1:1) == '+' .or. toke % tokenString(1:1) == '-') then
 
       Priority = 1
 
