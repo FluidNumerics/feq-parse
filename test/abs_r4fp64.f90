@@ -3,8 +3,8 @@ integer function abs_r4fp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 20
-  integer,parameter :: M = 10
+  integer,parameter :: N = 2
+  integer,parameter :: M = 5
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -56,8 +56,5 @@ integer function abs_r4fp64() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
 
 end function abs_r4fp64

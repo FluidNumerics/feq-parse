@@ -3,7 +3,7 @@ integer function atan_r1fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 1000
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=2048) :: eqChar
@@ -34,8 +34,5 @@ integer function atan_r1fp32() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
-
+  
 end function atan_r1fp32

@@ -1,5 +1,5 @@
 program gaussian_scalar_multivar
-
+  use iso_fortran_env
   use FEQParse
 
   implicit none
@@ -24,8 +24,5 @@ program gaussian_scalar_multivar
   x(2) = 1.0
   print*, f % evaluate(x)
   print*, exp(-1.0) -1.0
-
-  ! Clean up memory
-  call f % Destruct()
 
   end program gaussian_scalar_multivar

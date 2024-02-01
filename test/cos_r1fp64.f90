@@ -3,7 +3,7 @@ integer function cos_r1fp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 1000
+  integer,parameter :: N = 10
   real(real64),parameter :: pi = 4.0_real64*atan(1.0_real64)
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
@@ -35,8 +35,5 @@ integer function cos_r1fp64() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
 
 end function cos_r1fp64

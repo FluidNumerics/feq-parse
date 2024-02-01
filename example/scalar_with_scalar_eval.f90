@@ -1,5 +1,5 @@
 program scalar_with_scalar_eval
-
+  use iso_fortran_env
   use FEQParse
 
   implicit none
@@ -20,8 +20,5 @@ program scalar_with_scalar_eval
   ! Evaluate the equation
   x(1) = 0.0
   print*, f % evaluate(x)
-
-  ! Clean up memory
-  call f % Destruct()
 
 end program scalar_with_scalar_eval

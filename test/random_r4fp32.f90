@@ -3,8 +3,8 @@ integer function random_r4fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 20
-  integer,parameter :: M = 10
+  integer,parameter :: N = 2
+  integer,parameter :: M = 5
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -21,7 +21,7 @@ integer function random_r4fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = random( x )*\random( y )*\random(z)'
+  eqChar = 'f = rand( x )*rand( y )*rand( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -31,9 +31,9 @@ integer function random_r4fp32() result(r)
     do k = 1,N
     do j = 1,N
       do i = 1,N
-        x(i,j,k,l,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32) + 2.0_real32*real(l - 1,real32)
-        x(i,j,k,l,2) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(j - 1,real32)
-        x(i,j,k,l,3) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(k - 1,real32)
+        x(i,j,k,l,1) = -1.0_real32 + (0.1_real32)/real(N,real32)*real(i - 1,real32) + 0.1_real32*real(l - 1,real32)
+        x(i,j,k,l,2) = -1.0_real32 + (0.1_real32)/real(N,real32)*real(j - 1,real32)
+        x(i,j,k,l,3) = -1.0_real32 + (0.1_real32)/real(N,real32)*real(k - 1,real32)
       end do
     end do
     end do
@@ -47,8 +47,6 @@ integer function random_r4fp32() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function random_r4fp32

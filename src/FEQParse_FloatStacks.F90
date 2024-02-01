@@ -13,606 +13,505 @@
 
 module FEQParse_FloatStacks
 
-  use iso_fortran_env
+    use iso_fortran_env
 
-  implicit none
+    implicit none
 
-  type feqparse_floatstack
-    integer :: top_index
-  end type feqparse_floatstack
+    type feqparse_floatstack
+        integer :: top_index
+    end type feqparse_floatstack
 
-  type,extends(feqparse_floatstack) :: sfp32Stack
-    real(real32),allocatable :: tokens(:)
+    type, extends(feqparse_floatstack) :: sfp32Stack
+        real(real32), allocatable :: tokens(:)
 
-  contains
+    contains
 
-    procedure :: Construct => Construct_sfp32Stack
-    procedure :: Destruct => Destruct_sfp32Stack
+        procedure :: Construct => Construct_sfp32Stack
+        procedure :: Push => Push_sfp32Stack
+        procedure :: Pop => Pop_sfp32Stack
 
-    procedure :: Push => Push_sfp32Stack
-    procedure :: Pop => Pop_sfp32Stack
+    end type sfp32Stack
 
-  end type sfp32Stack
+    type, extends(feqparse_floatstack) :: sfp64Stack
+        real(real64), allocatable :: tokens(:)
 
-  type,extends(feqparse_floatstack) :: sfp64Stack
-    real(real64),allocatable :: tokens(:)
+    contains
 
-  contains
+        procedure :: Construct => Construct_sfp64Stack
+        procedure :: Push => Push_sfp64Stack
+        procedure :: Pop => Pop_sfp64Stack
 
-    procedure :: Construct => Construct_sfp64Stack
-    procedure :: Destruct => Destruct_sfp64Stack
+    end type sfp64Stack
 
-    procedure :: Push => Push_sfp64Stack
-    procedure :: Pop => Pop_sfp64Stack
+    type, extends(feqparse_floatstack) :: r1fp32Stack
+        real(real32), allocatable :: tokens(:, :)
 
-  end type sfp64Stack
+    contains
 
-  type,extends(feqparse_floatstack) :: r1fp32Stack
-    real(real32),allocatable :: tokens(:,:)
+        procedure :: Construct => Construct_r1fp32Stack
+        procedure :: Push => Push_r1fp32Stack
+        procedure :: Pop => Pop_r1fp32Stack
 
-  contains
+    end type r1fp32Stack
 
-    procedure :: Construct => Construct_r1fp32Stack
-    procedure :: Destruct => Destruct_r1fp32Stack
+    type, extends(feqparse_floatstack) :: r1fp64Stack
+        real(real64), allocatable :: tokens(:, :)
 
-    procedure :: Push => Push_r1fp32Stack
-    procedure :: Pop => Pop_r1fp32Stack
+    contains
 
-  end type r1fp32Stack
+        procedure :: Construct => Construct_r1fp64Stack
+        procedure :: Push => Push_r1fp64Stack
+        procedure :: Pop => Pop_r1fp64Stack
 
-  type,extends(feqparse_floatstack) :: r1fp64Stack
-    real(real64),allocatable :: tokens(:,:)
+    end type r1fp64Stack
 
-  contains
+    type, extends(feqparse_floatstack) :: r2fp32Stack
+        real(real32), allocatable :: tokens(:, :, :)
 
-    procedure :: Construct => Construct_r1fp64Stack
-    procedure :: Destruct => Destruct_r1fp64Stack
+    contains
 
-    procedure :: Push => Push_r1fp64Stack
-    procedure :: Pop => Pop_r1fp64Stack
+        procedure :: Construct => Construct_r2fp32Stack
+        procedure :: Push => Push_r2fp32Stack
+        procedure :: Pop => Pop_r2fp32Stack
 
-  end type r1fp64Stack
+    end type r2fp32Stack
 
-  type,extends(feqparse_floatstack) :: r2fp32Stack
-    real(real32),allocatable :: tokens(:,:,:)
+    type, extends(feqparse_floatstack) :: r2fp64Stack
+        real(real64), allocatable :: tokens(:, :, :)
 
-  contains
+    contains
 
-    procedure :: Construct => Construct_r2fp32Stack
-    procedure :: Destruct => Destruct_r2fp32Stack
+        procedure :: Construct => Construct_r2fp64Stack
+        procedure :: Push => Push_r2fp64Stack
+        procedure :: Pop => Pop_r2fp64Stack
 
-    procedure :: Push => Push_r2fp32Stack
-    procedure :: Pop => Pop_r2fp32Stack
+    end type r2fp64Stack
 
-  end type r2fp32Stack
+    type, extends(feqparse_floatstack) :: r3fp32Stack
+        real(real32), allocatable :: tokens(:, :, :, :)
 
-  type,extends(feqparse_floatstack) :: r2fp64Stack
-    real(real64),allocatable :: tokens(:,:,:)
+    contains
 
-  contains
+        procedure :: Construct => Construct_r3fp32Stack
+        procedure :: Push => Push_r3fp32Stack
+        procedure :: Pop => Pop_r3fp32Stack
 
-    procedure :: Construct => Construct_r2fp64Stack
-    procedure :: Destruct => Destruct_r2fp64Stack
+    end type r3fp32Stack
 
-    procedure :: Push => Push_r2fp64Stack
-    procedure :: Pop => Pop_r2fp64Stack
+    type, extends(feqparse_floatstack) :: r3fp64Stack
+        real(real64), allocatable :: tokens(:, :, :, :)
 
-  end type r2fp64Stack
+    contains
 
-  type,extends(feqparse_floatstack) :: r3fp32Stack
-    real(real32),allocatable :: tokens(:,:,:,:)
+        procedure :: Construct => Construct_r3fp64Stack
+        procedure :: Push => Push_r3fp64Stack
+        procedure :: Pop => Pop_r3fp64Stack
 
-  contains
+    end type r3fp64Stack
 
-    procedure :: Construct => Construct_r3fp32Stack
-    procedure :: Destruct => Destruct_r3fp32Stack
+    type, extends(feqparse_floatstack) :: r4fp32Stack
+        real(real32), allocatable :: tokens(:, :, :, :, :)
 
-    procedure :: Push => Push_r3fp32Stack
-    procedure :: Pop => Pop_r3fp32Stack
+    contains
 
-  end type r3fp32Stack
+        procedure :: Construct => Construct_r4fp32Stack
+        procedure :: Push => Push_r4fp32Stack
+        procedure :: Pop => Pop_r4fp32Stack
 
-  type,extends(feqparse_floatstack) :: r3fp64Stack
-    real(real64),allocatable :: tokens(:,:,:,:)
+    end type r4fp32Stack
 
-  contains
+    type, extends(feqparse_floatstack) :: r4fp64Stack
+        real(real64), allocatable :: tokens(:, :, :, :, :)
 
-    procedure :: Construct => Construct_r3fp64Stack
-    procedure :: Destruct => Destruct_r3fp64Stack
+    contains
 
-    procedure :: Push => Push_r3fp64Stack
-    procedure :: Pop => Pop_r3fp64Stack
+        procedure :: Construct => Construct_r4fp64Stack
+        procedure :: Push => Push_r4fp64Stack
+        procedure :: Pop => Pop_r4fp64Stack
 
-  end type r3fp64Stack
-
-  type,extends(feqparse_floatstack) :: r4fp32Stack
-    real(real32),allocatable :: tokens(:,:,:,:,:)
-
-  contains
-
-    procedure :: Construct => Construct_r4fp32Stack
-    procedure :: Destruct => Destruct_r4fp32Stack
-
-    procedure :: Push => Push_r4fp32Stack
-    procedure :: Pop => Pop_r4fp32Stack
-
-  end type r4fp32Stack
-
-  type,extends(feqparse_floatstack) :: r4fp64Stack
-    real(real64),allocatable :: tokens(:,:,:,:,:)
-
-  contains
-
-    procedure :: Construct => Construct_r4fp64Stack
-    procedure :: Destruct => Destruct_r4fp64Stack
-
-    procedure :: Push => Push_r4fp64Stack
-    procedure :: Pop => Pop_r4fp64Stack
-
-  end type r4fp64Stack
-
+    end type r4fp64Stack
 
 contains
 
-  subroutine Construct_sfp32Stack(stack,N)
-    class(sfp32Stack),intent(out) :: stack
-    integer,intent(in)            :: N
+    subroutine Construct_sfp32Stack(stack, N)
+        class(sfp32Stack), intent(out) :: stack
+        integer, intent(in)            :: N
 
-    allocate (stack % tokens(1:N))
-    stack % top_index = 0
+        allocate (stack%tokens(1:N))
+        stack%top_index = 0
 
-  end subroutine Construct_sfp32Stack
+    end subroutine Construct_sfp32Stack
 
-  subroutine Destruct_sfp32Stack(stack)
-    class(sfp32Stack),intent(inout) :: stack
+    subroutine Push_sfp32Stack(stack, tok)
+        class(sfp32Stack), intent(inout) :: stack
+        real(real32), intent(in)         :: tok
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+        stack%top_index = stack%top_index + 1
+        stack%tokens(stack%top_index) = tok
 
-  end subroutine Destruct_sfp32Stack
+    end subroutine Push_sfp32Stack
 
-  subroutine Push_sfp32Stack(stack,tok)
-    class(sfp32Stack),intent(inout) :: stack
-    real(real32),intent(in)         :: tok
+    subroutine Pop_sfp32Stack(stack, tok)
+        class(sfp32Stack), intent(inout) :: stack
+        real(real32), intent(out)        :: tok
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(stack % top_index) = tok
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok = stack%tokens(stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  end subroutine Push_sfp32Stack
+    end subroutine Pop_sfp32Stack
 
-  subroutine Pop_sfp32Stack(stack,tok)
-    class(sfp32Stack),intent(inout) :: stack
-    real(real32),intent(out)        :: tok
+    subroutine Construct_sfp64Stack(stack, N)
+        class(sfp64Stack), intent(out) :: stack
+        integer, intent(in)            :: N
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok = stack % tokens(stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+        allocate (stack%tokens(1:N))
+        stack%top_index = 0
 
-  end subroutine Pop_sfp32Stack
+    end subroutine Construct_sfp64Stack
 
-  subroutine Construct_sfp64Stack(stack,N)
-    class(sfp64Stack),intent(out) :: stack
-    integer,intent(in)            :: N
+    subroutine Push_sfp64Stack(stack, tok)
+        class(sfp64Stack), intent(inout) :: stack
+        real(real64), intent(in)         :: tok
 
-    allocate (stack % tokens(1:N))
-    stack % top_index = 0
+        stack%top_index = stack%top_index + 1
+        stack%tokens(stack%top_index) = tok
 
-  end subroutine Construct_sfp64Stack
+    end subroutine Push_sfp64Stack
 
-  subroutine Destruct_sfp64Stack(stack)
-    class(sfp64Stack),intent(inout) :: stack
+    subroutine Pop_sfp64Stack(stack, tok)
+        class(sfp64Stack), intent(inout) :: stack
+        real(real64), intent(out)        :: tok
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok = stack%tokens(stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  end subroutine Destruct_sfp64Stack
+    end subroutine Pop_sfp64Stack
 
-  subroutine Push_sfp64Stack(stack,tok)
-    class(sfp64Stack),intent(inout) :: stack
-    real(real64),intent(in)         :: tok
+    ! >> Rank 1 fp32, fp64 << !
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(stack % top_index) = tok
+    subroutine Construct_r1fp32Stack(stack, N, mold)
+        implicit none
+        class(r1fp32Stack), intent(out) :: stack
+        integer, intent(in)             :: N
+        real(real32), intent(in)       :: mold(:)
+        ! local
+        integer :: l(1)
+        integer :: u(1)
 
-  end subroutine Push_sfp64Stack
+        l = lbound(mold)
+        u = ubound(mold)
 
-  subroutine Pop_sfp64Stack(stack,tok)
-    class(sfp64Stack),intent(inout) :: stack
-    real(real64),intent(out)        :: tok
+        allocate (stack%tokens(l(1):u(1), 1:N))
+        stack%top_index = 0
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok = stack % tokens(stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    end subroutine Construct_r1fp32Stack
 
-  end subroutine Pop_sfp64Stack
+    subroutine Push_r1fp32Stack(stack, tok)
+        class(r1fp32Stack), intent(inout) :: stack
+        real(real32), intent(in)          :: tok(:)
 
-  ! >> Rank 1 fp32, fp64 << !
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, stack%top_index) = tok(:)
 
-  subroutine Construct_r1fp32Stack(stack,N,mold)
-    implicit none
-    class(r1fp32Stack),intent(out) :: stack
-    integer,intent(in)             :: N
-    real(real32),intent(in)       :: mold(:)
-    ! local
-    integer :: l(1)
-    integer :: u(1)
+    end subroutine Push_r1fp32Stack
 
-    l = lbound(mold)
-    u = ubound(mold)
+    subroutine Pop_r1fp32Stack(stack, tok)
+        class(r1fp32Stack), intent(inout) :: stack
+        real(real32), intent(out)        :: tok(:)
 
-    allocate (stack % tokens(l(1):u(1),1:N))
-    stack % top_index = 0
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:) = stack%tokens(:, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  end subroutine Construct_r1fp32Stack
+    end subroutine Pop_r1fp32Stack
 
-  subroutine Destruct_r1fp32Stack(stack)
-    class(r1fp32Stack),intent(inout) :: stack
+    subroutine Construct_r1fp64Stack(stack, N, mold)
+        class(r1fp64Stack), intent(out) :: stack
+        integer, intent(in)            :: N
+        real(real64), intent(in)      :: mold(:)
+        ! local
+        integer :: l(1)
+        integer :: u(1)
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+        l = lbound(mold)
+        u = ubound(mold)
 
-  end subroutine Destruct_r1fp32Stack
+        allocate (stack%tokens(l(1):u(1), 1:N))
+        stack%top_index = 0
 
-  subroutine Push_r1fp32Stack(stack,tok)
-    class(r1fp32Stack),intent(inout) :: stack
-    real(real32),intent(in)          :: tok(:)
+    end subroutine Construct_r1fp64Stack
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,stack % top_index) = tok(:)
+    subroutine Push_r1fp64Stack(stack, tok)
+        class(r1fp64Stack), intent(inout) :: stack
+        real(real64), intent(in)          :: tok(:)
 
-  end subroutine Push_r1fp32Stack
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, stack%top_index) = tok(:)
 
-  subroutine Pop_r1fp32Stack(stack,tok)
-    class(r1fp32Stack),intent(inout) :: stack
-    real(real32),intent(out)        :: tok(:)
+    end subroutine Push_r1fp64Stack
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:) = stack % tokens(:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    subroutine Pop_r1fp64Stack(stack, tok)
+        class(r1fp64Stack), intent(inout) :: stack
+        real(real64), intent(out)        :: tok(:)
 
-  end subroutine Pop_r1fp32Stack
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:) = stack%tokens(:, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  subroutine Construct_r1fp64Stack(stack,N,mold)
-    class(r1fp64Stack),intent(out) :: stack
-    integer,intent(in)            :: N
-    real(real64),intent(in)      :: mold(:)
-    ! local
-    integer :: l(1)
-    integer :: u(1)
+    end subroutine Pop_r1fp64Stack
 
-    l = lbound(mold)
-    u = ubound(mold)
+    subroutine Construct_r2fp32Stack(stack, N, mold)
+        class(r2fp32Stack), intent(out) :: stack
+        integer, intent(in)             :: N
+        real(real32), intent(in)       :: mold(:, :)
+        ! local
+        integer :: l(1:2), u(1:2)
 
-    allocate (stack % tokens(l(1):u(1),1:N))
-    stack % top_index = 0
+        l = lbound(mold)
+        u = ubound(mold)
 
-  end subroutine Construct_r1fp64Stack
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               1:N))
+        stack%top_index = 0
 
-  subroutine Destruct_r1fp64Stack(stack)
-    class(r1fp64Stack),intent(inout) :: stack
+    end subroutine Construct_r2fp32Stack
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+    subroutine Push_r2fp32Stack(stack, tok)
+        class(r2fp32Stack), intent(inout) :: stack
+        real(real32), intent(in)          :: tok(:, :)
 
-  end subroutine Destruct_r1fp64Stack
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, stack%top_index) = tok(:, :)
 
-  subroutine Push_r1fp64Stack(stack,tok)
-    class(r1fp64Stack),intent(inout) :: stack
-    real(real64),intent(in)          :: tok(:)
+    end subroutine Push_r2fp32Stack
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,stack % top_index) = tok(:)
+    subroutine Pop_r2fp32Stack(stack, tok)
+        class(r2fp32Stack), intent(inout) :: stack
+        real(real32), intent(out)        :: tok(:, :)
 
-  end subroutine Push_r1fp64Stack
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :) = stack%tokens(:, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  subroutine Pop_r1fp64Stack(stack,tok)
-    class(r1fp64Stack),intent(inout) :: stack
-    real(real64),intent(out)        :: tok(:)
+    end subroutine Pop_r2fp32Stack
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:) = stack % tokens(:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    subroutine Construct_r2fp64Stack(stack, N, mold)
+        class(r2fp64Stack), intent(out) :: stack
+        integer, intent(in)            :: N
+        real(real64), intent(in)      :: mold(:, :)
+        ! local
+        integer :: l(1:2), u(1:2)
 
-  end subroutine Pop_r1fp64Stack
+        l = lbound(mold)
+        u = ubound(mold)
 
-  subroutine Construct_r2fp32Stack(stack,N,mold)
-    class(r2fp32Stack),intent(out) :: stack
-    integer,intent(in)             :: N
-    real(real32),intent(in)       :: mold(:,:)
-    ! local
-    integer :: l(1:2),u(1:2)
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               1:N))
+        stack%top_index = 0
 
-    l = lbound(mold)
-    u = ubound(mold)
+    end subroutine Construct_r2fp64Stack
 
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             1:N))
-    stack % top_index = 0
+    subroutine Push_r2fp64Stack(stack, tok)
+        class(r2fp64Stack), intent(inout) :: stack
+        real(real64), intent(in)          :: tok(:, :)
 
-  end subroutine Construct_r2fp32Stack
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, stack%top_index) = tok(:, :)
 
-  subroutine Destruct_r2fp32Stack(stack)
-    class(r2fp32Stack),intent(inout) :: stack
+    end subroutine Push_r2fp64Stack
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+    subroutine Pop_r2fp64Stack(stack, tok)
+        class(r2fp64Stack), intent(inout) :: stack
+        real(real64), intent(out)        :: tok(:, :)
 
-  end subroutine Destruct_r2fp32Stack
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :) = stack%tokens(:, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  subroutine Push_r2fp32Stack(stack,tok)
-    class(r2fp32Stack),intent(inout) :: stack
-    real(real32),intent(in)          :: tok(:,:)
+    end subroutine Pop_r2fp64Stack
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,stack % top_index) = tok(:,:)
+    subroutine Construct_r3fp32Stack(stack, N, mold)
+        class(r3fp32Stack), intent(out) :: stack
+        integer, intent(in)             :: N
+        real(real32), intent(in)       :: mold(:, :, :)
+        ! local
+        integer :: l(1:3), u(1:3)
 
-  end subroutine Push_r2fp32Stack
+        l = lbound(mold)
+        u = ubound(mold)
 
-  subroutine Pop_r2fp32Stack(stack,tok)
-    class(r2fp32Stack),intent(inout) :: stack
-    real(real32),intent(out)        :: tok(:,:)
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               l(3):u(3), &
+                               1:N))
+        stack%top_index = 0
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:) = stack % tokens(:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    end subroutine Construct_r3fp32Stack
 
-  end subroutine Pop_r2fp32Stack
+    subroutine Push_r3fp32Stack(stack, tok)
+        class(r3fp32Stack), intent(inout) :: stack
+        real(real32), intent(in)          :: tok(:, :, :)
 
-  subroutine Construct_r2fp64Stack(stack,N,mold)
-    class(r2fp64Stack),intent(out) :: stack
-    integer,intent(in)            :: N
-    real(real64),intent(in)      :: mold(:,:)
-    ! local
-    integer :: l(1:2),u(1:2)
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, :, stack%top_index) = tok(:, :, :)
 
-    l = lbound(mold)
-    u = ubound(mold)
+    end subroutine Push_r3fp32Stack
 
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             1:N))
-    stack % top_index = 0
+    subroutine Pop_r3fp32Stack(stack, tok)
+        class(r3fp32Stack), intent(inout) :: stack
+        real(real32), intent(out)        :: tok(:, :, :)
 
-  end subroutine Construct_r2fp64Stack
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :, :) = stack%tokens(:, :, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-  subroutine Destruct_r2fp64Stack(stack)
-    class(r2fp64Stack),intent(inout) :: stack
+    end subroutine Pop_r3fp32Stack
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+    subroutine Construct_r3fp64Stack(stack, N, mold)
+        class(r3fp64Stack), intent(out) :: stack
+        integer, intent(in)            :: N
+        real(real64), intent(in)      :: mold(:, :, :)
+        ! local
+        integer :: l(1:3), u(1:3)
 
-  end subroutine Destruct_r2fp64Stack
+        l = lbound(mold)
+        u = ubound(mold)
 
-  subroutine Push_r2fp64Stack(stack,tok)
-    class(r2fp64Stack),intent(inout) :: stack
-    real(real64),intent(in)          :: tok(:,:)
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               l(3):u(3), &
+                               1:N))
+        stack%top_index = 0
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,stack % top_index) = tok(:,:)
+    end subroutine Construct_r3fp64Stack
 
-  end subroutine Push_r2fp64Stack
+    subroutine Push_r3fp64Stack(stack, tok)
+        class(r3fp64Stack), intent(inout) :: stack
+        real(real64), intent(in)          :: tok(:, :, :)
 
-  subroutine Pop_r2fp64Stack(stack,tok)
-    class(r2fp64Stack),intent(inout) :: stack
-    real(real64),intent(out)        :: tok(:,:)
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, :, stack%top_index) = tok(:, :, :)
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:) = stack % tokens(:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    end subroutine Push_r3fp64Stack
 
-  end subroutine Pop_r2fp64Stack
+    subroutine Pop_r3fp64Stack(stack, tok)
+        class(r3fp64Stack), intent(inout) :: stack
+        real(real64), intent(out)        :: tok(:, :, :)
 
-  subroutine Construct_r3fp32Stack(stack,N,mold)
-    class(r3fp32Stack),intent(out) :: stack
-    integer,intent(in)             :: N
-    real(real32),intent(in)       :: mold(:,:,:)
-    ! local
-    integer :: l(1:3),u(1:3)
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :, :) = stack%tokens(:, :, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-    l = lbound(mold)
-    u = ubound(mold)
+    end subroutine Pop_r3fp64Stack
 
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             l(3):u(3), &
-                             1:N))
-    stack % top_index = 0
+    subroutine Construct_r4fp32Stack(stack, N, mold)
+        class(r4fp32Stack), intent(out) :: stack
+        integer, intent(in)             :: N
+        real(real32), intent(in)       :: mold(:, :, :, :)
+        ! local
+        integer :: l(1:4), u(1:4)
 
-  end subroutine Construct_r3fp32Stack
+        l = lbound(mold)
+        u = ubound(mold)
 
-  subroutine Destruct_r3fp32Stack(stack)
-    class(r3fp32Stack),intent(inout) :: stack
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               l(3):u(3), &
+                               l(4):u(4), &
+                               1:N))
+        stack%top_index = 0
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+    end subroutine Construct_r4fp32Stack
 
-  end subroutine Destruct_r3fp32Stack
+    subroutine Push_r4fp32Stack(stack, tok)
+        class(r4fp32Stack), intent(inout) :: stack
+        real(real32), intent(in)          :: tok(:, :, :, :)
 
-  subroutine Push_r3fp32Stack(stack,tok)
-    class(r3fp32Stack),intent(inout) :: stack
-    real(real32),intent(in)          :: tok(:,:,:)
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, :, :, stack%top_index) = tok(:, :, :, :)
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,:,stack % top_index) = tok(:,:,:)
+    end subroutine Push_r4fp32Stack
 
-  end subroutine Push_r3fp32Stack
+    subroutine Pop_r4fp32Stack(stack, tok)
+        class(r4fp32Stack), intent(inout) :: stack
+        real(real32), intent(out)        :: tok(:, :, :, :)
 
-  subroutine Pop_r3fp32Stack(stack,tok)
-    class(r3fp32Stack),intent(inout) :: stack
-    real(real32),intent(out)        :: tok(:,:,:)
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :, :, :) = stack%tokens(:, :, :, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:,:) = stack % tokens(:,:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
+    end subroutine Pop_r4fp32Stack
 
-  end subroutine Pop_r3fp32Stack
+    subroutine Construct_r4fp64Stack(stack, N, mold)
+        class(r4fp64Stack), intent(out) :: stack
+        integer, intent(in)            :: N
+        real(real64), intent(in)      :: mold(:, :, :, :)
+        ! local
+        integer :: l(1:4), u(1:4)
 
-  subroutine Construct_r3fp64Stack(stack,N,mold)
-    class(r3fp64Stack),intent(out) :: stack
-    integer,intent(in)            :: N
-    real(real64),intent(in)      :: mold(:,:,:)
-    ! local
-    integer :: l(1:3),u(1:3)
+        l = lbound(mold)
+        u = ubound(mold)
 
-    l = lbound(mold)
-    u = ubound(mold)
+        allocate (stack%tokens(l(1):u(1), &
+                               l(2):u(2), &
+                               l(3):u(3), &
+                               l(4):u(4), &
+                               1:N))
+        stack%top_index = 0
 
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             l(3):u(3), &
-                             1:N))
-    stack % top_index = 0
+    end subroutine Construct_r4fp64Stack
 
-  end subroutine Construct_r3fp64Stack
+    subroutine Push_r4fp64Stack(stack, tok)
+        class(r4fp64Stack), intent(inout) :: stack
+        real(real64), intent(in)          :: tok(:, :, :, :)
 
-  subroutine Destruct_r3fp64Stack(stack)
-    class(r3fp64Stack),intent(inout) :: stack
+        stack%top_index = stack%top_index + 1
+        stack%tokens(:, :, :, :, stack%top_index) = tok(:, :, :, :)
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+    end subroutine Push_r4fp64Stack
 
-  end subroutine Destruct_r3fp64Stack
+    subroutine Pop_r4fp64Stack(stack, tok)
+        class(r4fp64Stack), intent(inout) :: stack
+        real(real64), intent(out)        :: tok(:, :, :, :)
 
-  subroutine Push_r3fp64Stack(stack,tok)
-    class(r3fp64Stack),intent(inout) :: stack
-    real(real64),intent(in)          :: tok(:,:,:)
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok(:, :, :, :) = stack%tokens(:, :, :, :, stack%top_index)
+            stack%top_index = stack%top_index - 1
+        end if
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,:,stack % top_index) = tok(:,:,:)
+    end subroutine Pop_r4fp64Stack
 
-  end subroutine Push_r3fp64Stack
-
-  subroutine Pop_r3fp64Stack(stack,tok)
-    class(r3fp64Stack),intent(inout) :: stack
-    real(real64),intent(out)        :: tok(:,:,:)
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:,:) = stack % tokens(:,:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
-
-  end subroutine Pop_r3fp64Stack
-
-  subroutine Construct_r4fp32Stack(stack,N,mold)
-    class(r4fp32Stack),intent(out) :: stack
-    integer,intent(in)             :: N
-    real(real32),intent(in)       :: mold(:,:,:,:)
-    ! local
-    integer :: l(1:4),u(1:4)
-
-    l = lbound(mold)
-    u = ubound(mold)
-
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             l(3):u(3), &
-                             l(4):u(4), &
-                             1:N))
-    stack % top_index = 0
-
-  end subroutine Construct_r4fp32Stack
-
-  subroutine Destruct_r4fp32Stack(stack)
-    class(r4fp32Stack),intent(inout) :: stack
-
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
-
-  end subroutine Destruct_r4fp32Stack
-
-  subroutine Push_r4fp32Stack(stack,tok)
-    class(r4fp32Stack),intent(inout) :: stack
-    real(real32),intent(in)          :: tok(:,:,:,:)
-
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,:,:,stack % top_index) = tok(:,:,:,:)
-
-  end subroutine Push_r4fp32Stack
-
-  subroutine Pop_r4fp32Stack(stack,tok)
-    class(r4fp32Stack),intent(inout) :: stack
-    real(real32),intent(out)        :: tok(:,:,:,:)
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:,:,:) = stack % tokens(:,:,:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
-
-  end subroutine Pop_r4fp32Stack
-
-  subroutine Construct_r4fp64Stack(stack,N,mold)
-    class(r4fp64Stack),intent(out) :: stack
-    integer,intent(in)            :: N
-    real(real64),intent(in)      :: mold(:,:,:,:)
-    ! local
-    integer :: l(1:4),u(1:4)
-
-    l = lbound(mold)
-    u = ubound(mold)
-
-    allocate (stack % tokens(l(1):u(1), &
-                             l(2):u(2), &
-                             l(3):u(3), &
-                             l(4):u(4), &
-                             1:N))
-    stack % top_index = 0
-
-  end subroutine Construct_r4fp64Stack
-
-  subroutine Destruct_r4fp64Stack(stack)
-    class(r4fp64Stack),intent(inout) :: stack
-
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
-
-  end subroutine Destruct_r4fp64Stack
-
-  subroutine Push_r4fp64Stack(stack,tok)
-    class(r4fp64Stack),intent(inout) :: stack
-    real(real64),intent(in)          :: tok(:,:,:,:)
-
-    stack % top_index = stack % top_index + 1
-    stack % tokens(:,:,:,:,stack % top_index) = tok(:,:,:,:)
-
-  end subroutine Push_r4fp64Stack
-
-  subroutine Pop_r4fp64Stack(stack,tok)
-    class(r4fp64Stack),intent(inout) :: stack
-    real(real64),intent(out)        :: tok(:,:,:,:)
-
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok(:,:,:,:) = stack % tokens(:,:,:,:,stack % top_index)
-      stack % top_index = stack % top_index - 1
-    end if
-
-  end subroutine Pop_r4fp64Stack
-  
 end module FEQParse_FloatStacks

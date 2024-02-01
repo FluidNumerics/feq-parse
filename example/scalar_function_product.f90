@@ -1,5 +1,5 @@
 program scalar_function_product
-
+  use iso_fortran_env
   use FEQParse
 
   implicit none
@@ -13,7 +13,7 @@ program scalar_function_product
   independentVars = (/'x', 'y'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = cos( 2.0*pi*x )*\cos( 2.0*pi*y )'
+  eqChar = 'f = cos( 2.0*pi*x )*cos( 2.0*pi*y )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -22,8 +22,5 @@ program scalar_function_product
   x = 0.5
   feval = f % evaluate(x)
   print*, feval
-
-  ! Clean up memory
-  call f % Destruct()
 
 end program scalar_function_product

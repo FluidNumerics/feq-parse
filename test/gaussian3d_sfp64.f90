@@ -26,7 +26,4 @@ integer function gaussian3d_sfp64() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
-
 end function gaussian3d_sfp64

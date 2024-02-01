@@ -1,9 +1,9 @@
 program array_with_array_eval
-
+  use iso_fortran_env
   use FEQParse
 
   implicit none
-  integer,parameter :: N = 10000000
+  integer,parameter :: N = 10000
   type(EquationParser) :: f
   character(LEN=1),dimension(1) :: independentVars
   character(LEN=30) :: eqChar
@@ -29,8 +29,5 @@ program array_with_array_eval
   feval = f % evaluate(x)
   call cpu_time(t2)
   print *, "runtime :", (t2 - t1)," s"
-
-  ! Clean up memory
-  call f % Destruct()
 
 end program array_with_array_eval

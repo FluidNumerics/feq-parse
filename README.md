@@ -105,9 +105,6 @@ Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | 
 
 ## Usage
 
-> [!NOTE]
->  All functions in the equation string must start with a `\`
-
 ### Run examples with fpm
 > [!NOTE]
 > Examples are now included in the `example/` subdirectory

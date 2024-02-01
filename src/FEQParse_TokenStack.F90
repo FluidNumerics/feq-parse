@@ -13,111 +13,102 @@
 
 module FEQParse_TokenStack
 
-  use iso_fortran_env
+    use iso_fortran_env
 
-  implicit none
+    implicit none
 
-  integer,parameter :: Token_Length = 48
+    integer, parameter :: Token_Length = 48
 
-  type Token
-    character(Token_Length) :: tokenString
-    integer                 :: tokenType
+    type Token
+        character(Token_Length) :: tokenString
+        integer                 :: tokenType
+        
+    contains
+        procedure :: Copy
 
-  contains
-    procedure :: Equals_Token
+    end type Token
 
-  end type Token
+    type TokenStack
+        type(Token), allocatable :: tokens(:)
+        integer                  :: top_index = 0
 
-  type TokenStack
-    type(Token),allocatable :: tokens(:)
-    integer                  :: top_index = 0
+    contains
 
-  contains
+        procedure :: Construct => Construct_TokenStack
 
-    procedure :: Construct => Construct_TokenStack
-    procedure :: Destruct => Destruct_TokenStack
+        procedure :: Push => Push_TokenStack
+        procedure :: Pop => Pop_TokenStack
 
-    procedure :: Push => Push_TokenStack
-    procedure :: Pop => Pop_TokenStack
+        procedure :: IsEmpty => IsEmpty_TokenStack
+        procedure :: TopToken
 
-    procedure :: IsEmpty => IsEmpty_TokenStack
-    procedure :: TopToken
-
-  end type TokenStack
+    end type TokenStack
 
 contains
 
-  subroutine Construct_TokenStack(stack,N)
-    class(TokenStack),intent(out) :: stack
-    integer,intent(in)            :: N
+    subroutine Construct_TokenStack(stack, N)
+        class(TokenStack), intent(out) :: stack
+        integer, intent(in)            :: N
 
-    allocate (stack % tokens(1:N))
-    stack % top_index = 0
+        allocate (stack%tokens(1:N))
+        stack%top_index = 0
 
-  end subroutine Construct_TokenStack
+    end subroutine Construct_TokenStack
 
-  subroutine Destruct_TokenStack(stack)
-    class(TokenStack),intent(inout) :: stack
+    subroutine Push_TokenStack(stack, tok)
+        class(TokenStack), intent(inout) :: stack
+        type(Token), intent(in)         :: tok
 
-    if (allocated(stack % tokens)) deallocate (stack % tokens)
-    stack % top_index = 0
+        stack%top_index = stack%top_index + 1
+        stack%tokens(stack%top_index)%tokenString = tok%tokenString
+        stack%tokens(stack%top_index)%tokenType = tok%tokenType
 
-  end subroutine Destruct_TokenStack
+    end subroutine Push_TokenStack
 
-  subroutine Push_TokenStack(stack,tok)
-    class(TokenStack),intent(inout) :: stack
-    type(Token),intent(in)         :: tok
+    subroutine Pop_TokenStack(stack, tok)
+        class(TokenStack), intent(inout) :: stack
+        type(Token), intent(out)        :: tok
 
-    stack % top_index = stack % top_index + 1
-    stack % tokens(stack % top_index) % tokenString = tok % tokenString
-    stack % tokens(stack % top_index) % tokenType = tok % tokenType
+        if (stack%top_index <= 0) then
+            print*,"Attempt to pop from empty token stack"
+        else
+            tok%tokenString = stack%tokens(stack%top_index)%tokenString
+            tok%tokenType = stack%tokens(stack%top_index)%tokenType
+            stack%top_index = stack%top_index - 1
+        end if
 
-  end subroutine Push_TokenStack
+    end subroutine Pop_TokenStack
 
-  subroutine Pop_TokenStack(stack,tok)
-    class(TokenStack),intent(inout) :: stack
-    type(Token),intent(out)        :: tok
+    logical function IsEmpty_TokenStack(stack)
+        class(TokenStack) :: stack
 
-    if (stack % top_index <= 0) then
-      print *, "Attempt to pop from empty token stack"
-    else
-      tok % tokenString = stack % tokens(stack % top_index) % tokenString
-      tok % tokenType = stack % tokens(stack % top_index) % tokenType
-      stack % top_index = stack % top_index - 1
-    end if
+        IsEmpty_TokenStack = .false.
 
-  end subroutine Pop_TokenStack
+        if (stack%top_index <= 0) then
+            IsEmpty_TokenStack = .true.
+        end if
 
-  logical function IsEmpty_TokenStack(stack)
-    class(TokenStack) :: stack
+    end function IsEmpty_TokenStack
 
-    IsEmpty_TokenStack = .false.
+    type(Token) function TopToken(stack)
+        class(TokenStack) :: stack
 
-    if (stack % top_index <= 0) then
-      IsEmpty_TokenStack = .true.
-    end if
+        if (stack%top_index > 0) then
+            TopToken%tokenString = stack%tokens(stack%top_index)%tokenString
+            TopToken%tokenType = stack%tokens(stack%top_index)%tokenType
+        else
+            TopToken%tokenString = ''
+        end if
 
-  end function IsEmpty_TokenStack
+    end function TopToken
 
-  type(Token) function TopToken(stack)
-    class(TokenStack) :: stack
+    function Copy(tok1) result(tok2)
+        class(Token) :: tok1
+        type(Token)  :: tok2
 
-    if (stack % top_index > 0) then
-      TopToken % tokenString = stack % tokens(stack % top_index) % tokenString
-      TopToken % tokenType = stack % tokens(stack % top_index) % tokenType
-    else
-      TopToken % tokenString = ''
-    end if
+        tok2%tokenString = tok1%tokenString
+        tok2%tokenType = tok1%tokenType
 
-  end function TopToken
-
-  function Equals_Token(tok1) result(tok2)
-    class(Token) :: tok1
-    type(Token)  :: tok2
-
-    tok2 % tokenString = tok1 % tokenString
-    tok2 % tokenType = tok1 % tokenType
-
-  end function Equals_Token
+    end function Copy
 
 end module FEQParse_TokenStack

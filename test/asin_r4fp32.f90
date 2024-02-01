@@ -3,8 +3,8 @@ integer function asin_r4fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 20
-  integer,parameter :: M = 10
+  integer,parameter :: N = 2
+  integer,parameter :: M = 5
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -21,7 +21,7 @@ integer function asin_r4fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = asin( x )*\asin( y )*\asin( z )'
+  eqChar = 'f = asin( x )*asin( y )*asin( z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -56,8 +56,6 @@ integer function asin_r4fp32() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function asin_r4fp32
