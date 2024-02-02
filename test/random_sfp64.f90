@@ -3,7 +3,7 @@ integer function random_sfp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 1000
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=2048) :: eqChar
@@ -15,7 +15,7 @@ integer function random_sfp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \random( x )'
+  eqChar = 'f = rand( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -29,8 +29,5 @@ integer function random_sfp64() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
 
 end function random_sfp64

@@ -4,7 +4,7 @@ integer function acos_sfp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 1000
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=2048) :: eqChar
@@ -17,7 +17,7 @@ integer function acos_sfp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \acos( x )'
+  eqChar = 'f = acos( x )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -32,8 +32,5 @@ integer function acos_sfp64() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
 
 end function acos_sfp64

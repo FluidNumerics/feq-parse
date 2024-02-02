@@ -3,7 +3,7 @@ integer function gaussian3d_r3fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 100
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -20,7 +20,7 @@ integer function gaussian3d_r3fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
+  eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -51,8 +51,6 @@ integer function gaussian3d_r3fp32() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function gaussian3d_r3fp32

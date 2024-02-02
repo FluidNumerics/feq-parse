@@ -2,3 +2,4 @@
 *.mod
 build/
 .DS_Store
+*.i90

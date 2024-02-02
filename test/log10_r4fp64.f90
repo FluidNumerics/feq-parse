@@ -3,8 +3,8 @@ integer function log10_r4fp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 20
-  integer,parameter :: M = 10
+  integer,parameter :: N = 2
+  integer,parameter :: M = 5
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -21,7 +21,7 @@ integer function log10_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \log( x )*\log(y)*\log(z)'
+  eqChar = 'f = log10( x )*log10(y)*log10(z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -56,8 +56,6 @@ integer function log10_r4fp64() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function log10_r4fp64

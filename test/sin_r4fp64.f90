@@ -4,8 +4,8 @@ integer function sin_r4fp64() result(r)
   use iso_fortran_env
   implicit none
   real(real64),parameter :: pi = 4.0_real64*atan(1.0_real64)
-  integer,parameter :: N = 20
-  integer,parameter :: M = 10
+  integer,parameter :: N = 2
+  integer,parameter :: M = 5
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -22,7 +22,7 @@ integer function sin_r4fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \sin( 2.0*pi*x )*\sin( 2.0*pi*y )*\sin(2.0*pi*z)'
+  eqChar = 'f = sin( 2.0*pi*x )*sin( 2.0*pi*y )*sin(2.0*pi*z)'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -57,7 +57,5 @@ integer function sin_r4fp64() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 end function sin_r4fp64

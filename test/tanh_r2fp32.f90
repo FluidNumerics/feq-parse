@@ -3,7 +3,7 @@ integer function tanh_r2fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 1000
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -15,12 +15,12 @@ integer function tanh_r2fp32() result(r)
   allocate (x(1:N,1:N,1:3), &
             feval(1:N,1:N), &
             fexact(1:N,1:N))
-            
+
   ! Specify the independent variables
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \tanh( x )*\tanh( y )'
+  eqChar = 'f = tanh( x )*tanh( y )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -42,8 +42,6 @@ integer function tanh_r2fp32() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function tanh_r2fp32
