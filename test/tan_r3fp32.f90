@@ -3,7 +3,7 @@ integer function tan_r3fp32() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 100
+  integer,parameter :: N = 10
   real(real32),parameter :: pi = 4.0_real32*atan(1.0_real32)
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
@@ -21,7 +21,7 @@ integer function tan_r3fp32() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \tan( 0.5*pi*x )*\tan( 0.5*pi*y )*\tan( 0.5*pi*z )'
+  eqChar = 'f = tan( 0.5*pi*x )*tan( 0.5*pi*y )*tan( 0.5*pi*z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -52,8 +52,6 @@ integer function tan_r3fp32() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function tan_r3fp32

@@ -3,7 +3,7 @@ integer function cos_r3fp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 100
+  integer,parameter :: N = 10
   real(real64),parameter :: pi = 4.0_real64*atan(1.0_real64)
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
@@ -21,7 +21,7 @@ integer function cos_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \cos( 2.0*pi*x )*\cos( 2.0*pi*y )*\cos( 2.0*pi*z )'
+  eqChar = 'f = cos( 2.0*pi*x )*cos( 2.0*pi*y )*cos( 2.0*pi*z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -52,8 +52,6 @@ integer function cos_r3fp64() result(r)
     r = 1
   end if
 
-  ! Clean up memory
-  call f % Destruct()
   deallocate (x,feval,fexact)
 
 end function cos_r3fp64

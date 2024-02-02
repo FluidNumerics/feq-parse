@@ -19,7 +19,7 @@ integer function print_tokens() result(r)
   call f % Print_PostfixTokens()
 
   ! Clean up memory
-  call f % Destruct()
+
   r=0
 
 end function print_tokens

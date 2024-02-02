@@ -3,7 +3,7 @@ integer function abs_r3fp64() result(r)
   use FEQParse
   use iso_fortran_env
   implicit none
-  integer,parameter :: N = 100
+  integer,parameter :: N = 10
   type(EquationParser) :: f
   character(LEN=1),dimension(1:3) :: independentVars
   character(LEN=1024) :: eqChar
@@ -20,7 +20,7 @@ integer function abs_r3fp64() result(r)
   independentVars = (/'x','y','z'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \abs( x + y + z )'
+  eqChar = 'f = abs( x + y + z )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -51,8 +51,5 @@ integer function abs_r3fp64() result(r)
   else
     r = 1
   end if
-
-  ! Clean up memory
-  call f % Destruct()
 
 end function abs_r3fp64

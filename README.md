@@ -105,9 +105,6 @@ Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | 
 
 ## Usage
 
-> [!NOTE]
->  All functions in the equation string must start with a `\`
-
 ### Run examples with fpm
 > [!NOTE]
 > Examples are now included in the `example/` subdirectory
@@ -153,7 +150,7 @@ IMPLICIT NONE
     independentVars = (/ 'x', 'y', 'z' /)
 
     ! Specify an equation string that we want to evaluate
-    eqChar = 'f = \exp( -(x^2 + y^2 + z^2) )'
+    eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
 
     ! Create the EquationParser object
     f = EquationParser(eqChar, independentVars)

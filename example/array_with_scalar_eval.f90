@@ -1,9 +1,9 @@
 program array_with_scalar_eval
-
+  use iso_fortran_env
   use FEQParse
 
   implicit none
-  integer,parameter :: N = 100000
+  integer,parameter :: N = 100
   type(EquationParser) :: f
   character(LEN=1),dimension(1) :: independentVars
   character(LEN=30) :: eqChar
@@ -16,7 +16,7 @@ program array_with_scalar_eval
   independentVars = (/'x'/)
 
   ! Specify an equation string that we want to evaluate
-  eqChar = 'f = \exp( -(x^2) )'
+  eqChar = 'f = exp( -(x^2) )'
 
   ! Create the EquationParser object
   f = EquationParser(eqChar,independentVars)
@@ -29,8 +29,5 @@ program array_with_scalar_eval
   end do
   call cpu_time(t2)
   print *, "runtime :", (t2 - t1)," s"
-
-  ! Clean up memory
-  call f % Destruct()
 
 end program array_with_scalar_eval
