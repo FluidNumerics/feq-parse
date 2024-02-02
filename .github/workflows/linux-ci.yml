@@ -222,4 +222,4 @@ jobs:
         if: ${{ matrix.memcheck }}
         run: |
           sudo apt-get install -y valgrind
-          valgrind --undef-value-erros=no --error-exitcode=1 -s ./build/test/testsuite -A
+          valgrind --undef-value-errors=no --error-exitcode=1 -s ./build/test/testsuite -A
