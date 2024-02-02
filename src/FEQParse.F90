@@ -1657,7 +1657,7 @@ contains
                 end if
             end if
         end do
-    end function
+    end function IsFunction
 
     function ToLowerCase(str) result(res)
         character(*), intent(in) :: str
