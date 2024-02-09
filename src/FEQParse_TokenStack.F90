@@ -12,37 +12,28 @@
 ! //////////////////////////////////////////////////////////////////////////////////////////////// !
 
 module FEQParse_TokenStack
-
     use iso_fortran_env
 
     implicit none
 
-    integer, parameter :: Token_Length = 48
-
     type Token
-        character(Token_Length) :: tokenString
-        integer                 :: tokenType
-        
+        character(48) :: tokenString
+        integer       :: tokenType
+        integer       :: tokenIndex
     contains
         procedure :: Copy
-
-    end type Token
+    end type
 
     type TokenStack
         type(Token), allocatable :: tokens(:)
         integer                  :: top_index = 0
-
     contains
-
         procedure :: Construct => Construct_TokenStack
-
         procedure :: Push => Push_TokenStack
         procedure :: Pop => Pop_TokenStack
-
         procedure :: IsEmpty => IsEmpty_TokenStack
         procedure :: TopToken
-
-    end type TokenStack
+    end type
 
 contains
 
@@ -62,7 +53,7 @@ contains
         stack%top_index = stack%top_index + 1
         stack%tokens(stack%top_index)%tokenString = tok%tokenString
         stack%tokens(stack%top_index)%tokenType = tok%tokenType
-
+        stack%tokens(stack%top_index)%tokenIndex = tok%tokenIndex
     end subroutine Push_TokenStack
 
     subroutine Pop_TokenStack(stack, tok)
@@ -74,6 +65,7 @@ contains
         else
             tok%tokenString = stack%tokens(stack%top_index)%tokenString
             tok%tokenType = stack%tokens(stack%top_index)%tokenType
+            tok%tokenIndex = stack%tokens(stack%top_index)%tokenIndex
             stack%top_index = stack%top_index - 1
         end if
 
@@ -96,19 +88,20 @@ contains
         if (stack%top_index > 0) then
             TopToken%tokenString = stack%tokens(stack%top_index)%tokenString
             TopToken%tokenType = stack%tokens(stack%top_index)%tokenType
+            TopToken%tokenIndex = stack%tokens(stack%top_index)%tokenIndex
         else
             TopToken%tokenString = ''
         end if
 
     end function TopToken
 
-    function Copy(tok1) result(tok2)
-        class(Token) :: tok1
-        type(Token)  :: tok2
+    function Copy(this) result(that)
+        class(Token) :: this
+        type(Token)  :: that
 
-        tok2%tokenString = tok1%tokenString
-        tok2%tokenType = tok1%tokenType
-
+        that%tokenString = this%tokenString
+        that%tokenType = this%tokenType
+        that%tokenIndex = this%tokenIndex
     end function Copy
 
 end module FEQParse_TokenStack

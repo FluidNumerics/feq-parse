@@ -159,10 +159,6 @@ IMPLICIT NONE
     x = (/ 0.0, 0.0, 0.0 /)
     PRINT*, f % evaluate( x )
 
-    ! Clean up memory
-    CALL f % Destruct()
-
-
 END PROGRAM FEqParseDemo
 ```
 

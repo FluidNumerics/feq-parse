@@ -23,7 +23,6 @@ module FEQParse
     real(real64), parameter :: pi_real64 = 4.0_real64 * atan(1.0_real64)
     real(real32), parameter :: pi_real32 = 4.0_real32 * atan(1.0_real32)
 
-    integer, parameter, private :: Error_Message_Length = 256
     integer, parameter, private :: Stack_Length = 256
 
     ! Token types
@@ -94,9 +93,9 @@ contains
         character(*)         :: indepVars(:)
         ! Local
         integer :: i
-        character(Error_Message_Length) :: errorMsg
-        logical                         :: equationIsClean, tokenized, success
-        integer                         :: nIndepVars
+        character(:), allocatable   :: errorMsg
+        logical                     :: equationIsClean, tokenized, success
+        integer                     :: nIndepVars
 
         call InitializeFunctions()
 
@@ -109,35 +108,26 @@ contains
 
         parser%equation = trim(equation)
         if (allocated(parser%inFixFormula)) deallocate (parser%inFixFormula)
-        allocate (character(len(parser%equation) + maxFunctionLength) :: parser%inFixFormula)
+        allocate (character(len(parser%equation) + maxFunctionLength + 1) :: parser%inFixFormula)
         parser%variableName = '#noname'
-        errorMsg = ' '
 
-        call parser%CleanEquation(equationIsClean, errorMsg)
+        call parser%CleanEquation(equationIsClean)
 
         if (equationIsClean) then
-
             call parser%Tokenize(tokenized, errorMsg)
-
             if (tokenized) then
-
                 call parser%ConvertToPostFix()
-
             else
-
-                print*,trim(errorMsg)
+                if (allocated(errorMsg)) print*, trim(errorMsg)
                 success = .false.
-
             end if
-
         end if
 
     end function Construct_EquationParser
 
-    subroutine CleanEquation(parser, equationCleaned, errorMsg)
-        class(EquationParser), intent(inout)         :: parser
-        logical, intent(out)                         :: equationCleaned
-        character(Error_Message_Length), intent(out) :: errorMsg
+    subroutine CleanEquation(parser, equationCleaned)
+        class(EquationParser), intent(inout)    :: parser
+        logical, intent(out)                    :: equationCleaned
         ! Local
         integer :: nChar, equalSignLoc, j, i, n
         character(:), allocatable :: infixformula
@@ -145,9 +135,7 @@ contains
         equationCleaned = .false.
 
         equalSignLoc = index(parser%equation, '=')
-        if (equalSignLoc == 0) then
-            errorMsg = 'No variable name found.'
-        else
+        if (equalSignLoc /= 0) then
             parser%variableName = parser%equation(1:equalSignLoc - 1)
         end if
 
@@ -202,15 +190,14 @@ contains
     end function ReplaceStr
 
     subroutine Tokenize(parser, tokenized, errorMsg)
-        class(EquationParser), intent(inout) :: parser
-        logical, intent(out)                   :: tokenized
-        character(Error_Message_Length)        :: errorMsg
+        class(EquationParser), intent(inout)    :: parser
+        logical, intent(out)                    :: tokenized
+        character(:), allocatable, intent(out)  :: errorMsg
         ! Local
-        integer :: i, j, k
+        integer :: i, j, k, id
         integer, allocatable :: maxVarLen, varLen
 
         tokenized = .false.
-        errorMsg = ' '
 
         call parser%infix%Construct(Stack_Length)
 
@@ -222,20 +209,13 @@ contains
         i = 1
         do while (parser%inFixFormula(i:i) /= ' ')
             varLen = maxVarLen
-            if (IsFunction(j, parser%infixFormula(i:i + maxFunctionLength - 1))) then
+            if (IsFunction(j, parser%infixFormula(i:i + maxFunctionLength), id)) then
 
                 parser%inFix%top_index = parser%inFix%top_index + 1
                 parser%inFix%tokens(parser%inFix%top_index)%tokenString = parser%inFixFormula(i:i + j - 1)
                 parser%inFix%tokens(parser%inFix%top_index)%tokenType = Function_Token
+                parser%inFix%tokens(parser%inFix%top_index)%tokenIndex = id
                 i = i + j
-
-                ! Check to see if the next string
-                if (parser%inFixFormula(i:i) /= '(') then
-                    errorMsg = 'Missing opening parentheses after token : '// &
-                               trim(parser%inFix%tokens(parser%inFix%top_index)%tokenString)
-
-                    return
-                end if
 
             elseif (IsVariable(varLen, parser%inFixFormula(i:i + varLen - 1), parser%indepVars, parser%nIndepVars)) then
                 parser%inFix%top_index = parser%inFix%top_index + 1
@@ -336,10 +316,9 @@ contains
     subroutine ConvertToPostFix(parser)
         class(EquationParser), intent(inout) :: parser
         ! Local
-        character(Error_Message_Length) :: errorMsg
-        type(TokenStack)              :: operator_stack
-        type(Token)                   :: tok
-        integer                       :: i
+        type(TokenStack)            :: operator_stack
+        type(Token)                 :: tok
+        integer                     :: i
 
         !success = .FALSE.
 
@@ -485,7 +464,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -582,7 +561,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -688,7 +667,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -797,7 +776,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -911,7 +890,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1027,7 +1006,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1145,7 +1124,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1264,7 +1243,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1384,7 +1363,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1506,7 +1485,7 @@ contains
 
                 call stack%Pop(a)
 
-                b = f_of_x(trim(t%tokenString), a)
+                b = Functions(t%tokenIndex)%invoke(a)
 
                 call stack%Push(b)
 
@@ -1637,9 +1616,10 @@ contains
 
     end function IsOperator
 
-    logical function IsFunction(varlen, eqChar)
+    logical function IsFunction(varlen, eqChar, idx)
         integer, intent(inout) :: varlen
         character(*), intent(in) :: eqChar
+        integer, intent(out) :: idx
         ! Local
         integer :: i
 
@@ -1652,12 +1632,15 @@ contains
         do i = 1, nFunctions
             if (Functions(i)%len <= len(eqChar)) then
                 if (Functions(i) == eqChar(:Functions(i)%len)) then
-                    IsFunction = .true.
-                    varlen = max(Functions(i)%len, varlen)
+                    if (eqChar(Functions(i)%len + 1:Functions(i)%len + 1) == '(') then
+                        IsFunction = .true.
+                        varlen = max(Functions(i)%len, varlen)
+                        idx = i
+                    end if
                 end if
             end if
         end do
-    end function IsFunction
+    end function
 
     function ToLowerCase(str) result(res)
         character(*), intent(in) :: str
