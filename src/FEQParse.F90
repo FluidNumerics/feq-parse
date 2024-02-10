@@ -19,6 +19,9 @@ module FEQParse
     use FEQParse_FloatStacks
 
     implicit none
+    
+    public :: FEQParse_Function, &
+              AddFunction
 
     real(real64), parameter :: pi_real64 = 4.0_real64 * atan(1.0_real64)
     real(real32), parameter :: pi_real32 = 4.0_real32 * atan(1.0_real32)
@@ -198,8 +201,7 @@ contains
         integer, allocatable :: maxVarLen, varLen
 
         tokenized = .false.
-        errorMsg = ''
-        
+
         call parser%infix%Construct(Stack_Length)
 
         maxVarLen = 0

@@ -57,6 +57,11 @@ module FEQParse_Functions
             real(real64), intent(in) :: x
         end function
     end interface
+    
+    type Tuple
+        character(:), allocatable :: item1
+        character(:), allocatable :: item2
+    end type
 
     type, public :: FEQParse_Function
         integer :: len
@@ -99,16 +104,29 @@ module FEQParse_Functions
         module procedure :: AddFunction64
         module procedure :: AddFunction32And64
     end interface
+    
+    interface Tuple
+        module procedure Tuple_new
+    end interface
 
     contains
     
+    type(Tuple) function Tuple_new(item1, item2) result(t)
+        character(*), intent(in) :: item1
+        character(*), intent(in) :: item2
+        
+        t%item1 = item1
+        t%item2 = item2
+    end function
+        
+    
     subroutine character_array_assign_function(lhs, rhs)
         class(FEQParse_Function), intent(inout) :: lhs !! Left hand side.
-        character(len=*), intent(in)    :: rhs(2) !! Right hand side.
+        class(Tuple), intent(in)    :: rhs !! Right hand side.
 
-        lhs%str = rhs(1)
-        lhs%len = len(rhs)
-        lhs%caps = rhs(2)
+        lhs%str = rhs%item1
+        lhs%len = len(rhs%item1)
+        lhs%caps = rhs%item2
         maxFunctionLength = max(maxFunctionLength, lhs%len)
     end subroutine
 
@@ -164,71 +182,71 @@ module FEQParse_Functions
         if (allocated(Functions)) return
         
         allocate (Functions(1:nFunctions))
-        Functions(cos_function) = ["cos", "COS"]
+        Functions(cos_function) = Tuple("cos", "COS")
         Functions(cos_function)%ptr32 => cos32
         Functions(cos_function)%ptr64 => cos64
         
-        Functions(cosh_function) = ["cosh", "COSH"]
+        Functions(cosh_function) = Tuple("cosh", "COSH")
         Functions(cosh_function)%ptr32 => cosh32
         Functions(cosh_function)%ptr64 => cosh64
         
-        Functions(sin_function) = ["sin", "SIN"]
+        Functions(sin_function) = Tuple("sin", "SIN")
         Functions(sin_function)%ptr32 => sin32
         Functions(sin_function)%ptr64 => sin64
         
-        Functions(sinh_function) = ["sinh", "SINH"]
+        Functions(sinh_function) = Tuple("sinh", "SINH")
         Functions(sinh_function)%ptr32 => sinh32
         Functions(sinh_function)%ptr64 => sinh64
         
-        Functions(tan_function) = ["tan", "TAN"]
+        Functions(tan_function) = Tuple("tan", "TAN")
         Functions(tan_function)%ptr32 => tan32
         Functions(tan_function)%ptr64 => tan64
         
-        Functions(tanh_function) = ["tanh", "TANH"]
+        Functions(tanh_function) = Tuple("tanh", "TANH")
         Functions(tanh_function)%ptr32 => tanh32
         Functions(tanh_function)%ptr64 => tanh64
         
-        Functions(sqrt_function) = ["sqrt", "SQRT"]
+        Functions(sqrt_function) = Tuple("sqrt", "SQRT")
         Functions(sqrt_function)%ptr32 => sqrt32
         Functions(sqrt_function)%ptr64 => sqrt64
         
-        Functions(abs_function) = ["abs", "ABS"]
+        Functions(abs_function) = Tuple("abs", "ABS")
         Functions(abs_function)%ptr32 => abs32
         Functions(abs_function)%ptr64 => abs64
         
-        Functions(exp_function) = ["exp", "EXP"]
+        Functions(exp_function) = Tuple("exp", "EXP")
         Functions(exp_function)%ptr32 => exp32
         Functions(exp_function)%ptr64 => exp64
         
-        Functions(ln_function) = ["ln", "LN"]
+        Functions(ln_function) = Tuple("ln", "LN")
         Functions(ln_function)%ptr32 => log32
         Functions(ln_function)%ptr64 => log64
         
-        Functions(log_function) = ["log", "LOG"]
+        Functions(log_function) = Tuple("log", "LOG")
         Functions(log_function)%ptr32 => log32
         Functions(log_function)%ptr64 => log64
         
-        Functions(log10_function) = ["log10", "LOG10"]
+        Functions(log10_function) = Tuple("log10", "LOG10")
         Functions(log10_function)%ptr32 => log1032
         Functions(log10_function)%ptr64 => log1064
         
-        Functions(acos_function) = ["acos", "ACOS"]
+        Functions(acos_function) = Tuple("acos", "ACOS")
         Functions(acos_function)%ptr32 => acos32
         Functions(acos_function)%ptr64 => acos64
         
-        Functions(asin_function) = ["asin", "ASIN"]
+        Functions(asin_function) = Tuple("asin", "ASIN")
         Functions(asin_function)%ptr32 => asin32
         Functions(asin_function)%ptr64 => asin64
         
-        Functions(atan_function) = ["atan", "ATAN"]
+        Functions(atan_function) = Tuple("atan", "ATAN")
         Functions(atan_function)%ptr32 => atan32
         Functions(atan_function)%ptr64 => atan64
         
-        Functions(sech_function) = ["sech", "SECH"]
+        Functions(sech_function) = Tuple("sech", "SECH")
         Functions(sech_function)%ptr32 => sech32
         Functions(sech_function)%ptr64 => sech64
         
-        Functions(rand_function) = ["rand", "RAND"]
+        Functions(rand_function) = Tuple("rand", "RAND")
         Functions(rand_function)%ptr32 => rand32
         Functions(rand_function)%ptr64 => rand64
     end subroutine InitializeFunctions
