@@ -198,7 +198,8 @@ contains
         integer, allocatable :: maxVarLen, varLen
 
         tokenized = .false.
-
+        errorMsg = ''
+        
         call parser%infix%Construct(Stack_Length)
 
         maxVarLen = 0
