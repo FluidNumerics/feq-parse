@@ -37,8 +37,8 @@ integer function sqrt_r2fp32() result(r)
   x = 0.0_real32
   do j = 1,N
     do i = 1,N
-      x(i,j,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32)
-      x(i,j,2) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(j - 1,real32)
+      x(i,j,1) = (2.0_real32)/real(N,real32)*real(i - 1,real32)
+      x(i,j,2) = (2.0_real32)/real(N,real32)*real(j - 1,real32)
       fexact(i,j) = sqrt(x(i,j,1))*sqrt(x(i,j,2))
     end do
   end do

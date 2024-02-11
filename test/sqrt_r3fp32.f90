@@ -38,9 +38,9 @@ integer function sqrt_r3fp32() result(r)
   do k = 1,N
     do j = 1,N
       do i = 1,N
-        x(i,j,k,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32)
-        x(i,j,k,2) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(j - 1,real32)
-        x(i,j,k,3) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(k - 1,real32)
+        x(i,j,k,1) = (2.0_real32)/real(N,real32)*real(i - 1,real32)
+        x(i,j,k,2) = (2.0_real32)/real(N,real32)*real(j - 1,real32)
+        x(i,j,k,3) = (2.0_real32)/real(N,real32)*real(k - 1,real32)
       end do
     end do
   end do
