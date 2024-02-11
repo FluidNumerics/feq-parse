@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = sin_r4fp64()
+  stop exit_code
+
+contains
 
 integer function sin_r4fp64() result(r)
   use FEQParse
@@ -59,3 +68,4 @@ integer function sin_r4fp64() result(r)
 
   deallocate (x,feval,fexact)
 end function sin_r4fp64
+end program test

@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = abs_sfp32()
+  stop exit_code
+
+contains
 
 integer function abs_sfp32() result(r)
   use FEQParse
@@ -33,3 +42,4 @@ integer function abs_sfp32() result(r)
   end if
 
 end function abs_sfp32
+end program test

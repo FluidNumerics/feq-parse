@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = division_r3fp32()
+  stop exit_code
+
+contains
 
 integer function division_r3fp32() result(r)
   ! WARNING : the change in order of operations with feq-parse compared to the compilers
@@ -56,3 +65,4 @@ integer function division_r3fp32() result(r)
   deallocate (x,feval,fexact)
 
 end function division_r3fp32
+end program test

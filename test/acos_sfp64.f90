@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = acos_sfp64()
+  stop exit_code
+
+contains
 
 integer function acos_sfp64() result(r)
   ! WARNING - acos(x) accurate only to single precision with gfortran 11.4.0
@@ -34,3 +43,4 @@ integer function acos_sfp64() result(r)
   end if
 
 end function acos_sfp64
+end program test

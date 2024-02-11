@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = tan_r3fp32()
+  stop exit_code
+
+contains
 
 integer function tan_r3fp32() result(r)
   use FEQParse
@@ -55,3 +64,4 @@ integer function tan_r3fp32() result(r)
   deallocate (x,feval,fexact)
 
 end function tan_r3fp32
+end program test

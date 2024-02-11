@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = monadic_sfp64()
+  stop exit_code
+
+contains
 
 integer function monadic_sfp64() result(r)
   use FEQParse
@@ -33,3 +42,4 @@ integer function monadic_sfp64() result(r)
   end if
 
 end function monadic_sfp64
+end program test

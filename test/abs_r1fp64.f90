@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = abs_r1fp64()
+  stop exit_code
+
+contains
 
 integer function abs_r1fp64() result(r)
   use FEQParse
@@ -36,3 +45,4 @@ integer function abs_r1fp64() result(r)
   end if
 
 end function abs_r1fp64
+end program test

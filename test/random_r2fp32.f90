@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = random_r2fp32()
+  stop exit_code
+
+contains
 
 integer function random_r2fp32() result(r)
   use FEQParse
@@ -42,3 +51,4 @@ integer function random_r2fp32() result(r)
   deallocate (x,feval)
 
 end function random_r2fp32
+end program test

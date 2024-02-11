@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = cos_sfp32()
+  stop exit_code
+
+contains
 
 integer function cos_sfp32() result(r)
   use FEQParse
@@ -34,3 +43,4 @@ integer function cos_sfp32() result(r)
   end if
 
 end function cos_sfp32
+end program test

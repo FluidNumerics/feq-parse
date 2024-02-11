@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = sech_r4fp32()
+  stop exit_code
+
+contains
 
 integer function sech_r4fp32() result(r)
   use FEQParse
@@ -61,3 +70,4 @@ integer function sech_r4fp32() result(r)
   deallocate (x,feval,fexact)
 
 end function sech_r4fp32
+end program test

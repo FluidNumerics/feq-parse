@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = tanh_sfp64()
+  stop exit_code
+
+contains
 
 integer function tanh_sfp64() result(r)
   use FEQParse
@@ -33,3 +42,4 @@ integer function tanh_sfp64() result(r)
   end if
 
 end function tanh_sfp64
+end program test
