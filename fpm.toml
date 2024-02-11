@@ -18,20 +18,6 @@ source-dir = "src"
 [install]
 library = true
 
-[[test]]
-name = "unit-tests"
-source-dir = "test/fpm"
-main = "test.f90"
-
-[[test]]
-name = "parsing-tests"
-source-dir = "test/parsing"
-main = "test.f90"
-
-[[test]]
-name = "custom-tests"
-source-dir = "test/custom"
-main = "test.f90"
 
 [[example]]
 name = "array_with_array_eval"

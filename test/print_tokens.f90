@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = print_tokens()
+  stop exit_code
+
+contains
 
 integer function print_tokens() result(r)
   use FEQParse
@@ -23,3 +32,4 @@ integer function print_tokens() result(r)
   r=0
 
 end function print_tokens
+end program test

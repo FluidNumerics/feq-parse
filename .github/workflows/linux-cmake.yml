@@ -1,4 +1,4 @@
-name: linux-ci
+name: linux-cmake
 
 on:
   push:
@@ -79,48 +79,6 @@ jobs:
               build_type: debug
               memcheck: false
 
-            - os: ubuntu-22.04
-              fcompiler: gfortran-9
-              ccompiler: gcc-9
-              shell: bash
-              build_type: fpm
-              memcheck: false
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-10
-              ccompiler: gcc-10
-              shell: bash
-              build_type: fpm
-              memcheck: false
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-11
-              ccompiler: gcc-11
-              shell: bash
-              build_type: fpm
-              memcheck: false
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-12
-              ccompiler: gcc-12
-              shell: bash
-              build_type: fpm
-              memcheck: false
-
-            - os: ubuntu-22.04
-              fcompiler: ifx
-              ccompiler: icx-cc
-              shell: bash
-              build_type: fpm
-              memcheck: false
-            
-            - os: ubuntu-22.04
-              fcompiler: ifort
-              ccompiler: icx-cc
-              shell: bash
-              build_type: fpm
-              memcheck: false
-
 
     defaults:
       run:
@@ -160,30 +118,11 @@ jobs:
           ${{ matrix.ccompiler }} --version
 
       - name: Build with Cmake
-        if: ${{ matrix.build_type != 'fpm' }}
         run: |
           mkdir build
           cd build
           FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
           make VERBOSE=1
-
-      - name: fpm tests (ifx)
-        if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler == 'ifx') }}
-        run: |
-          wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
-          chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
-          ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
-          ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
-          ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback" --example "*"
-
-      - name: fpm tests 
-        if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
-        run: |
-          wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
-          chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
-          ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
-          ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
 
       - name: Initialize coverage counters
         if: ${{ matrix.build_type == 'coverage' }}
@@ -194,7 +133,6 @@ jobs:
                --zerocounters
 
       - name: Run ctests
-        if: ${{ matrix.build_type != 'fpm' }}
         run: |
           cd build/test
           ctest || ctest --rerun-failed --output-on-failure
@@ -222,4 +160,10 @@ jobs:
         if: ${{ matrix.memcheck }}
         run: |
           sudo apt-get install -y valgrind
-          valgrind --undef-value-errors=no --error-exitcode=1 -s ./build/test/testsuite -A
+          for f in $(find ./build/test/ -executable -type f)
+          do
+                  echo $f
+                  valgrind --undef-value-errors=no --error-exitcode=1 -s $f -A
+          done
+    
+          

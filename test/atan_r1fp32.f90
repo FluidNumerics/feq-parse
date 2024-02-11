@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = atan_r1fp32()
+  stop exit_code
+
+contains
 
 integer function atan_r1fp32() result(r)
   use FEQParse
@@ -36,3 +45,4 @@ integer function atan_r1fp32() result(r)
   end if
   
 end function atan_r1fp32
+end program test

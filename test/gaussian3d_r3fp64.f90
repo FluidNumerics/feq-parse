@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = gaussian3d_r3fp64()
+  stop exit_code
+
+contains
 
 integer function gaussian3d_r3fp64() result(r)
   use FEQParse
@@ -54,3 +63,4 @@ integer function gaussian3d_r3fp64() result(r)
   deallocate (x,feval,fexact)
 
 end function gaussian3d_r3fp64
+end program test

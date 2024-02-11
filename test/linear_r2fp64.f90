@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = linear_r2fp64()
+  stop exit_code
+
+contains
 
 integer function linear_r2fp64() result(r)
   use FEQParse
@@ -45,3 +54,4 @@ integer function linear_r2fp64() result(r)
   deallocate (x,feval,fexact)
 
 end function linear_r2fp64
+end program test

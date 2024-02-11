@@ -1,4 +1,4 @@
-name: windows-ci
+name: windows-fpm
 
 on:
   push:
@@ -62,24 +62,10 @@ jobs:
           ${{ matrix.fcompiler }} --version
           ${{ matrix.ccompiler }} --version
 
-      - name: Build with Cmake
-        if: ${{ matrix.build_type != 'fpm' }}
-        run: |
-          mkdir build
-          cd build
-          FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
-          make VERBOSE=1
-
       - name: fpm tests
         if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
         run: |
           fpm install --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
           fpm test --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
           fpm run --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example="*"
-
-      - name: Run ctests
-        if: ${{ matrix.build_type != 'fpm' }}
-        run: |
-          cd build/test
-          ctest || ctest --rerun-failed --output-on-failure
 

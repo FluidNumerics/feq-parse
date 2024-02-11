@@ -1,3 +1,12 @@
+program test
+
+  implicit none
+  integer :: exit_code
+  
+  exit_code = sqrt_r2fp64()
+  stop exit_code
+
+contains
 
 integer function sqrt_r2fp64() result(r)
   use FEQParse
@@ -28,8 +37,8 @@ integer function sqrt_r2fp64() result(r)
   x = 0.0_real64
   do j = 1,N
     do i = 1,N
-      x(i,j,1) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(i - 1,real64)
-      x(i,j,2) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(j - 1,real64)
+      x(i,j,1) = (2.0_real64)/real(N,real64)*real(i - 1,real64)
+      x(i,j,2) = (2.0_real64)/real(N,real64)*real(j - 1,real64)
       fexact(i,j) = sqrt(x(i,j,1))*sqrt(x(i,j,2))
     end do
   end do
@@ -45,3 +54,4 @@ integer function sqrt_r2fp64() result(r)
   deallocate (x,feval,fexact)
 
 end function sqrt_r2fp64
+end program test
