@@ -262,10 +262,12 @@ module FEQParse_Functions
         func = name
         func%ptr32 => f_32
         func%ptr64 => null()
-        allocate(tmp(1:nFunctions + 1))
+        allocate(tmp, source = Functions)
+        deallocate(Functions)
+        allocate(Functions(nFunctions + 1))
         tmp(:nFunctions) = Functions(:nFunctions)
-        call move_alloc(tmp, Functions)
         Functions(nFunctions + 1) = func
+        deallocate(tmp)
         nFunctions = nFunctions + 1
     end subroutine
 
@@ -280,10 +282,12 @@ module FEQParse_Functions
         func = name
         func%ptr32 => null()
         func%ptr64 => f_64
-        allocate(tmp(1:nFunctions + 1))
+        allocate(tmp, source = Functions)
+        deallocate(Functions)
+        allocate(Functions(nFunctions + 1))
         tmp(:nFunctions) = Functions(:nFunctions)
-        call move_alloc(tmp, Functions)
         Functions(nFunctions + 1) = func
+        deallocate(tmp)
         nFunctions = nFunctions + 1
     end subroutine
 
@@ -299,10 +303,12 @@ module FEQParse_Functions
         func = name
         func%ptr32 => f_32
         func%ptr64 => f_64
-        allocate(tmp(1:nFunctions + 1))
+        allocate(tmp, source = Functions)
+        deallocate(Functions)
+        allocate(Functions(nFunctions + 1))
         tmp(:nFunctions) = Functions(:nFunctions)
-        call move_alloc(tmp, Functions)
         Functions(nFunctions + 1) = func
+        deallocate(tmp)
         nFunctions = nFunctions + 1
     end subroutine
 
