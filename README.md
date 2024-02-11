@@ -1,8 +1,13 @@
 # Fortran Equation Parser
 Copyright 2020 Fluid Numerics LLC
 
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-ci.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions)
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-ci.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions)
+[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-cmake.yml)
+[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-fpm.yml)
+
+
+[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-cmake.yml)
+[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-fpm.yml)
+
 [![codecov](https://codecov.io/gh/FluidNumerics/feq-parse/graph/badge.svg?token=IBNDDI4MHB)](https://codecov.io/gh/FluidNumerics/feq-parse)
 
 `feq-parse` is an equation parser Fortran class that is used to interpret and evaluate functions provided as strings.
