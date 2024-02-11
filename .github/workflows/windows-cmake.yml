@@ -1,4 +1,4 @@
-name: windows-ci
+name: windows-cmake
 
 on:
   push:
