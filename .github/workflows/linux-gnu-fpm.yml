@@ -1,0 +1,76 @@
+name: linux-fpm
+
+on:
+    push:
+      branches:
+        - master
+        - main
+      paths-ignore:
+        - 'AUTHORS.md'
+        - 'LICENSE.md'
+        - 'README.md'
+    pull_request:
+      paths-ignore:
+        - 'AUTHORS.md'
+        - 'LICENSE.md'
+        - 'README.md'
+
+env:
+  # Modify this variable to change the ifort compiler version - do NOT hardcode the version
+  # anywhere else!
+  INTEL_ONEAPI_VERSION: 2023.2.1
+
+jobs:
+  linux-tests:
+    timeout-minutes: 8
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: ${{ matrix.os }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+            # Linux
+            - os: ubuntu-22.04
+              fcompiler: gfortran-9
+              ccompiler: gcc-9
+              shell: bash
+
+            - os: ubuntu-22.04
+              fcompiler: gfortran-10
+              ccompiler: gcc-10
+              shell: bash
+
+            - os: ubuntu-22.04
+              fcompiler: gfortran-11
+              ccompiler: gcc-11
+              shell: bash
+
+            - os: ubuntu-22.04
+              fcompiler: gfortran-12
+              ccompiler: gcc-12
+              shell: bash
+
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+
+      - name: Show version information
+        run: |
+          ${{ matrix.fcompiler }} --version
+          ${{ matrix.ccompiler }} --version
+
+
+      - name: fpm tests
+        run: |
+          wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
+          chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
+          ./fpm install --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
+          ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
+          ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --example "*"
+

@@ -66,20 +66,6 @@ jobs:
               build_type: debug
               memcheck: false
 
-            - os: ubuntu-22.04
-              fcompiler: ifx
-              ccompiler: icx-cc
-              shell: bash
-              build_type: debug
-              memcheck: false
-
-            - os: ubuntu-22.04
-              fcompiler: ifort
-              ccompiler: icx-cc
-              shell: bash
-              build_type: debug
-              memcheck: false
-
 
     defaults:
       run:
@@ -88,30 +74,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if')  }}
-        run: |
-          # download the key to system keyring
-          wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-          | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-
-          # add signed entry to apt sources and configure the APT client to use Intel repository:
-          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-
-          # update package index and install Fortran compiler
-          sudo apt update -y
-          sudo apt-get -y install intel-oneapi-compiler-fortran-$INTEL_ONEAPI_VERSION intel-oneapi-dpcpp-cpp-$INTEL_ONEAPI_VERSION
-
-          # set environment variables and make them persistent across steps
-          . /opt/intel/oneapi/setvars.sh
-          env | grep oneapi >> $GITHUB_ENV
-
-      - name: Use existing Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if') }}
-        run: |
-          # set environment variables and make them persistent across steps
-          . /opt/intel/oneapi/setvars.sh
-          env | grep oneapi >> $GITHUB_ENV
 
       - name: Show version information
         run: |

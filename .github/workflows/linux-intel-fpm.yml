@@ -30,27 +30,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            # Linux
-            - os: ubuntu-22.04
-              fcompiler: gfortran-9
-              ccompiler: gcc-9
-              shell: bash
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-10
-              ccompiler: gcc-10
-              shell: bash
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-11
-              ccompiler: gcc-11
-              shell: bash
-
-            - os: ubuntu-22.04
-              fcompiler: gfortran-12
-              ccompiler: gcc-12
-              shell: bash
-
             - os: ubuntu-22.04
               fcompiler: ifx
               ccompiler: icx-cc
@@ -70,7 +49,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if')  }}
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -88,7 +66,6 @@ jobs:
           env | grep oneapi >> $GITHUB_ENV
 
       - name: Use existing Intel oneAPI Fortran compiler
-        if: ${{ startsWith(matrix.fcompiler,'if') }}
         run: |
           # set environment variables and make them persistent across steps
           . /opt/intel/oneapi/setvars.sh
@@ -101,7 +78,7 @@ jobs:
 
 
       - name: fpm tests (ifx)
-        if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler == 'ifx') }}
+        if: ${{ (matrix.fcompiler == 'ifx') }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
@@ -109,8 +86,8 @@ jobs:
           ./fpm test --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback"
           ./fpm run --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }} --flag "-debug all -check all,nouninit -traceback" --example "*"
 
-      - name: fpm tests 
-        if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
+      - name: fpm tests (ifort)
+        if: ${{ (matrix.fcompiler == 'ifort') }}
         run: |
           wget https://github.com/fortran-lang/fpm/releases/download/v0.9.0/fpm-0.9.0-linux-x86_64
           chmod +x ./fpm-0.9.0-linux-x86_64 && mv ./fpm-0.9.0-linux-x86_64 fpm
