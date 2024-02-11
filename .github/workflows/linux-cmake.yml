@@ -160,4 +160,10 @@ jobs:
         if: ${{ matrix.memcheck }}
         run: |
           sudo apt-get install -y valgrind
-          valgrind --undef-value-errors=no --error-exitcode=1 -s ./build/test/testsuite -A
+          for f in $(find ./build/test/ -executable -type f)
+          do
+                  echo $f
+                  valgrind --undef-value-errors=no --error-exitcode=1 -s $f -A
+          done
+    
+          
