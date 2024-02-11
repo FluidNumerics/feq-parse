@@ -256,12 +256,16 @@ module FEQParse_Functions
         procedure(f32) :: f_32
         !private 
         type(FEQParse_Function) :: func
+        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => f_32
         func%ptr64 => null()
-        Functions = [Functions, func]
+        allocate(tmp(1:nFunctions + 1))
+        tmp(:nFunctions) = Functions(:nFunctions)
+        call move_alloc(tmp, Functions)
+        Functions(nFunctions + 1) = func
         nFunctions = nFunctions + 1
     end subroutine
 
@@ -270,12 +274,16 @@ module FEQParse_Functions
         procedure(f64) :: f_64
         !private 
         type(FEQParse_Function) :: func
+        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => null()
         func%ptr64 => f_64
-        Functions = [Functions, func]
+        allocate(tmp(1:nFunctions + 1))
+        tmp(:nFunctions) = Functions(:nFunctions)
+        call move_alloc(tmp, Functions)
+        Functions(nFunctions + 1) = func
         nFunctions = nFunctions + 1
     end subroutine
 
@@ -285,12 +293,16 @@ module FEQParse_Functions
         procedure(f64) :: f_64
         !private 
         type(FEQParse_Function) :: func
+        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => f_32
         func%ptr64 => f_64
-        Functions = [Functions, func]
+        allocate(tmp(1:nFunctions + 1))
+        tmp(:nFunctions) = Functions(:nFunctions)
+        call move_alloc(tmp, Functions)
+        Functions(nFunctions + 1) = func
         nFunctions = nFunctions + 1
     end subroutine
 
