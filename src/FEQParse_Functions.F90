@@ -18,6 +18,8 @@ module FEQParse_Functions
 
     integer, public :: nFunctions = 17
     integer, protected, public :: maxFunctionLength = 0
+    integer, parameter :: maxFunctions = 100
+    logical :: isInitialized = .false.
     
     enum, bind(c)
         enumerator :: cos_function = 1
@@ -61,6 +63,8 @@ module FEQParse_Functions
     type Tuple
         character(:), allocatable :: item1
         character(:), allocatable :: item2
+    contains
+        final :: Tuple_Finalize
     end type
 
     type, public :: FEQParse_Function
@@ -83,9 +87,10 @@ module FEQParse_Functions
         procedure, private, pass(this) :: invoke32
         procedure, private, pass(this) :: invoke64
         generic :: invoke => invoke32, invoke64
+        final :: Function_Finalize
     end type FEQParse_Function
 
-    type(FEQParse_Function), dimension(:), allocatable, public :: Functions
+    type(FEQParse_Function), public :: Functions(maxFunctions)
 
     interface
         pure real(real32) function randomize_r32()
@@ -118,8 +123,21 @@ module FEQParse_Functions
         t%item1 = item1
         t%item2 = item2
     end function
+
+    subroutine Tuple_Finalize(this)
+        type(Tuple), intent(inout) :: this
+        if (allocated(this%item1)) deallocate(this%item1)
+        if (allocated(this%item2)) deallocate(this%item2)
+    end subroutine
         
-    
+    subroutine Function_Finalize(this)
+        type(FEQParse_Function), intent(inout) :: this
+        if (allocated(this%str)) deallocate(this%str)
+        if (allocated(this%caps)) deallocate(this%caps)
+        if (associated(this%ptr32)) nullify(this%ptr32)
+        if (associated(this%ptr64)) nullify(this%ptr64)
+    end subroutine
+
     subroutine character_array_assign_function(lhs, rhs)
         class(FEQParse_Function), intent(inout) :: lhs !! Left hand side.
         class(Tuple), intent(in)    :: rhs !! Right hand side.
@@ -179,9 +197,8 @@ module FEQParse_Functions
     end function
     
     subroutine InitializeFunctions()
-        if (allocated(Functions)) return
+        if (isInitialized .eqv. .true.) return
         
-        allocate (Functions(1:nFunctions))
         Functions(cos_function) = Tuple("cos", "COS")
         Functions(cos_function)%ptr32 => cos32
         Functions(cos_function)%ptr64 => cos64
@@ -249,6 +266,8 @@ module FEQParse_Functions
         Functions(rand_function) = Tuple("rand", "RAND")
         Functions(rand_function)%ptr32 => rand32
         Functions(rand_function)%ptr64 => rand64
+
+        isInitialized = .true.
     end subroutine InitializeFunctions
 
     subroutine AddFunction32(name, f_32)
@@ -256,19 +275,17 @@ module FEQParse_Functions
         procedure(f32) :: f_32
         !private 
         type(FEQParse_Function) :: func
-        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => f_32
         func%ptr64 => null()
-        allocate(tmp, source = Functions)
-        deallocate(Functions)
-        allocate(Functions(nFunctions + 1))
-        tmp(:nFunctions) = Functions(:nFunctions)
-        Functions(nFunctions + 1) = func
-        deallocate(tmp)
-        nFunctions = nFunctions + 1
+        if (nFunctions < maxFunctions) then
+            Functions(nFunctions + 1) = func
+            nFunctions = nFunctions + 1
+        else
+            stop 'Argument out of range'
+        end if
     end subroutine
 
     subroutine AddFunction64(name, f_64)
@@ -276,19 +293,17 @@ module FEQParse_Functions
         procedure(f64) :: f_64
         !private 
         type(FEQParse_Function) :: func
-        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => null()
         func%ptr64 => f_64
-        allocate(tmp, source = Functions)
-        deallocate(Functions)
-        allocate(Functions(nFunctions + 1))
-        tmp(:nFunctions) = Functions(:nFunctions)
-        Functions(nFunctions + 1) = func
-        deallocate(tmp)
-        nFunctions = nFunctions + 1
+        if (nFunctions < maxFunctions) then
+            Functions(nFunctions + 1) = func
+            nFunctions = nFunctions + 1
+        else
+            stop 'Argument out of range'
+        end if
     end subroutine
 
     subroutine AddFunction32And64(name, f_32, f_64)
@@ -297,19 +312,17 @@ module FEQParse_Functions
         procedure(f64) :: f_64
         !private 
         type(FEQParse_Function) :: func
-        type(FEQParse_Function), allocatable :: tmp(:)
 
         call InitializeFunctions()
         func = name
         func%ptr32 => f_32
         func%ptr64 => f_64
-        allocate(tmp, source = Functions)
-        deallocate(Functions)
-        allocate(Functions(nFunctions + 1))
-        tmp(:nFunctions) = Functions(:nFunctions)
-        Functions(nFunctions + 1) = func
-        deallocate(tmp)
-        nFunctions = nFunctions + 1
+        if (nFunctions < maxFunctions) then
+            Functions(nFunctions + 1) = func
+            nFunctions = nFunctions + 1
+        else
+            stop 'Argument out of range'
+        end if
     end subroutine
 
     elemental real(real32) function invoke32(this, x) result(fx)
