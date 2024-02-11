@@ -1,19 +1,11 @@
 name: linux-fpm
 
 on:
-  push:
-    branches:
-      - master
-      - main
-    paths-ignore:
-      - 'AUTHORS.md'
-      - 'LICENSE.md'
-      - 'README.md'
-  pull_request:
-    paths-ignore:
-      - 'AUTHORS.md'
-      - 'LICENSE.md'
-      - 'README.md'
+    workflow_run:
+      workflows: [fprettify-lint]
+      types:
+        - completed
+        
 env:
   # Modify this variable to change the ifort compiler version - do NOT hardcode the version
   # anywhere else!
