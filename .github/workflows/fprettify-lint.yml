@@ -27,15 +27,35 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
-      
-           
-            - name: Check for formatting differences
+
+            - name: Install fprettify
               run: |
                 pip3 install fprettify
+           
+            - name: Check for formatting differences (src/)
+              run: |
                 if [[ $(fprettify  './src/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1) ]]; then
                     fprettify  './src/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1
                     exit 1
                 else
-                    echo "linting passed!"
-                fi      
-            
+                    echo "src/ linting passed!"
+                fi    
+
+            - name: Check for formatting differences (test/)
+              run: |
+                if [[ $(fprettify  './test/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1) ]]; then
+                    fprettify  './test/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1
+                    exit 1
+                else
+                    echo "test/ linting passed!"
+                fi   
+
+            - name: Check for formatting differences (example/)
+              run: |
+                if [[ $(fprettify  './example/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1) ]]; then
+                    fprettify  './example/' --config-file ./fprettify.config -d --recursive --case 1 1 1 1
+                    exit 1
+                else
+                    echo "example/ linting passed!"
+                fi   
+
