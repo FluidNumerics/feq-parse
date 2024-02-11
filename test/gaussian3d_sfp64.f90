@@ -1,39 +1,39 @@
 program test
 
-  implicit none
-  integer :: exit_code
-  
-  exit_code = gaussian3d_sfp64()
-  stop exit_code
+    implicit none
+    integer :: exit_code
+
+    exit_code = gaussian3d_sfp64()
+    stop exit_code
 
 contains
 
-integer function gaussian3d_sfp64() result(r)
-  use FEQParse
-  use iso_fortran_env
-  implicit none
+    integer function gaussian3d_sfp64() result(r)
+        use FEQParse
+        use iso_fortran_env
+        implicit none
 
-  type(EquationParser) :: f
-  character(LEN=1),dimension(1:3) :: independentVars
-  character(LEN=2048) :: eqChar
-  real(real64) :: x(1:3)
+        type(EquationParser) :: f
+        character(LEN=1), dimension(1:3) :: independentVars
+        character(LEN=2048) :: eqChar
+        real(real64) :: x(1:3)
 
-  ! Specify the independent variables
-  independentVars = (/'x','y','z'/)
+        ! Specify the independent variables
+        independentVars = (/'x', 'y', 'z'/)
 
-  ! Specify an equation string that we want to evaluate
-  eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
+        ! Specify an equation string that we want to evaluate
+        eqChar = 'f = exp( -(x^2 + y^2 + z^2) )'
 
-  ! Create the EquationParser object
-  f = EquationParser(eqChar,independentVars)
+        ! Create the EquationParser object
+        f = EquationParser(eqChar, independentVars)
 
-  ! Evaluate the equation
-  x = (/0.0,0.0,0.0/)
-  if (abs(f % evaluate(x) - 1.0) <= epsilon(1.0)) then
-    r = 0
-  else
-    r = 1
-  end if
+        ! Evaluate the equation
+        x = (/0.0, 0.0, 0.0/)
+        if (abs(f%evaluate(x) - 1.0) <= epsilon(1.0)) then
+            r = 0
+        else
+            r = 1
+        end if
 
-end function gaussian3d_sfp64
+    end function gaussian3d_sfp64
 end program test

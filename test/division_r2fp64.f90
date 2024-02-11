@@ -1,57 +1,57 @@
 program test
 
-  implicit none
-  integer :: exit_code
-  
-  exit_code = division_r2fp64()
-  stop exit_code
+    implicit none
+    integer :: exit_code
+
+    exit_code = division_r2fp64()
+    stop exit_code
 
 contains
 
-integer function division_r2fp64() result(r)
-  use FEQParse
-  use iso_fortran_env
-  implicit none
-  integer,parameter :: N = 10
-  type(EquationParser) :: f
-  character(LEN=1),dimension(1:3) :: independentVars
-  character(LEN=1024) :: eqChar
-  real(real64),allocatable :: x(:,:,:)
-  real(real64),allocatable :: feval(:,:)
-  real(real64),allocatable :: fexact(:,:)
-  integer :: i,j
+    integer function division_r2fp64() result(r)
+        use FEQParse
+        use iso_fortran_env
+        implicit none
+        integer, parameter :: N = 10
+        type(EquationParser) :: f
+        character(LEN=1), dimension(1:3) :: independentVars
+        character(LEN=1024) :: eqChar
+        real(real64), allocatable :: x(:, :, :)
+        real(real64), allocatable :: feval(:, :)
+        real(real64), allocatable :: fexact(:, :)
+        integer :: i, j
 
-  allocate (x(1:N,1:N,1:3), &
-            feval(1:N,1:N), &
-            fexact(1:N,1:N))
-            
-  ! Specify the independent variables
-  independentVars = (/'x','y','z'/)
+        allocate (x(1:N, 1:N, 1:3), &
+                  feval(1:N, 1:N), &
+                  fexact(1:N, 1:N))
 
-  ! Specify an equation string that we want to evaluate
-  eqChar = 'f = -(x+1)*(y+1)/10.0'
+        ! Specify the independent variables
+        independentVars = (/'x', 'y', 'z'/)
 
-  ! Create the EquationParser object
-  f = EquationParser(eqChar,independentVars)
+        ! Specify an equation string that we want to evaluate
+        eqChar = 'f = -(x+1)*(y+1)/10.0'
 
-  x = 0.0_real64
-  do j = 1,N
-    do i = 1,N
-      x(i,j,1) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(i - 1,real64)
-      x(i,j,2) = -1.0_real64 + (2.0_real64)/real(N,real64)*real(j - 1,real64)
-      fexact(i,j) = -(x(i,j,1) + 1.0_real64)*(x(i,j,2) + 1.0_real64)/10.0_real64
-    end do
-  end do
+        ! Create the EquationParser object
+        f = EquationParser(eqChar, independentVars)
 
-  ! Evaluate the equation
-  feval = f % evaluate(x)
-  if (maxval(abs(feval - fexact)) <= epsilon(1.0_real64)) then
-    r = 0
-  else
-    r = 1
-  end if
+        x = 0.0_real64
+        do j = 1, N
+            do i = 1, N
+                x(i, j, 1) = -1.0_real64 + (2.0_real64) / real(N, real64) * real(i - 1, real64)
+                x(i, j, 2) = -1.0_real64 + (2.0_real64) / real(N, real64) * real(j - 1, real64)
+                fexact(i, j) = -(x(i, j, 1) + 1.0_real64) * (x(i, j, 2) + 1.0_real64) / 10.0_real64
+            end do
+        end do
 
-  deallocate (x,feval,fexact)
+        ! Evaluate the equation
+        feval = f%evaluate(x)
+        if (maxval(abs(feval - fexact)) <= epsilon(1.0_real64)) then
+            r = 0
+        else
+            r = 1
+        end if
 
-end function division_r2fp64
+        deallocate (x, feval, fexact)
+
+    end function division_r2fp64
 end program test

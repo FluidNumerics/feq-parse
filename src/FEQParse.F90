@@ -19,7 +19,7 @@ module FEQParse
     use FEQParse_FloatStacks
 
     implicit none
-    
+
     public :: FEQParse_Function, &
               AddFunction
 
@@ -39,7 +39,7 @@ module FEQParse
         enumerator :: ClosingParentheses_Token = 6
         enumerator :: Monadic_Token = 7
     end enum
-    
+
     integer, parameter, private :: nSeparators = 7
 
     character(1), private  :: separators(7) = ['+', '-', '*', '/', "(", ")", '^']
@@ -63,10 +63,10 @@ module FEQParse
         procedure :: ConvertToPostfix
 
         generic ::  Evaluate => Evaluate_sfp32, Evaluate_sfp64, &
-                    Evaluate_r1fp32, Evaluate_r1fp64, &
-                    Evaluate_r2fp32, Evaluate_r2fp64, &
-                    Evaluate_r3fp32, Evaluate_r3fp64, &
-                    Evaluate_r4fp32, Evaluate_r4fp64
+            Evaluate_r1fp32, Evaluate_r1fp64, &
+            Evaluate_r2fp32, Evaluate_r2fp64, &
+            Evaluate_r3fp32, Evaluate_r3fp64, &
+            Evaluate_r4fp32, Evaluate_r4fp64
         procedure, private :: Evaluate_sfp32, Evaluate_sfp64
         procedure, private :: Evaluate_r1fp32, Evaluate_r1fp64
         procedure, private :: Evaluate_r2fp32, Evaluate_r2fp64
@@ -121,7 +121,7 @@ contains
             if (tokenized) then
                 call parser%ConvertToPostFix()
             else
-                if (allocated(errorMsg)) print*, trim(errorMsg)
+                if (allocated(errorMsg)) print*,trim(errorMsg)
                 success = .false.
             end if
         end if
@@ -345,7 +345,7 @@ contains
                 if (.not. operator_stack%IsEmpty()) then
 
                     tok = operator_stack%TopToken()
-                    
+
                     do while (trim(tok%tokenString) /= '(' .and. &
                               parser%Priority(tok) > &
                               parser%Priority(parser%inFix%tokens(i)))
