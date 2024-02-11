@@ -1,4 +1,4 @@
-name: linux-fpm
+name: linux-gnu-fpm
 
 on:
     push:

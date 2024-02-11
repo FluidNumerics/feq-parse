@@ -1,4 +1,4 @@
-name: windows-fpm
+name: windows-gnu-fpm
 
 on:
   push:

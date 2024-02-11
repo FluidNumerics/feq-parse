@@ -1,4 +1,4 @@
-name: linux-fpm
+name: linux-intel-fpm
 
 on:
     push:
