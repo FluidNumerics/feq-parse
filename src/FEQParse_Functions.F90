@@ -16,36 +16,76 @@ module FEQParse_Functions
 
     implicit none
 
-    integer, protected, public :: nFunctions = 17
+    integer, public :: nFunctions = 17
     integer, protected, public :: maxFunctionLength = 0
+    
+    enum, bind(c)
+        enumerator :: cos_function = 1
+        enumerator :: cosh_function = 2
+        enumerator :: sin_function = 3
+        enumerator :: sinh_function = 4
+        enumerator :: tan_function = 5
+        enumerator :: tanh_function = 6
+        enumerator :: sqrt_function = 7
+        enumerator :: abs_function = 8
+        enumerator :: exp_function = 9
+        enumerator :: ln_function = 10
+        enumerator :: log_function = 11
+        enumerator :: log10_function = 12
+        enumerator :: acos_function = 13
+        enumerator :: asin_function = 14
+        enumerator :: atan_function = 15
+        enumerator :: sech_function = 16
+        enumerator :: rand_function = 17
+    end enum
 
     private
     
     public :: InitializeFunctions, &
-              f_of_x
+              AddFunction
+    
+    interface
+        pure real(real32) function f32(x)
+            import
+            real(real32), intent(in) :: x
+        end function
+    end interface
+    
+    interface
+        pure real(real64) function f64(x)
+            import
+            real(real64), intent(in) :: x
+        end function
+    end interface
+    
+    type Tuple
+        character(:), allocatable :: item1
+        character(:), allocatable :: item2
+    end type
 
     type, public :: FEQParse_Function
         integer :: len
         character(:), allocatable :: str
         character(:), allocatable :: caps
+        procedure(f32), public, nopass, pointer :: ptr32 => null()
+        procedure(f64), public, nopass, pointer :: ptr64 => null()
     contains
+        procedure, private, pass(lhs) :: character_array_assign_function
         procedure, private, pass(lhs) :: character_assign_function
         procedure, private, pass(rhs) :: function_assign_character
-        generic :: assignment(=) => character_assign_function
+        generic :: assignment(=) => character_assign_function, character_array_assign_function
         procedure, private, pass(lhs) :: function_eq_character
         procedure, private, pass(rhs) :: character_eq_function
         generic :: operator(==) => function_eq_character, character_eq_function
         procedure, private, pass(lhs) :: function_neq_character
         procedure, private, pass(rhs) :: character_neq_function
         generic :: operator(/=) => function_neq_character, character_neq_function
+        procedure, private, pass(this) :: invoke32
+        procedure, private, pass(this) :: invoke64
+        generic :: invoke => invoke32, invoke64
     end type FEQParse_Function
 
     type(FEQParse_Function), dimension(:), allocatable, public :: Functions
-
-    interface f_of_x
-        module procedure :: f_of_x_sfp32
-        module procedure :: f_of_x_sfp64
-    end interface
 
     interface
         pure real(real32) function randomize_r32()
@@ -59,7 +99,36 @@ module FEQParse_Functions
         end function
     end interface
 
-contains
+    interface AddFunction
+        module procedure :: AddFunction32
+        module procedure :: AddFunction64
+        module procedure :: AddFunction32And64
+    end interface
+    
+    interface Tuple
+        module procedure Tuple_new
+    end interface
+
+    contains
+    
+    type(Tuple) function Tuple_new(item1, item2) result(t)
+        character(*), intent(in) :: item1
+        character(*), intent(in) :: item2
+        
+        t%item1 = item1
+        t%item2 = item2
+    end function
+        
+    
+    subroutine character_array_assign_function(lhs, rhs)
+        class(FEQParse_Function), intent(inout) :: lhs !! Left hand side.
+        class(Tuple), intent(in)    :: rhs !! Right hand side.
+
+        lhs%str = rhs%item1
+        lhs%len = len(rhs%item1)
+        lhs%caps = rhs%item2
+        maxFunctionLength = max(maxFunctionLength, lhs%len)
+    end subroutine
 
     subroutine character_assign_function(lhs, rhs)
         class(FEQParse_Function), intent(inout) :: lhs !! Left hand side.
@@ -108,196 +177,302 @@ contains
 
         ok = lhs /= rhs%str .or. lhs /= rhs%caps
     end function
-
+    
     subroutine InitializeFunctions()
         if (allocated(Functions)) return
         
         allocate (Functions(1:nFunctions))
-        Functions(1) = "cos"
-        Functions(2) = "cosh"
-        Functions(3) = "sin"
-        Functions(4) = "sinh"
-        Functions(5) = "tan"
-        Functions(6) = "tanh"
-        Functions(7) = "sqrt"
-        Functions(8) = "abs"
-        Functions(9) = "exp"
-        Functions(10) = "ln"
-        Functions(11) = "log"
-        Functions(12) = "log10"
-        Functions(13) = "acos"
-        Functions(14) = "asin"
-        Functions(15) = "atan"
-        Functions(16) = "sech"
-        Functions(17) = "rand"
+        Functions(cos_function) = Tuple("cos", "COS")
+        Functions(cos_function)%ptr32 => cos32
+        Functions(cos_function)%ptr64 => cos64
+        
+        Functions(cosh_function) = Tuple("cosh", "COSH")
+        Functions(cosh_function)%ptr32 => cosh32
+        Functions(cosh_function)%ptr64 => cosh64
+        
+        Functions(sin_function) = Tuple("sin", "SIN")
+        Functions(sin_function)%ptr32 => sin32
+        Functions(sin_function)%ptr64 => sin64
+        
+        Functions(sinh_function) = Tuple("sinh", "SINH")
+        Functions(sinh_function)%ptr32 => sinh32
+        Functions(sinh_function)%ptr64 => sinh64
+        
+        Functions(tan_function) = Tuple("tan", "TAN")
+        Functions(tan_function)%ptr32 => tan32
+        Functions(tan_function)%ptr64 => tan64
+        
+        Functions(tanh_function) = Tuple("tanh", "TANH")
+        Functions(tanh_function)%ptr32 => tanh32
+        Functions(tanh_function)%ptr64 => tanh64
+        
+        Functions(sqrt_function) = Tuple("sqrt", "SQRT")
+        Functions(sqrt_function)%ptr32 => sqrt32
+        Functions(sqrt_function)%ptr64 => sqrt64
+        
+        Functions(abs_function) = Tuple("abs", "ABS")
+        Functions(abs_function)%ptr32 => abs32
+        Functions(abs_function)%ptr64 => abs64
+        
+        Functions(exp_function) = Tuple("exp", "EXP")
+        Functions(exp_function)%ptr32 => exp32
+        Functions(exp_function)%ptr64 => exp64
+        
+        Functions(ln_function) = Tuple("ln", "LN")
+        Functions(ln_function)%ptr32 => log32
+        Functions(ln_function)%ptr64 => log64
+        
+        Functions(log_function) = Tuple("log", "LOG")
+        Functions(log_function)%ptr32 => log32
+        Functions(log_function)%ptr64 => log64
+        
+        Functions(log10_function) = Tuple("log10", "LOG10")
+        Functions(log10_function)%ptr32 => log1032
+        Functions(log10_function)%ptr64 => log1064
+        
+        Functions(acos_function) = Tuple("acos", "ACOS")
+        Functions(acos_function)%ptr32 => acos32
+        Functions(acos_function)%ptr64 => acos64
+        
+        Functions(asin_function) = Tuple("asin", "ASIN")
+        Functions(asin_function)%ptr32 => asin32
+        Functions(asin_function)%ptr64 => asin64
+        
+        Functions(atan_function) = Tuple("atan", "ATAN")
+        Functions(atan_function)%ptr32 => atan32
+        Functions(atan_function)%ptr64 => atan64
+        
+        Functions(sech_function) = Tuple("sech", "SECH")
+        Functions(sech_function)%ptr32 => sech32
+        Functions(sech_function)%ptr64 => sech64
+        
+        Functions(rand_function) = Tuple("rand", "RAND")
+        Functions(rand_function)%ptr32 => rand32
+        Functions(rand_function)%ptr64 => rand64
     end subroutine InitializeFunctions
 
-    elemental real(real32) function f_of_x_sfp32(func, x) result(fx)
-    !! Evaluates function for scalar fp32 input and output
-        character(*), intent(in) :: func
+    subroutine AddFunction32(name, f_32)
+        character(*), intent(in) :: name
+        procedure(f32) :: f_32
+        !private 
+        type(FEQParse_Function) :: func
+
+        call InitializeFunctions()
+        func = name
+        func%ptr32 => f_32
+        func%ptr64 => null()
+        Functions = [Functions, func]
+        nFunctions = nFunctions + 1
+    end subroutine
+
+    subroutine AddFunction64(name, f_64)
+        character(*), intent(in) :: name
+        procedure(f64) :: f_64
+        !private 
+        type(FEQParse_Function) :: func
+
+        call InitializeFunctions()
+        func = name
+        func%ptr32 => null()
+        func%ptr64 => f_64
+        Functions = [Functions, func]
+        nFunctions = nFunctions + 1
+    end subroutine
+
+    subroutine AddFunction32And64(name, f_32, f_64)
+        character(*), intent(in) :: name
+        procedure(f32) :: f_32
+        procedure(f64) :: f_64
+        !private 
+        type(FEQParse_Function) :: func
+
+        call InitializeFunctions()
+        func = name
+        func%ptr32 => f_32
+        func%ptr64 => f_64
+        Functions = [Functions, func]
+        nFunctions = nFunctions + 1
+    end subroutine
+
+    elemental real(real32) function invoke32(this, x) result(fx)
+        class(FEQParse_Function), intent(in) :: this
         real(real32), intent(in) :: x
-        ! Local
-        real(real32)   :: r
-
-        if (func == "cos") then
-
-            fx = cos(x)
-
-        elseif (func == "cosh") then
-
-            fx = cosh(x)
-
-        elseif (func == "sin") then
-
-            fx = sin(x)
-
-        elseif (func == "sinh") then
-
-            fx = sinh(x)
-
-        elseif (func == "tan") then
-
-            fx = tan(x)
-
-        elseif (func == "tanh") then
-
-            fx = tanh(x)
-
-        elseif (func == "sech") then
-
-            fx = 2.0_real32 / (exp(x) + exp(-x))
-
-        elseif (func == "sqrt") then
-
-            fx = sqrt(x)
-
-        elseif (func == "abs") then
-
-            fx = abs(x)
-
-        elseif (func == "exp") then
-
-            fx = exp(x)
-
-        elseif (func == "ln") then
-
-            fx = log(x)
-
-        elseif (func == "log") then
-
-            fx = log(x)
-
-        elseif (func == "log10") then
-
-            fx = log10(x)
-
-        elseif (func == "acos") then
-
-            fx = acos(x)
-
-        elseif (func == "asin") then
-
-            fx = asin(x)
-
-        elseif (func == "atan") then
-
-            fx = atan(x)
-
-        elseif (func == "rand") then
-
-            associate (r => randomize_r32())
-                fx = r * x
-            end associate
-        else
-
-            fx = 0.0_real32
-
-        end if
-
-    end function f_of_x_sfp32
-
-    elemental real(real64) function f_of_x_sfp64(func, x) result(fx)
-    !! Evaluates function for scalar fp64 input and output
-        character(*), intent(in) :: func
-        real(real64), intent(in)  :: x
-
-        if (func == "cos") then
-
-            fx = cos(x)
-
-        elseif (func == "cosh") then
-
-            fx = cosh(x)
-
-        elseif (func == "sin") then
-
-            fx = sin(x)
-
-        elseif (func == "sinh") then
-
-            fx = sinh(x)
-
-        elseif (func == "tan") then
-
-            fx = tan(x)
-
-        elseif (func == "tanh") then
-
-            fx = tanh(x)
-
-        elseif (func == "sech") then
-
-            fx = 2.0_real64 / (exp(x) + exp(-x))
-
-        elseif (func == "sqrt") then
-
-            fx = sqrt(x)
-
-        elseif (func == "abs") then
-
-            fx = abs(x)
-
-        elseif (func == "exp") then
-
-            fx = exp(x)
-
-        elseif (func == "ln") then
-
-            fx = log(x)
-
-        elseif (func == "log") then
-
-            fx = log(x)
-
-        elseif (func == "log10") then
-
-            fx = log10(x)
-
-        elseif (func == "acos") then
-
-            fx = acos(x)
-
-        elseif (func == "asin") then
-
-            fx = asin(x)
-
-        elseif (func == "atan") then
-
-            fx = atan(x)
-
-        elseif (func == "rand") then
-
-            associate (r => randomize_r64())
-                fx = r * x
-            end associate
-
-        else
-
-            fx = 0.0_real64
-
-        end if
-
-    end function f_of_x_sfp64
+        fx = this%ptr32(x)
+    end function
+    
+    elemental real(real64) function invoke64(this, x) result(fx)
+        class(FEQParse_Function), intent(in) :: this
+        real(real64), intent(in) :: x
+        fx = this%ptr64(x)
+    end function
+    
+    pure real(real32) function cos32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = cos(x)
+    end function
+    
+    pure real(real64) function cos64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = cos(x)
+    end function
+    
+    pure real(real32) function cosh32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = cosh(x)
+    end function
+    
+    pure real(real64) function cosh64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = cosh(x)
+    end function
+    
+    pure real(real32) function sin32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = sin(x)
+    end function
+    
+    pure real(real64) function sin64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = sin(x)
+    end function
+    
+    pure real(real32) function sinh32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = sinh(x)
+    end function
+    
+    pure real(real64) function sinh64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = sinh(x)
+    end function
+    
+    pure real(real32) function tan32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = tan(x)
+    end function
+    
+    pure real(real64) function tan64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = tan(x)
+    end function
+    
+    pure real(real32) function tanh32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = tanh(x)
+    end function
+    
+    pure real(real64) function tanh64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = tanh(x)
+    end function
+    
+    pure real(real32) function sqrt32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = sqrt(x)
+    end function
+    
+    pure real(real64) function sqrt64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = sqrt(x)
+    end function
+    
+    pure real(real32) function abs32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = abs(x)
+    end function
+    
+    pure real(real64) function abs64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = abs(x)
+    end function
+    
+    pure real(real32) function exp32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = exp(x)
+    end function
+    
+    pure real(real64) function exp64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = exp(x)
+    end function
+    
+    pure real(real32) function log32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = log(x)
+    end function
+    
+    pure real(real64) function log64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = log(x)
+    end function
+    
+    pure real(real32) function log1032(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = log10(x)
+    end function
+    
+    pure real(real64) function log1064(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = log10(x)
+    end function
+    
+    pure real(real32) function acos32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = acos(x)
+    end function
+    
+    pure real(real64) function acos64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = acos(x)
+    end function
+    
+    pure real(real32) function asin32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = asin(x)
+    end function
+    
+    pure real(real64) function asin64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = asin(x)
+    end function
+    
+    pure real(real32) function atan32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = atan(x)
+    end function
+    
+    pure real(real64) function atan64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = atan(x)
+    end function
+    
+    pure real(real32) function sech32(x) result(fx)
+        real(real32), intent(in) :: x
+        fx = 2.0_real32 / (exp(x) + exp(-x))
+    end function
+    
+    pure real(real64) function sech64(x) result(fx)
+        real(real64), intent(in) :: x
+        fx = 2.0_real64 / (exp(x) + exp(-x))
+    end function
+    
+    pure real(real32) function rand32(x) result(fx)
+        real(real32), intent(in) :: x
+        !private
+        real(real32) :: r
+        associate (r => randomize_r32())
+            fx = r * x
+        end associate
+    end function
+    
+    pure real(real64) function rand64(x) result(fx)
+        real(real64), intent(in) :: x
+        !private
+        real(real64) :: r
+        associate (r => randomize_r64())
+            fx = r * x
+        end associate
+    end function
 
     pure function ToUpperCase(str) result(res)
         character(*), intent(in) :: str
