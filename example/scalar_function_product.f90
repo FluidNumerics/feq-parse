@@ -10,7 +10,7 @@ program scalar_function_product
   real :: feval
 
   ! Specify the independent variables
-  independentVars = (/'x', 'y'/)
+  independentVars = (/'x','y'/)
 
   ! Specify an equation string that we want to evaluate
   eqChar = 'f = cos( 2.0*pi*x )*cos( 2.0*pi*y )'
@@ -20,7 +20,7 @@ program scalar_function_product
 
   ! Evaluate the equation
   x = 0.5
-  feval = f % evaluate(x)
-  print*, feval
+  feval = f%evaluate(x)
+  print*,feval
 
-end program scalar_function_product
+endprogram scalar_function_product

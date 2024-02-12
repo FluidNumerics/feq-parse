@@ -1,4 +1,4 @@
-name: windows-fpm
+name: windows-gnu-fpm
 
 on:
   push:
@@ -14,6 +14,7 @@ on:
       - 'AUTHORS.md'
       - 'LICENSE.md'
       - 'README.md'
+      
 env:
   # Modify this variable to change the ifort compiler version - do NOT hardcode the version
   # anywhere else!
@@ -23,7 +24,7 @@ jobs:
   windows-tests:
     timeout-minutes: 8
     if: "!contains(github.event.head_commit.message, 'skip ci')"
-    name: ${{ matrix.os }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
+    name: ${{ matrix.os }} - ${{ matrix.fcompiler }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -31,12 +32,6 @@ jobs:
         include:
             
             # Windows
-            - os: windows-latest
-              fcompiler: gfortran
-              ccompiler: gcc
-              shell: 'msys2 {0}'
-              build_type: debug
-            
             - os: windows-latest
               fcompiler: gfortran
               ccompiler: gcc
@@ -63,7 +58,6 @@ jobs:
           ${{ matrix.ccompiler }} --version
 
       - name: fpm tests
-        if: ${{ (matrix.build_type == 'fpm') && (matrix.fcompiler != 'ifx') }}
         run: |
           fpm install --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}
           fpm test --verbose --compiler ${{ matrix.fcompiler }} --c-compiler ${{ matrix.ccompiler }}

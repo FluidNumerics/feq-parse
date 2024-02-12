@@ -12,3 +12,13 @@ If you want to help resolve [any open issues](https://github.com/FluidNumerics/f
 4. Work with the upstream reviewer to merge your changes into feq-parse.
 
 When you contribute code, feel add your name to the Contributors section of the README.md
+
+### Code formatting
+Each pull request is checked for formatting before running other tests. The `feq-parse` project uses [`fprettify`](https://pypi.org/project/fprettify/) for formatting fortran source code. We have included a configuration file in the `feq-parse` repository (`fprettify.config`) that can be used for ensuring formatting correctness. 
+
+You can run the following to format code to conform to the expected format for `feq-parse`.
+```
+fprettify  './src/' --config-file ./fprettify.config --recursive --case 1 1 1 1
+fprettify  './test/' --config-file ./fprettify.config --recursive --case 1 1 1 1
+fprettify  './example/' --config-file ./fprettify.config --recursive --case 1 1 1 1
+```

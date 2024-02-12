@@ -9,7 +9,7 @@ program gaussian_scalar_multivar
   real :: x(2)
 
   ! Specify the independent variables
-  independentVars = (/'x', 'a'/)
+  independentVars = (/'x','a'/)
 
   ! Specify an equation string that we want to evaluate
   eqChar = 'f = exp( -(x^2) ) - a'
@@ -22,7 +22,7 @@ program gaussian_scalar_multivar
   ! Evaluate the equation
   x(1) = 1.0
   x(2) = 1.0
-  print*, f % evaluate(x)
-  print*, exp(-1.0) -1.0
+  print*,f%evaluate(x)
+  print*,exp(-1.0)-1.0
 
-  end program gaussian_scalar_multivar
+endprogram gaussian_scalar_multivar

@@ -19,6 +19,6 @@ program scalar_with_scalar_eval
 
   ! Evaluate the equation
   x(1) = 0.0
-  print*, f % evaluate(x)
+  print*,f%evaluate(x)
 
-end program scalar_with_scalar_eval
+endprogram scalar_with_scalar_eval

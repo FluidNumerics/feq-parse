@@ -24,10 +24,10 @@ program array_with_array_eval
   ! Evaluate the equation
   call cpu_time(t1)
   do i = 1,N
-    x(i,1) = -1.0_real32 + (2.0_real32)/real(N,real32)*real(i - 1,real32)
-  end do
-  feval = f % evaluate(x)
+    x(i,1) = -1.0_real32+(2.0_real32)/real(N,real32)*real(i-1,real32)
+  enddo
+  feval = f%evaluate(x)
   call cpu_time(t2)
-  print *, "runtime :", (t2 - t1)," s"
+  print*,"runtime :",(t2-t1)," s"
 
-end program array_with_array_eval
+endprogram array_with_array_eval
