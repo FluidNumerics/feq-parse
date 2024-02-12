@@ -112,9 +112,6 @@ GNU Fortran | 13.2.0 | Windows Server 2022 (10.0.20348 Build 1547) (MSYS2) | `fp
 Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 
-> [!WARNING]
-> The `main` branch has an experimental feature for custom functions. On Linux platforms, this is currently not functioning for `ifx` and `ifort` compilers.
-
 ## Usage
 
 ### Run examples with fpm
