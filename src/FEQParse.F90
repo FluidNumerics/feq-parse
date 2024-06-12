@@ -1686,6 +1686,10 @@ contains
 
         Priority = 1
 
+      else
+
+        Priority = 0
+
       endif
 
     elseif(toke%tokenType == Monadic_Token) then
