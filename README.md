@@ -9,7 +9,7 @@ Copyright 2020 Fluid Numerics LLC
 [![linux-intel-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-intel-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-intel-fpm.yml)
 
 [![linux-amdflang-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml)
-
+[![linux-nvfortran-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml)
 
 [![windows-gnu-cmake](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml)
 [![windows-gnu-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml)

@@ -45,13 +45,20 @@ elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 
 elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Flang" )
-    set( CMAKE_Fortran_FLAGS "-Mpreprocess -fstack-arrays" )
-    set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -g -Wall -Mstandard -pedantic" )
+    set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -g -Wall -pedantic" )
     set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
     set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
     set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
     set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 
+    elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC" )
+    set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -Wall -C -g -traceback" )
+    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
+    set( CMAKE_Fortran_FLAGS_PROFILE "-O3 -Mstack_arrays -Minfo")
+    set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -Mstack_arrays -Minfo" )
+    set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 endif()
 
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src)

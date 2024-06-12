@@ -1,4 +1,4 @@
-name: linux-amdflang-cmake
+name: linux-nvidia-hpc-cmake
 
 on:
   push:
