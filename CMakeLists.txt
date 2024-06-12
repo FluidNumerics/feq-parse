@@ -18,6 +18,8 @@ ENDIF(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 # Default Fortran compiler flags
 # Fortran compiler flags
 
+message(CMAKE_Fortran_COMPILER_ID="${CMAKE_Fortran_COMPILER_ID}")
+
 if( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
     set( CMAKE_Fortran_FLAGS "-cpp -ffree-line-length-512" )
     set( CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -C -Wall -fbounds-check -fbacktrace -ffpe-trap=invalid,zero,overflow" )
@@ -40,6 +42,22 @@ elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
     set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
     set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
+    set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
+
+elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Flang" )
+    set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -g -Wall -pedantic" )
+    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
+    set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
+    set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
+    set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
+
+    elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC" )
+    set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -Wall -C -g -traceback" )
+    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
+    set( CMAKE_Fortran_FLAGS_PROFILE "-O3 -Mstack_arrays -Minfo")
+    set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -Mstack_arrays -Minfo" )
     set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 endif()
 

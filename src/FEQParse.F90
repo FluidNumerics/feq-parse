@@ -49,6 +49,10 @@ module FEQParse
 
   private
 
+  type IndepVar
+    character(:),allocatable :: value
+  endtype
+
   type,public :: EquationParser
     character(:),allocatable                   :: equation
     character(:),allocatable                   :: variableName
@@ -80,10 +84,6 @@ module FEQParse
     procedure,private :: Priority
 
   endtype EquationParser
-
-  type IndepVar
-    character(:),allocatable :: value
-  endtype
 
   interface EquationParser
     procedure Construct_EquationParser
@@ -330,7 +330,6 @@ contains
     call operator_stack%Construct(Stack_Length)
 
     do i = 1,parser%infix%top_index
-      !print*, parser % inFix % tokens(i) % tokenString
       if(parser%inFix%tokens(i)%tokenType == Variable_Token .or. &
          parser%inFix%tokens(i)%tokenType == Number_Token) then
 
@@ -349,7 +348,8 @@ contains
 
           do while(trim(tok%tokenString) /= '(' .and. &
                    parser%Priority(tok) > &
-                   parser%Priority(parser%inFix%tokens(i)))
+                   parser%Priority(parser%inFix%tokens(i)) .and. &
+                   .not. operator_stack%IsEmpty())
 
             call parser%postFix%push(tok)
             call operator_stack%pop(tok)
@@ -836,6 +836,7 @@ contains
     do k = 1,parser%postfix%top_index
 
       t = parser%postfix%tokens(k)%Copy()
+      print*,trim(t%tokenString)
 
       select case(t%tokenType)
 

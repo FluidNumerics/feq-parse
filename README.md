@@ -1,16 +1,18 @@
 # Fortran Equation Parser
 Copyright 2020 Fluid Numerics LLC
 
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-gnu-cmake.yml)
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-gnu-fpm.yml)
+[![linux-gnu-cmake](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-gnu-cmake.yml)
+[![linux-gnu-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-gnu-fpm.yml)
 
 
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-intel-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-intel-cmake.yml)
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-intel-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-intel-fpm.yml)
+[![linux-intel-cmake](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-intel-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-intel-cmake.yml)
+[![linux-intel-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/linux-intel-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-intel-fpm.yml)
 
+[![linux-amdflang-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml)
+[![linux-nvfortran-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml)
 
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml)
-[![Build Status](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml)
+[![windows-gnu-cmake](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml)
+[![windows-gnu-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml)
 
 [![codecov](https://codecov.io/gh/FluidNumerics/feq-parse/graph/badge.svg?token=IBNDDI4MHB)](https://codecov.io/gh/FluidNumerics/feq-parse)
 

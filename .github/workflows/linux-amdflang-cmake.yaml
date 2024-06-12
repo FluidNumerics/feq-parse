@@ -1,0 +1,68 @@
+name: linux-amdflang-cmake
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
+
+jobs:
+  linux-tests:
+    timeout-minutes: 20
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: ${{ matrix.os }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+            - os: ubuntu-22.04
+              fcompiler: amdflang
+              ccompiler: amdclang
+              shell: bash
+              build_type: debug
+              memcheck: false
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+
+      - name: rocm-setup
+        run: |
+           sudo apt update -y
+           wget https://repo.radeon.com/amdgpu-install/6.1.1/ubuntu/jammy/amdgpu-install_6.1.60101-1_all.deb
+           sudo apt install -y ./amdgpu-install_6.1.60101-1_all.deb
+           sudo amdgpu-install --accept-eula -y --usecase=openmpsdk --no-dkms
+
+      - name: Show version information
+        run: |
+          export PATH=${PATH}:/opt/rocm/bin
+          ${{ matrix.fcompiler }} --version
+          ${{ matrix.ccompiler }} --version
+
+      - name: Build with Cmake
+        run: |
+          export PATH=${PATH}:/opt/rocm/bin
+          mkdir build
+          cd build
+          FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
+          make VERBOSE=1
+
+      - name: Run ctests
+        run: |
+          cd build/test
+          ctest || ctest --rerun-failed --output-on-failure
+
