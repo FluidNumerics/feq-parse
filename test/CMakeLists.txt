@@ -189,5 +189,6 @@ add_fortran_tests (
     "tan_sfp64.f90"
     "print_tokens.f90"
     "custom_r1fp64.f90"
-    "parsing_difficult_r1fp64.f90")
+    "parsing_difficult_r1fp64.f90"
+    "parsing_vanderpol_sfp64.f90")
     

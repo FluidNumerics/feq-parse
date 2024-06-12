@@ -572,11 +572,9 @@ contains
       case(Monadic_Token)
 
         if(trim(t%tokenString) == '-') then
-
           call stack%Pop(a)
           a = -a
           call stack%Push(a)
-
         endif
 
       case default
@@ -1670,21 +1668,33 @@ contains
 
       Priority = 5
 
-    elseif(toke%tokenString(1:1) == '^') then
+    elseif(toke%tokenType == Operator_Token) then
 
-      Priority = 4
+      if(toke%tokenString(1:1) == '^') then
 
-    elseif(toke%tokenString(1:1) == '/') then
+        Priority = 4
 
-      Priority = 3
+      elseif(toke%tokenString(1:1) == '/') then
 
-    elseif(toke%tokenString(1:1) == '*') then
+        Priority = 3
 
-      Priority = 2
+      elseif(toke%tokenString(1:1) == '*') then
 
-    elseif(toke%tokenString(1:1) == '+' .or. toke%tokenString(1:1) == '-') then
+        Priority = 2
 
-      Priority = 1
+      elseif(toke%tokenString(1:1) == '+' .or. toke%tokenString(1:1) == '-') then
+
+        Priority = 1
+
+      else
+
+        Priority = 0
+
+      endif
+
+    elseif(toke%tokenType == Monadic_Token) then
+
+      Priority = 5
 
     else
 
