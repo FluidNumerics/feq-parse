@@ -330,16 +330,13 @@ contains
     call operator_stack%Construct(Stack_Length)
 
     do i = 1,parser%infix%top_index
-      print*, parser % inFix % tokens(i) % tokenString
       if(parser%inFix%tokens(i)%tokenType == Variable_Token .or. &
          parser%inFix%tokens(i)%tokenType == Number_Token) then
 
-        print*, 'convert : parser : push variable/number'
         call parser%postFix%push(parser%inFix%tokens(i))
 
       elseif(parser%inFix%tokens(i)%tokenType == Function_Token) then
 
-        print*, 'convert : operator : push function'
         call operator_stack%push(parser%inFix%tokens(i))
 
       elseif(parser%inFix%tokens(i)%tokenType == Operator_Token &
@@ -354,10 +351,7 @@ contains
                    parser%Priority(parser%inFix%tokens(i)) .and. &
                    .not. operator_stack%IsEmpty())
 
-            
-            print*, 'convert : parser :  push operator/monad'
             call parser%postFix%push(tok)
-            print*, 'convert : operator :  pop operator/monad'
             call operator_stack%pop(tok)
             tok = operator_stack%TopToken()
 
@@ -365,12 +359,10 @@ contains
 
         endif
 
-        print*, 'convert : operator :  push operator/monad'
         call operator_stack%push(parser%inFix%tokens(i))
 
       elseif(parser%inFix%tokens(i)%tokenType == OpeningParentheses_Token) then
 
-        print*, 'convert : operator :  push open par'
         call operator_stack%push(parser%inFix%tokens(i))
 
       elseif(parser%inFix%tokens(i)%tokenType == ClosingParentheses_Token) then
@@ -379,30 +371,24 @@ contains
 
         do while(.not.(operator_stack%IsEmpty()) .and. tok%tokenString(1:1) /= '(')
 
-          print*, 'convert : parser :  push '//trim(tok%tokenString)
           call parser%postFix%push(tok)
-          print*, 'convert : operator :  pop '//trim(tok%tokenString)
           call operator_stack%pop(tok)
           tok = operator_stack%TopToken()
 
         enddo
 
         ! Pop the opening parenthesis
-        print*, 'convert : operator :  pop '//trim(tok%tokenString)
         call operator_stack%pop(tok)
 
       endif
 
     enddo
 
-    print*,'----- pop remaining operator ----- '
     ! Pop the remaining operators
     do while(.not.(operator_stack%IsEmpty()))
 
       tok = operator_stack%TopToken()
-      print*, 'convert : parser :  push '//trim(tok%tokenString)
       call parser%postFix%push(tok)
-      print*, 'convert : operator :  pop '//trim(tok%tokenString)
       call operator_stack%pop(tok)
 
     enddo
@@ -850,7 +836,7 @@ contains
     do k = 1,parser%postfix%top_index
 
       t = parser%postfix%tokens(k)%Copy()
-      print*, TRIM(t%tokenString)
+      print*,trim(t%tokenString)
 
       select case(t%tokenType)
 
@@ -862,14 +848,12 @@ contains
           v = vnumber
         endif
 
-        print*,'push'
         call stack%Push(v)
 
       case(Variable_Token)
 
         do i = 1,parser%nIndepVars
           if(trim(t%tokenString) == parser%indepVars(i)%value) then
-            print*,'push'
             call stack%Push(x(:,:,i))
             exit
           endif
@@ -877,9 +861,7 @@ contains
 
       case(Operator_Token)
 
-        print*,'pop'
         call stack%Pop(a)
-        print*,'pop'
         call stack%Pop(b)
 
         select case(trim(t%tokenString))
@@ -907,27 +889,22 @@ contains
 
         endselect
 
-        print*,'push'
         call stack%Push(c)
 
       case(Function_Token)
 
-        print*,'pop'
         call stack%Pop(a)
 
         b = Functions(t%tokenIndex)%invoke(a)
 
-        print*,'push'
         call stack%Push(b)
 
       case(Monadic_Token)
 
         if(trim(t%tokenString) == '-') then
 
-          print*,'pop'
           call stack%Pop(a)
           a = -a
-          print*,'push'
           call stack%Push(a)
 
         endif
