@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Documentation for feq-parse" name="description"/>
+<meta content="Fluid Numerics" name="author"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.4.0, mkdocs-material-8.5.3" name="generator"/>
+<title>Parsing equations - Fortran Equation Parser</title>
+<link href="../assets/stylesheets/main.7a952b86.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.cbb835fc.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>html.glightbox-open { overflow: initial; height: 100%; }</style><script src="../assets/javascripts/glightbox.min.js"></script></head>
+<body data-md-color-accent="cyan" data-md-color-primary="black" data-md-color-scheme="slate" dir="ltr">
+<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#converting-infix-notation-to-postfix-notation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Fortran Equation Parser" class="md-header__button md-logo" data-md-component="logo" href=".." title="Fortran Equation Parser">
+<img alt="logo" src="../assets/images/logo-fluid-numerics.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Fortran Equation Parser
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Parsing equations
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="cyan" data-md-color-media="" data-md-color-primary="black" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="cyan" data-md-color-media="" data-md-color-primary="black" data-md-color-scheme="default" id="__palette_2" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+</form>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/fluidnumerics/feq-parse" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub/fluidnumerics/feq-parse
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Fortran Equation Parser" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Fortran Equation Parser">
+<img alt="logo" src="../assets/images/logo-fluid-numerics.png"/>
+</a>
+    Fortran Equation Parser
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/fluidnumerics/feq-parse" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub/fluidnumerics/feq-parse
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+        Home
+      </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2">
+          Getting Started
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Getting Started" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+          Getting Started
+        </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../build-with-feqparse/">
+        Build with feq-parse
+      </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3">
+          Learning
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Learning" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+          Learning
+        </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Parsing equations
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+        Parsing equations
+      </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#introduction">
+    Introduction
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithm-overview">
+    Algorithm overview
+  </a>
+<nav aria-label="Algorithm overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cleaning-the-equation">
+    Cleaning the equation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenizing-the-infix-formula">
+    Tokenizing the infix formula
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conversion-from-infix-to-postfix">
+    Conversion from infix to postfix
+  </a>
+<nav aria-label="Conversion from infix to postfix" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#operator-precedence-and-associativity">
+    Operator Precedence and Associativity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-conversion">
+    Example Conversion
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation">
+    Evaluation
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#introduction">
+    Introduction
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithm-overview">
+    Algorithm overview
+  </a>
+<nav aria-label="Algorithm overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cleaning-the-equation">
+    Cleaning the equation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenizing-the-infix-formula">
+    Tokenizing the infix formula
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conversion-from-infix-to-postfix">
+    Conversion from infix to postfix
+  </a>
+<nav aria-label="Conversion from infix to postfix" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#operator-precedence-and-associativity">
+    Operator Precedence and Associativity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-conversion">
+    Example Conversion
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation">
+    Evaluation
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<a class="md-content__button md-icon" href="https://github.com/fluidnumerics/feq-parse/edit/main/docs/mkdocs/parsing-equations.md" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+</a>
+<h1 id="converting-infix-notation-to-postfix-notation">Converting Infix Notation to Postfix Notation</h1>
+<h2 id="introduction">Introduction</h2>
+<p>In mathematical notation, expressions can be written in various formats, including infix, postfix, and prefix notations. Infix notation is the most common and intuitive (it's likely what you were taught), where operators are placed between operands (e.g., A + B). Postfix notation (also known as Reverse Polish Notation or RPN) places operators after their operands (e.g., A B +). Converting infix expressions to postfix notation can be useful for evaluation using stack-based algorithms. </p>
+<p>Even though Fortran is a strongly typed language, many applications could find it useful to dynamically set equations. For example, imagine having a single program to solve the heat equation but you can change the initial conditions by defining a function as a character string through the command line. FEQParse aims to provide such dynamic equation support wherein you can define equations in infix notation using the Fortran <code>character</code> type and evaluate the equation using floating point input.</p>
+<p>FEQParse works by converting an infix expression into a postfix expression and running the evaluation using a stack-based algorithm. This page walks through sketches of the various algorithms that clean, parse &amp; tokenize, convert, and evaluate equations in FEQParse.</p>
+<h2 id="algorithm-overview">Algorithm overview</h2>
+<p>The <code>EquationParser</code> data type has a constructor routine and evaluation routines that make it easy to create equations that can be evaluated</p>
+<pre><code>program example
+
+use feqparse
+use iso_fortran_env
+implicit none
+
+type(EquationParser) :: eq
+real(real32) :: xscalar, fscalar
+real(real32) :: xarray(1:100), farray(1:100)
+
+eq = EquationParser( 'f=x^2', ['x'] )
+
+! Example evaluating with a scalar
+xscalar = 1.0_real32
+fscalar = eq % Evaluate(xscalar)
+
+! Example evaluating with an array
+xarray(1:100) = 1.0_real32
+farray(1:100) = eq % Evaluate(xarray)
+
+end program example
+</code></pre>
+<p>There are clearly two main algorithms at play here for (1) construction and (2) evaluation of the parser. Construction involves</p>
+<ol>
+<li>Cleaning the input equation </li>
+<li>Tokenizing the infix equation</li>
+<li>Conversion from infix notation to postfix notation</li>
+</ol>
+<p>After tokenizing and converting, both the infix and postfix expressions are store in a stack of tokens. The postfix expression is used for equation evaluation using a stack-based algorithm, where intermediate results are processed through a stack; the type of data stored in the stack depends on the type of data passed as input for evalation (e.g. scalar float32, 4-d array float 64, etc.)</p>
+<p>In case you're not familiar, a stack is a data structure that operates on the Last-In-First-Out (LIFO) principle, where the most recently added element is the first to be removed. It is typically implemented as a class with methods for common stack operations such as push (to add an element to the top), pop (to remove and return the top element), peek or top (to view the top element without removing it), and often additional methods like isEmpty (to check if the stack is empty) and size (to get the number of elements in the stack).</p>
+<h3 id="cleaning-the-equation">Cleaning the equation</h3>
+<p>Before stepping into tokenizing, parsing, and converting to postfix notation for evaluation, an input <code>CHARACTER</code> that contains an equation in infix notation 
+is preprocessed. We need to clean and format the equation, ensuring it is in a suitable form for subsequent operations.</p>
+<p>The algorithm for the FEQParse <code>EquationParser</code> <code>CleanEquation</code> type-bound procedure is broken down as follows</p>
+<ol>
+<li><strong>Identify Dependent Variable Name</strong>:</li>
+<li>Locate the position of the equal sign (<code>=</code>) in the equation.</li>
+<li>
+<p>If an equal sign is found, the part of the equation before the equal sign is considered the variable name and stored in <code>parser%variableName</code>.</p>
+</li>
+<li>
+<p><strong>Replace Power Operator</strong>:</p>
+</li>
+<li>
+<p>Replaces occurrences of the exponentiation operator <code>**</code> with the caret symbol <code>^</code> in the equation using the <code>ReplaceStr</code> function. This is done to allow using either <code>**</code> or <code>^</code> for exponentiation.</p>
+</li>
+<li>
+<p><strong>Extract Infix Formula</strong>:</p>
+</li>
+<li>Extracts the part of the equation to the right of the equal sign, which represents the infix formula.</li>
+<li>
+<p>Left adjusts this extracted formula for further processing.</p>
+</li>
+<li>
+<p><strong>Remove Spaces</strong>:</p>
+</li>
+<li>Iterates over the extracted infix formula and removes any spaces, effectively compacting the formula.</li>
+<li>
+<p>This is done by copying non-space characters to a new position in the string and adjusting the string length accordingly.</p>
+</li>
+<li>
+<p><strong>Finalization</strong>:</p>
+</li>
+<li>Pads the remaining part of <code>parser%inFixFormula</code> with spaces to ensure there are no leftover characters.</li>
+<li>Sets the <code>equationCleaned</code> flag to <code>.true.</code> if the cleaning process completes successfully.</li>
+</ol>
+<h3 id="tokenizing-the-infix-formula">Tokenizing the infix formula</h3>
+<p>After the equation is cleaned and we are certain we have a valid equation in infix notation, we now "tokenize" the equation. Essentially, this process is used to break down an infix expression into individual tokens and classify each token as a function, variable, number, operator, monad, or parentheses. </p>
+<p>The algorithm for the FEQParse <code>EquationParser</code> <code>Tokenize</code> type-bound procedure is broken down as follows</p>
+<ol>
+<li><strong>Initialization</strong>:</li>
+<li>The subroutine initializes the <code>tokenized</code> flag to <code>.false.</code>.</li>
+<li>
+<p>Set up a token stack and calculates the maximum length of variable names from our list of independent variables</p>
+</li>
+<li>
+<p><strong>Tokenization Loop</strong>:</p>
+</li>
+<li>The main loop processes the input infix formula one character at a time.</li>
+<li>
+<p>For each character (or sequence of characters), the subroutine determines the type of token (function, variable, number, separator, or operator).</p>
+</li>
+<li>
+<p><strong>Token Identification</strong>: Each token is assigned a type and a string.</p>
+</li>
+<li><strong>Function</strong>: Check if the current substring represents a function. If so, it adds the function token to the stack.</li>
+<li><strong>Variable</strong>: Check if the current substring matches any of the independent variables. If it does, it adds the variable token to the stack.</li>
+<li><strong>Number</strong>: Check if the current substring is a number. If so, it adds the number token to the stack, handling special cases like the constant <code>pi</code>.</li>
+<li>
+<p><strong>Separator</strong>: Identify and process separators (parentheses and operators), adding the appropriate token to the stack.</p>
+</li>
+<li>
+<p><strong>Error Handling</strong>:</p>
+</li>
+<li>The subroutine checks for missing operators or closing parentheses after variables and numbers. If an error is found (such as missing a closing parentheses), print an <code>errorMsg</code> and exits.</li>
+<li>
+<p>If an invalid token is encountered (we cannot classify it), print an <code>errorMsg</code> and exits.</p>
+</li>
+<li>
+<p><strong>Special Case Handling</strong>:</p>
+</li>
+<li>
+<p>Adjusts the token type for unary operators (monadic tokens), which can appear at the beginning of the expression or immediately after an opening parenthesis. Unary operators, or monadic tokens are typically either <code>+</code> or <code>-</code> that indicate the sign of a number of variable, e.g. in the infix equation <code>f = -2*x</code>, the <code>-</code> is a monadic token.</p>
+</li>
+<li>
+<p><strong>Finalization</strong>:</p>
+</li>
+<li>Sets the <code>tokenized</code> flag to <code>.true.</code> if the tokenization process completes successfully.</li>
+</ol>
+<h3 id="conversion-from-infix-to-postfix">Conversion from infix to postfix</h3>
+<p>The conversion from infix to postfix notation involves the use of a stack to temporarily hold operators and ensure that the final postfix expression maintains the correct order of operations. The following steps outline the conversion algorithm:</p>
+<ol>
+<li><strong>Initialize Structures</strong>:</li>
+<li>Create an empty stack to hold operators.</li>
+<li>
+<p>Create an empty list to output the postfix expression.</p>
+</li>
+<li>
+<p><strong>Process Each Token</strong>:</p>
+</li>
+<li>Read the infix expression from left to right, one token (operand or operator) at a time.</li>
+<li>
+<p>Depending on the type of token, perform the following actions:</p>
+<p><strong>a. Operand</strong>:
+    - Directly append operands (numbers, variables) to the output list.</p>
+<p><strong>b. Left Parenthesis (<code>(</code>)</strong>:
+    - Push the left parenthesis onto the stack.</p>
+<p><strong>c. Right Parenthesis (<code>)</code>)</strong>:
+    - Pop operators from the stack and append them to the output list until a left parenthesis is encountered on the stack.
+    - Discard the left parenthesis.</p>
+<p><strong>d. Operator (e.g., <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>)</strong>:
+    - While the stack is not empty and the operator at the top of the stack has higher or equal precedence than the current operator, pop the operator from the stack and append it to the output list.
+    - Push the current operator onto the stack.</p>
+<p><strong>e. Monadic Token</strong>:</p>
+<p><strong>f. Functions (e.g <code>sin</code>, <code>cos</code>, <code>log</code>, etc.)</strong>:
+    - Push the function onto the stack</p>
+</li>
+<li>
+<p><strong>Empty the Stack</strong>:</p>
+</li>
+<li>After processing all tokens, pop any remaining operators from the stack and append them to the output list.</li>
+</ol>
+<h4 id="operator-precedence-and-associativity">Operator Precedence and Associativity</h4>
+<p>Operators have different levels of precedence which affect the order in which operations are performed:
+- Multiplication (<code>*</code>), division (<code>/</code>), and modulus (<code>%</code>) have higher precedence than addition (<code>+</code>) and subtraction (<code>-</code>).
+- Operators of equal precedence are evaluated based on their associativity (left-to-right or right-to-left).</p>
+<p>In <code>FEQParse.F90</code>, the <code>Priority</code> function uses the <code>token % tokenType</code> and <code>token % tokenString</code> to determin the priority for evaluation.</p>
+<h4 id="example-conversion">Example Conversion</h4>
+<p>Consider the infix expression: <code>A + B * (C - D)</code></p>
+<ol>
+<li>Initialize the stack and output list:</li>
+<li>Stack: <code>[]</code></li>
+<li>
+<p>Output: <code>[]</code></p>
+</li>
+<li>
+<p>Process each token:</p>
+</li>
+<li><code>A</code>: Append to output. Output: <code>[A]</code></li>
+<li><code>+</code>: Push onto stack. Stack: <code>[+]</code></li>
+<li><code>B</code>: Append to output. Output: <code>[A, B]</code></li>
+<li><code>*</code>: Push onto stack (higher precedence than <code>+</code>). Stack: <code>[+, *]</code></li>
+<li><code>(</code>: Push onto stack. Stack: <code>[+, *, (]</code></li>
+<li><code>C</code>: Append to output. Output: <code>[A, B, C]</code></li>
+<li><code>-</code>: Push onto stack. Stack: <code>[+, *, (, -]</code></li>
+<li><code>D</code>: Append to output. Output: <code>[A, B, C, D]</code></li>
+<li><code>)</code>: Pop and append until <code>(</code> is found. Stack: <code>[+, *]</code>, Output: <code>[A, B, C, D, -]</code></li>
+<li>Pop <code>*</code> from stack (higher precedence than <code>+</code>). Stack: <code>[+]</code>, Output: <code>[A, B, C, D, -, *]</code></li>
+<li>
+<p>Pop <code>+</code> from stack. Stack: <code>[]</code>, Output: <code>[A, B, C, D, -, *, +]</code></p>
+</li>
+<li>
+<p>Final postfix expression:</p>
+</li>
+<li><code>A B C D - * +</code></li>
+</ol>
+<h3 id="evaluation">Evaluation</h3>
+<p>There are multiple functions for evaluation of a parser. All of them follow the same algorithm and they are distinguished only by the type of data used to define the independent variables, which also matches the resulting output. For example, FEQParse provides evaluation routines for scalar <code>real32</code>, scalar <code>real64</code>, 1-d array <code>real32</code>, etc. </p>
+<p>Below is a rough breakdown of the evaluation algorithm:</p>
+<ol>
+<li><strong>Initialization</strong>:</li>
+<li>
+<p>Construct a stack for evaluation and storing intermediate results</p>
+</li>
+<li>
+<p><strong>Evaluation Loop</strong>:</p>
+</li>
+<li>Iterate through each token in the postfix expression (stored in <code>parser%postfix%tokens</code>).</li>
+<li>
+<p>Depending on the type of each token (number, variable, operator, function, or monadic operator), perform specific actions using the stack.</p>
+</li>
+<li>
+<p><strong>Token Processing</strong>:</p>
+</li>
+<li><strong>Number Token</strong>: <ul>
+<li>Numbers are pushed onto the stack. Special numbers, like <code>pi</code> are allowed to be used, so we check for these, also pushing onto the stack.</li>
+</ul>
+</li>
+<li><strong>Variable Token</strong>: <ul>
+<li>Match the variable name with the independent variables from the input and pushes the corresponding value onto the stack.</li>
+</ul>
+</li>
+<li><strong>Operator Token</strong>: <ul>
+<li>When we encounter an operator (e.g <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>,<code>^</code>), pop the last two operands (last one is <code>b</code> and second to last is <code>a</code>) from the stack and apply the operation <code>a op b</code>.</li>
+<li>Push the result back onto the stack.</li>
+</ul>
+</li>
+<li><strong>Function Token</strong>: <ul>
+<li>Pop the operand from the stack, applies the function (like sin, cos, etc.), and push the result back onto the stack.</li>
+</ul>
+</li>
+<li>
+<p><strong>Monadic Token</strong>: </p>
+<ul>
+<li>Handles unary operations (like negation), pop the operand, applies the operation, and pushes the result back onto the stack.</li>
+</ul>
+</li>
+<li>
+<p><strong>Final Result</strong>:</p>
+</li>
+<li>After processing all tokens, the final result is popped from the stack and returned as the function result <code>f</code>.</li>
+</ol>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: Build with feq-parse" class="md-footer__link md-footer__link--prev" href="../build-with-feqparse/" rel="prev">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</div>
+<div class="md-footer__title">
+<div class="md-ellipsis">
+<span class="md-footer__direction">
+                Previous
+              </span>
+              Build with feq-parse
+            </div>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.37e9125f.min.js"></script>
+<script src="../javascripts/mathjax.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "width": "100%", "height": "auto", "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom"});})</script></body>
+</html>
