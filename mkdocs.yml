@@ -1,0 +1,55 @@
+site_name: Fortran Equation Parser
+site_description: Documentation for feq-parse
+site_author: Fluid Numerics
+site_dir: public
+site_url: ""
+repo_name: GitHub/fluidnumerics/feq-parse
+repo_url: https://github.com/fluidnumerics/feq-parse
+edit_uri: edit/main/docs/mkdocs
+
+# Directory where site content is located
+docs_dir: docs
+
+# Site navigation 
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Build with feq-parse: build-with-feqparse.md
+  - Learning:
+    - Parsing equations: parsing-equations.md
+
+
+theme: 
+  name: material
+  favicon: assets/images/favicon.png
+  logo: assets/images/logo-fluid-numerics.png
+  palette:
+    - scheme: slate
+      primary: black
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+         
+    - scheme: default 
+      primary: black
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - attr_list
+  - md_in_html
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+
+plugins: 
+    - glightbox
