@@ -62,6 +62,7 @@ module FEQParse
     type(TokenStack)                            :: inFix
     type(TokenStack)                            :: postFix
   contains
+    final :: Finalize_EquationParser
     procedure :: CleanEquation
     procedure :: Tokenize
     procedure :: ConvertToPostfix
@@ -127,6 +128,26 @@ contains
     endif
 
   endfunction Construct_EquationParser
+
+  subroutine Finalize_EquationParser(parser)
+    type(EquationParser),intent(inout) :: parser
+    ! Local
+    integer :: i
+
+    if(allocated(parser%inFixFormula)) deallocate(parser%inFixFormula)
+    if(allocated(parser%equation)) deallocate(parser%equation)
+    if(allocated(parser%variableName)) deallocate(parser%variableName)
+    if(allocated(parser%indepVars)) then
+      do i = 1,parser%nIndepVars
+        deallocate(parser%indepVars(i)%value)
+      enddo
+      deallocate(parser%indepVars)
+    endif
+
+    call parser%infix%Finalize()
+    call parser%postfix%Finalize()
+
+  endsubroutine Finalize_EquationParser
 
   subroutine CleanEquation(parser,equationCleaned)
     class(EquationParser),intent(inout)    :: parser
@@ -323,8 +344,6 @@ contains
     type(Token)                 :: tok
     integer                     :: i
 
-    !success = .FALSE.
-
     call parser%postfix%Construct(Stack_Length)
     call operator_stack%Construct(Stack_Length)
 
@@ -489,6 +508,7 @@ contains
 
     call stack%Pop(a)
     f = a
+
   endfunction Evaluate_sfp32
 
   function Evaluate_sfp64(parser,x) result(f)
