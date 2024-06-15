@@ -61,7 +61,6 @@ module FEQParse
     type(IndepVar),dimension(:),allocatable   :: indepVars
     type(TokenStack)                            :: inFix
     type(TokenStack)                            :: postFix
-    type(FEQParse_Function),dimension(:),allocatable :: functions
   contains
     procedure :: CleanEquation
     procedure :: Tokenize
