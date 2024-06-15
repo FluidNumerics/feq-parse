@@ -50,7 +50,7 @@ contains
   subroutine Finalize_TokenStack(stack)
     class(TokenStack),intent(inout) :: stack
 
-    deallocate(stack%tokens)
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
 
   endsubroutine Finalize_TokenStack
 
