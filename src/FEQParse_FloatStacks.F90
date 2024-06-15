@@ -282,7 +282,7 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r1fp64Stack
-  
+
   subroutine Finalize_r1fp64Stack(stack)
     type(r1fp64Stack),intent(inout) :: stack
 
@@ -374,7 +374,7 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r2fp64Stack
-  
+
   subroutine Finalize_r2fp64Stack(stack)
     type(r2fp64Stack),intent(inout) :: stack
 

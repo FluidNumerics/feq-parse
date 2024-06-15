@@ -138,7 +138,7 @@ contains
     if(allocated(parser%equation)) deallocate(parser%equation)
     if(allocated(parser%variableName)) deallocate(parser%variableName)
     if(allocated(parser%indepVars)) then
-      do i=1,parser%nIndepVars
+      do i = 1,parser%nIndepVars
         deallocate(parser%indepVars(i)%value)
       enddo
       deallocate(parser%indepVars)
