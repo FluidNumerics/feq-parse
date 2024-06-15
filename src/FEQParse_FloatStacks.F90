@@ -27,6 +27,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_sfp32Stack
+    final :: Finalize_sfp32Stack
     procedure :: Push => Push_sfp32Stack
     procedure :: Pop => Pop_sfp32Stack
 
@@ -38,6 +39,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_sfp64Stack
+    final :: Finalize_sfp64Stack
     procedure :: Push => Push_sfp64Stack
     procedure :: Pop => Pop_sfp64Stack
 
@@ -49,6 +51,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r1fp32Stack
+    final :: Finalize_r1fp32Stack
     procedure :: Push => Push_r1fp32Stack
     procedure :: Pop => Pop_r1fp32Stack
 
@@ -60,6 +63,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r1fp64Stack
+    final :: Finalize_r1fp64Stack
     procedure :: Push => Push_r1fp64Stack
     procedure :: Pop => Pop_r1fp64Stack
 
@@ -71,6 +75,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r2fp32Stack
+    final :: Finalize_r2fp32Stack
     procedure :: Push => Push_r2fp32Stack
     procedure :: Pop => Pop_r2fp32Stack
 
@@ -82,6 +87,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r2fp64Stack
+    final :: Finalize_r2fp64Stack
     procedure :: Push => Push_r2fp64Stack
     procedure :: Pop => Pop_r2fp64Stack
 
@@ -93,6 +99,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r3fp32Stack
+    final :: Finalize_r3fp32Stack
     procedure :: Push => Push_r3fp32Stack
     procedure :: Pop => Pop_r3fp32Stack
 
@@ -104,6 +111,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r3fp64Stack
+    final :: Finalize_r3fp64Stack
     procedure :: Push => Push_r3fp64Stack
     procedure :: Pop => Pop_r3fp64Stack
 
@@ -115,6 +123,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r4fp32Stack
+    final :: Finalize_r4fp32Stack
     procedure :: Push => Push_r4fp32Stack
     procedure :: Pop => Pop_r4fp32Stack
 
@@ -126,6 +135,7 @@ module FEQParse_FloatStacks
   contains
 
     procedure :: Construct => Construct_r4fp64Stack
+    final :: Finalize_r4fp64Stack
     procedure :: Push => Push_r4fp64Stack
     procedure :: Pop => Pop_r4fp64Stack
 
@@ -141,6 +151,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_sfp32Stack
+
+  subroutine Finalize_sfp32Stack(stack)
+    type(sfp32Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_sfp32Stack
 
   subroutine Push_sfp32Stack(stack,tok)
     class(sfp32Stack),intent(inout) :: stack
@@ -172,6 +189,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_sfp64Stack
+
+  subroutine Finalize_sfp64Stack(stack)
+    type(sfp64Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_sfp64Stack
 
   subroutine Push_sfp64Stack(stack,tok)
     class(sfp64Stack),intent(inout) :: stack
@@ -214,6 +238,13 @@ contains
 
   endsubroutine Construct_r1fp32Stack
 
+  subroutine Finalize_r1fp32Stack(stack)
+    type(r1fp32Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r1fp32Stack
+
   subroutine Push_r1fp32Stack(stack,tok)
     class(r1fp32Stack),intent(inout) :: stack
     real(real32),intent(in)          :: tok(:)
@@ -251,6 +282,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r1fp64Stack
+  
+  subroutine Finalize_r1fp64Stack(stack)
+    type(r1fp64Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r1fp64Stack
 
   subroutine Push_r1fp64Stack(stack,tok)
     class(r1fp64Stack),intent(inout) :: stack
@@ -291,6 +329,13 @@ contains
 
   endsubroutine Construct_r2fp32Stack
 
+  subroutine Finalize_r2fp32Stack(stack)
+    type(r2fp32Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r2fp32Stack
+
   subroutine Push_r2fp32Stack(stack,tok)
     class(r2fp32Stack),intent(inout) :: stack
     real(real32),intent(in)          :: tok(:,:)
@@ -329,6 +374,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r2fp64Stack
+  
+  subroutine Finalize_r2fp64Stack(stack)
+    type(r2fp64Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r2fp64Stack
 
   subroutine Push_r2fp64Stack(stack,tok)
     class(r2fp64Stack),intent(inout) :: stack
@@ -370,6 +422,13 @@ contains
 
   endsubroutine Construct_r3fp32Stack
 
+  subroutine Finalize_r3fp32Stack(stack)
+    type(r3fp32Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r3fp32Stack
+
   subroutine Push_r3fp32Stack(stack,tok)
     class(r3fp32Stack),intent(inout) :: stack
     real(real32),intent(in)          :: tok(:,:,:)
@@ -409,6 +468,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r3fp64Stack
+
+  subroutine Finalize_r3fp64Stack(stack)
+    type(r3fp64Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r3fp64Stack
 
   subroutine Push_r3fp64Stack(stack,tok)
     class(r3fp64Stack),intent(inout) :: stack
@@ -451,6 +517,13 @@ contains
 
   endsubroutine Construct_r4fp32Stack
 
+  subroutine Finalize_r4fp32Stack(stack)
+    type(r4fp32Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r4fp32Stack
+
   subroutine Push_r4fp32Stack(stack,tok)
     class(r4fp32Stack),intent(inout) :: stack
     real(real32),intent(in)          :: tok(:,:,:,:)
@@ -491,6 +564,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_r4fp64Stack
+
+  subroutine Finalize_r4fp64Stack(stack)
+    type(r4fp64Stack),intent(inout) :: stack
+
+    if(allocated(stack%tokens)) deallocate(stack%tokens)
+
+  endsubroutine Finalize_r4fp64Stack
 
   subroutine Push_r4fp64Stack(stack,tok)
     class(r4fp64Stack),intent(inout) :: stack

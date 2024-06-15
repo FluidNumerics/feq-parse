@@ -29,6 +29,7 @@ module FEQParse_TokenStack
     integer                  :: top_index = 0
   contains
     procedure :: Construct => Construct_TokenStack
+    procedure :: Finalize => Finalize_TokenStack
     procedure :: Push => Push_TokenStack
     procedure :: Pop => Pop_TokenStack
     procedure :: IsEmpty => IsEmpty_TokenStack
@@ -45,6 +46,13 @@ contains
     stack%top_index = 0
 
   endsubroutine Construct_TokenStack
+
+  subroutine Finalize_TokenStack(stack)
+    class(TokenStack),intent(inout) :: stack
+
+    deallocate(stack%tokens)
+
+  endsubroutine Finalize_TokenStack
 
   subroutine Push_TokenStack(stack,tok)
     class(TokenStack),intent(inout) :: stack
