@@ -26,5 +26,5 @@ print_creation_date: true
 creation_date: %Y-%m-%d %H:%M %z
 macro: TEST
        LOGIC=.true.
-license: License
+license: 3-Clause BSD
 extra_filetypes: cpp #
