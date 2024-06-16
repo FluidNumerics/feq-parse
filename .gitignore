@@ -5,3 +5,6 @@ build/
 *.i90
 *.code-workspace
 .vscode
+fpm
+check
+test.sh

@@ -20,7 +20,8 @@ Copyright 2020 Fluid Numerics LLC
 
 [Learn how to contribute to this repository](./CONTRIBUTING.md)
 
-[**Documentation**](http://feqparse.fluidnumerics.com/)
+[**User Documentation**](https://feqparse.fluidnumerics.com/)
+[**API Documentation**](https://feqparse.fluidnumerics.com/ford)
 
 ## Installation
 `feq-parse` can be installed using either CMake, [Fortran Package Manager (fpm)](https://github.com/fortran-lang/fpm), or with [Spack](https://spack.io).
