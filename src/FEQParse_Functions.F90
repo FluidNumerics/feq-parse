@@ -76,7 +76,6 @@ module FEQParse_Functions
   contains
     procedure,private,pass(lhs) :: character_array_assign_function
     procedure,private,pass(lhs) :: character_assign_function
-    procedure,private,pass(rhs) :: function_assign_character
     generic :: assignment(=) => character_assign_function,character_array_assign_function
     procedure,private,pass(lhs) :: function_eq_character
     procedure,private,pass(rhs) :: character_eq_function
@@ -107,7 +106,6 @@ module FEQParse_Functions
   interface AddFunction
     module procedure :: AddFunction32
     module procedure :: AddFunction64
-    module procedure :: AddFunction32And64
   endinterface
 
   interface Tuple
@@ -156,12 +154,6 @@ contains
     lhs%len = len(rhs)
     lhs%caps = ToUpperCase(rhs)
     maxFunctionLength = max(maxFunctionLength,lhs%len)
-  endsubroutine
-
-  pure subroutine function_assign_character(lhs,rhs)
-    character(len=*),allocatable,intent(inout)    :: lhs
-    class(FEQParse_Function),intent(in) :: rhs
-    lhs = rhs%str
   endsubroutine
 
   elemental function function_eq_character(lhs,rhs) result(ok)
@@ -297,25 +289,6 @@ contains
     call InitializeFunctions()
     func = name
     func%ptr32 => null()
-    func%ptr64 => f_64
-    if(nFunctions < maxFunctions) then
-      Functions(nFunctions+1) = func
-      nFunctions = nFunctions+1
-    else
-      stop 'Argument out of range'
-    endif
-  endsubroutine
-
-  subroutine AddFunction32And64(name,f_32,f_64)
-    character(*),intent(in) :: name
-    procedure(f32) :: f_32
-    procedure(f64) :: f_64
-    !private
-    type(FEQParse_Function) :: func
-
-    call InitializeFunctions()
-    func = name
-    func%ptr32 => f_32
     func%ptr64 => f_64
     if(nFunctions < maxFunctions) then
       Functions(nFunctions+1) = func
@@ -508,7 +481,7 @@ contains
   pure function ToUpperCase(str) result(res)
     character(*),intent(in) :: str
     character(len(str)) :: res
-    integer :: i,j
+    integer :: i
 
     do i = 1,len(str)
       select case(str(i:i))
@@ -519,21 +492,6 @@ contains
       endselect
     enddo
   endfunction ToUpperCase
-
-  pure function ToLowerCase(str) result(res)
-    character(*),intent(in) :: str
-    character(len(str)),allocatable :: res
-    integer :: i
-
-    do i = 1,len(str)
-      select case(str(i:i))
-      case('A':'Z')
-        res(i:i) = achar(iachar(str(i:i))+32)
-      case default
-        res(i:i) = str(i:i)
-      endselect
-    enddo
-  endfunction ToLowerCase
 
 endmodule FEQParse_Functions
 

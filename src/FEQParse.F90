@@ -81,7 +81,7 @@ module FEQParse
     procedure :: Print_InFixTokens
     procedure :: Print_PostFixTokens
 
-    procedure,private :: Priority
+    procedure,nopass,private :: Priority
 
   endtype EquationParser
 
@@ -1664,23 +1664,7 @@ contains
     enddo
   endfunction
 
-  function ToLowerCase(str) result(res)
-    character(*),intent(in) :: str
-    character(len(str)),allocatable :: res
-    integer :: i
-
-    do i = 1,len(str)
-      select case(str(i:i))
-      case('A':'Z')
-        res(i:i) = achar(iachar(str(i:i))+32)
-      case default
-        res(i:i) = str(i:i)
-      endselect
-    enddo
-  endfunction ToLowerCase
-
-  integer function Priority(parser,toke)
-    class(EquationParser) :: parser
+  integer function Priority(toke)
     type(Token) :: toke
 
     if(toke%tokenType == Function_Token) then
