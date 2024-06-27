@@ -70,6 +70,7 @@ jobs:
           echo "ARCH=${RUNNER_ARCH}" >> $GITHUB_ENV
       - name: Build release directory
         run: |
+          cd build
           mkdir feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
           cd feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
           mkdir DEBIAN usr usr/local usr/local/include usr/local/lib
@@ -87,7 +88,7 @@ jobs:
           EOF
       - name: Build .deb
         run: |
-          dpkg --build .
+          dpkg --build feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
   
       - name: Create Release
         id: create_release
