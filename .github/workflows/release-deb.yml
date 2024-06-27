@@ -3,11 +3,11 @@ name: release-deb
 on:
     push:
       tags:
-        - 'v*.*.*'
-      branches:
+        - 'v*.*'
+      # branches:
         # - master
         # - main
-        - release-actions
+        # - release-actions
       paths-ignore:
         - 'AUTHORS.md'
         - 'LICENSE.md'
@@ -28,19 +28,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            # Linux
-            - os: ubuntu-latest
-              fcompiler: gfortran-12
-              ccompiler: gcc-12
-              shell: bash
-              build_type: debug
-              memcheck: false
-            - os: ubuntu-22.04
-              fcompiler: gfortran-12
-              ccompiler: gcc-12
-              shell: bash
-              build_type: debug
-              memcheck: false
             - os: ubuntu-20.04
               fcompiler: gfortran-10
               ccompiler: gcc-10
