@@ -42,8 +42,8 @@ jobs:
               build_type: debug
               memcheck: false
             - os: ubuntu-20.04
-              fcompiler: gfortran-11
-              ccompiler: gcc-11
+              fcompiler: gfortran-10
+              ccompiler: gcc-10
               shell: bash
               build_type: debug
               memcheck: false
