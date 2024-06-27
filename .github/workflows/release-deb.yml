@@ -42,8 +42,8 @@ jobs:
               build_type: debug
               memcheck: false
             - os: ubuntu-20.04
-              fcompiler: gfortran-12
-              ccompiler: gcc-12
+              fcompiler: gfortran-11
+              ccompiler: gcc-11
               shell: bash
               build_type: debug
               memcheck: false
@@ -51,31 +51,9 @@ jobs:
       run:
         shell: ${{ matrix.shell }}
     steps:
-    #   - uses: actions/checkout@v2
-    #   - name: create sample script
-    #     run: |
-    #       mkdir -p .debpkg/usr/bin
-    #       mkdir -p .debpkg/usr/lib/samplescript
-    #       echo -e "echo sample" > .debpkg/usr/bin/samplescript
-    #       chmod +x .debpkg/usr/bin/samplescript
-    #       echo -e "a=1" > .debpkg/usr/lib/samplescript/samplescript.conf
-
-    #       # create DEBIAN directory if you want to add other pre/post scripts
-    #       mkdir -p .debpkg/DEBIAN
-    #       echo -e "echo postinst" > .debpkg/DEBIAN/postinst
-    #       chmod +x .debpkg/DEBIAN/postinst
-    #   - uses: jiro4989/build-deb-action@v3
-    #     with:
-    #       package: samplescript
-    #       package_root: .debpkg
-    #       maintainer: your_name
-    #       version: ${{ github.ref }} # refs/tags/v*.*.*
-    #       arch: 'amd64'
-    #       depends: 'libc6 (>= 2.2.1), git'
-    #       desc: 'this is sample package.'
-    #       homepage: 'https://github.com/jiro4989/build-deb-action'
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Show version information
         run: |
           ${{ matrix.fcompiler }} --version
