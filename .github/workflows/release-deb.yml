@@ -66,8 +66,10 @@ jobs:
           make VERBOSE=1
       - name: Get version and architecture
         run: |
-          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-          echo "ARCH=${RUNNER_ARCH}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+          echo ${{ env.RELEASE_VERSION }}
+          echo "ARCH=amd64" >> $GITHUB_ENV
+        #   change above line if not building for amd64
       - name: Build release directory
         run: |
           cd build
