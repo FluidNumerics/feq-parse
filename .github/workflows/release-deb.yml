@@ -77,8 +77,8 @@ jobs:
           cd feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
           mkdir DEBIAN usr usr/local usr/local/include usr/local/lib
           cp ../include/*.mod usr/local/include/
-          cp ../lib/*.so usr/local/lib/
-          cp ../lib/*.a usr/local/lib/
+          cp ../src/*.so usr/local/lib/
+          cp ../src/*.a usr/local/lib/
           cat << EOF > DEBIAN/control
           Package: feq-parse
           Version: ${{ env.RELEASE_VERSION }}
