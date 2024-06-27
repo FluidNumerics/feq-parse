@@ -5,8 +5,9 @@ on:
       tags:
         - 'v*.*.*'
       branches:
-        - master
-        - main
+        # - master
+        # - main
+        - release-actions
       paths-ignore:
         - 'AUTHORS.md'
         - 'LICENSE.md'
