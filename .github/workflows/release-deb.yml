@@ -66,19 +66,19 @@ jobs:
             make VERBOSE=1
       - name: Get version and architecture
         run: |
-          echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/-v}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           echo "ARCH=${RUNNER_ARCH}" >> $GITHUB_ENV
       - name: Build release directory
         run: |
-          mkdir feq-parse_${{ env.PACKAGE_VERSION }}-1_${{ env.ARCH }}
-          cd feq-parse_${{ env.PACKAGE_VERSION }}-1_${{ env.ARCH }}
+          mkdir feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
+          cd feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}
           mkdir DEBIAN usr usr/local usr/local/include usr/local/lib
           cp ../include/*.mod usr/local/include/*.mod
           cp ../lib/*.so usr/local/lib/*.so
           cp ../lib/*.a usr/local/lib/*.a
           cat << EOF > DEBIAN/control
           Package: feq-parse
-          Version: ${{ env.PACKAGE_VERSION }}
+          Version: ${{ env.RELEASE_VERSION }}
           Section: libs
           Priority: optional
           Architecture: ${{ env.ARCH }}
@@ -96,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release v${{ env.PACKAGE_VERSION }}
+          release_name: Release v${{ env.RELEASE_VERSION }}
           draft: false
           prerelease: false
   
@@ -107,6 +107,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./feq-parse_${{ env.PACKAGE_VERSION }}-1_${{ env.ARCH }}.deb
-          asset_name: feq-parse_${{ env.PACKAGE_VERSION }}-1_${{ env.ARCH }}.deb
+          asset_path: ./feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
+          asset_name: feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
           asset_content_type: application/vnd.debian.binary-package
