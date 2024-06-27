@@ -101,3 +101,8 @@ jobs:
           asset_path: ./build/feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
           asset_name: feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
           asset_content_type: application/vnd.debian.binary-package
+
+      - name: Run ctests
+        run: |
+          cd build/test
+          ctest || ctest --rerun-failed --output-on-failure
