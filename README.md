@@ -116,7 +116,7 @@ wget https://github.com/FluidNumerics/feq-parse/releases/download/<version-numbe
 ```
 and then run
 ```
-sudo apt-get install feq-parse_<version-number>-1_amd64.deb
+sudo apt-get install ./feq-parse_<version-number>-1_amd64.deb
 ```
 in the directory in which it was downloaded.
 
