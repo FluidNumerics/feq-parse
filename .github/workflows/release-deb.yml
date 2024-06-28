@@ -102,7 +102,14 @@ jobs:
           asset_name: feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
           asset_content_type: application/vnd.debian.binary-package
 
-      - name: Run ctests
+      - name: Test Install
         run: |
-          cd build/test
-          ctest || ctest --rerun-failed --output-on-failure
+          cd build
+          sudo apt-get install ./feq-parse_${{ env.RELEASE_VERSION }}-1_${{ env.ARCH }}.deb
+          cd ../test
+          mkdir ../output
+          for file in *.f90; do gfortran "$file" -I /usr/local/include -L /usr/local/lib -l feqparse -o "../output/${file%.f90}"; done
+          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+          cd ../output
+          for file in *; do ./*; done
+          
