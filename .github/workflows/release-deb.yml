@@ -3,7 +3,7 @@ name: release-deb
 on:
     push:
       tags:
-        - 'v*.*'
+        - 'v*.*.*'
       # branches:
         # - master
         # - main
@@ -91,7 +91,7 @@ jobs:
           draft: false
           prerelease: false
   
-      - name: Upload Release Asset (.deb)
+      - name: Upload Release (.deb)
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
