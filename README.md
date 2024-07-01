@@ -104,13 +104,13 @@ spack install feq-parse
 
 To install a specific version of feq-parse with spack, e.g.
 ```
-spack install feq-parse@2.2.1
+spack install feq-parse@2.2.2
 ```
 
 Refer to the [spack documentation](https://spack.readthedocs.io/en/latest/) for further guidance on using Spack.
 
 ### `apt-get`
-A `.deb` file is provided for each minor release. If you are using a Debian-based linux distribution (e.g., Debian, Ubuntu, Pop_OS!) and an `x86_64/amd64` architecture, simply download the `.deb` via the github interface, or with
+A `.deb` file is provided for each release. If you are using a Debian-based linux distribution (e.g., Debian, Ubuntu, Pop_OS!) and an `x86_64/amd64` architecture, simply download the `.deb` via the [github interface](), or with
 ```
 wget https://github.com/FluidNumerics/feq-parse/releases/download/<version-number>/feq-parse_<version-number>-1_amd64.deb
 ```
