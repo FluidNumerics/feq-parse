@@ -16,11 +16,11 @@ jobs:
       matrix:
         include:
             - os: ubuntu-20.04
+              arch: amd64
               fcompiler: gfortran-10
               ccompiler: gcc-10
               shell: bash
-              build_type: debug
-              memcheck: false
+              build_type: release
     defaults:
       run:
         shell: ${{ matrix.shell }}
