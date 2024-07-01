@@ -1,22 +1,9 @@
 name: release-deb
 
 on:
-    push:
-      tags:
-        - 'v*.*.*'
-      # branches:
-        # - master
-        # - main
-        # - release-actions
-      paths-ignore:
-        - 'AUTHORS.md'
-        - 'LICENSE.md'
-        - 'README.md'
-    pull_request:
-      paths-ignore:
-        - 'AUTHORS.md'
-        - 'LICENSE.md'
-        - 'README.md'
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
