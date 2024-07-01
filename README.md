@@ -112,7 +112,7 @@ Refer to the [spack documentation](https://spack.readthedocs.io/en/latest/) for 
 ### `apt-get`
 A `.deb` file is provided for each release. If you are using a Debian-based linux distribution (e.g., Debian, Ubuntu, Pop_OS!) and an `x86_64/amd64` architecture, simply download the `.deb` via the [github interface](), or with
 ```
-wget https://github.com/FluidNumerics/feq-parse/releases/download/<version-number>/feq-parse_<version-number>-1_amd64.deb
+wget https://github.com/FluidNumerics/feq-parse/releases/download/<version-number>/feq-parse_<version-number>_amd64.deb -P /tmp
 ```
 and then run
 ```
