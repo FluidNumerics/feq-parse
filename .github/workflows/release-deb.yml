@@ -86,7 +86,7 @@ jobs:
       - name: Test Install
         run: |
           cd build
-          sudo apt-get install ./feq-parse_${{ github.ref_name }}_${{ github.ref_name }}.deb
+          sudo apt-get install ./feq-parse_${{ github.ref_name }}_${{ matrix.arch }}.deb
           cd ../test
           mkdir ../output
           for file in *.f90; do gfortran "$file" -I /usr/local/include -L /usr/local/lib -l feqparse -o "../output/${file%.f90}"; done
