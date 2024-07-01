@@ -1,0 +1,96 @@
+name: release-deb
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  build:
+    timeout-minutes: 60
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: ${{ matrix.os }} - ${{ matrix.fcompiler }} - ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+            - os: ubuntu-20.04
+              arch: amd64
+              fcompiler: gfortran-10
+              ccompiler: gcc-10
+              shell: bash
+              build_type: release
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Show version information
+        run: |
+          ${{ matrix.fcompiler }} --version
+          ${{ matrix.ccompiler }} --version
+      - name: Build with Cmake
+        run: |
+          mkdir build
+          cd build
+          FC=${{ matrix.fcompiler }} CC=${{ matrix.ccompiler }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  ../
+          make VERBOSE=1
+      - name: Build release directory
+        run: |
+          cd build
+          mkdir feq-parse_${{ github.ref_name }}_${{ matrix.arch }}
+          cd feq-parse_${{ github.ref_name }}_${{ matrix.arch }}
+          mkdir DEBIAN usr usr/local usr/local/include usr/local/lib
+          cp ../include/*.mod usr/local/include/
+          cp ../src/*.so usr/local/lib/
+          cp ../src/*.a usr/local/lib/
+          cat << EOF > DEBIAN/control
+          Package: feq-parse
+          Version: ${{ github.ref_name }}
+          Section: libs
+          Priority: optional
+          Architecture: ${{ matrix.arch }}
+          Maintainer: Fluid Numerics LLC support@fluidnumerics.com
+          Description: An equation parser Fortran class that is used to interpret and evaluate functions provided as strings.
+          EOF
+      - name: Build .deb
+        run: |
+          cd build
+          dpkg --build feq-parse_${{ github.ref_name }}_${{ matrix.arch }}
+  
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release v${{ github.ref_name }}
+          draft: false
+          prerelease: false
+  
+      - name: Upload Release (.deb)
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./build/feq-parse_${{ github.ref_name }}_${{ matrix.arch }}.deb
+          asset_name: feq-parse_${{ github.ref_name }}_${{ matrix.arch }}.deb
+          asset_content_type: application/vnd.debian.binary-package
+
+      - name: Test Install
+        run: |
+          cd build
+          sudo apt-get install ./feq-parse_${{ github.ref_name }}_${{ matrix.arch }}.deb
+          cd ../test
+          mkdir ../output
+          for file in *.f90; do gfortran "$file" -I /usr/local/include -L /usr/local/lib -l feqparse -o "../output/${file%.f90}"; done
+          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+          cd ../output
+          for file in *; do ./*; done
+          

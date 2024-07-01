@@ -24,7 +24,7 @@ Copyright 2020 Fluid Numerics LLC
 [**API Documentation**](https://feqparse.fluidnumerics.com/ford)
 
 ## Installation
-`feq-parse` can be installed using either CMake, [Fortran Package Manager (fpm)](https://github.com/fortran-lang/fpm), or with [Spack](https://spack.io).
+`feq-parse` can be installed using either CMake, [Fortran Package Manager (fpm)](https://github.com/fortran-lang/fpm), [Spack](https://spack.io), or with [`apt-get`](https://wiki.debian.org/apt-get) on Debian-based distributions.
 
 ### Prerequisites
 All you need is a Fortran compiler that is compliant with the Fortran 2008 standard and supports C interoperability. You can see which compilers are regularly tested on the [Github actions page](https://github.com/FluidNumerics/feq-parse/actions/workflows/ci.yml). Additionally, the table below lists the [supported compilers](#supported-compilers)
@@ -52,9 +52,12 @@ ctest .
 
 The above steps install
 ```
-/opt/feqparse/lib/libfeqparse-static.a
-/opt/feqparse/lib/libfeqparse.so
-/opt/feqparse/include/FEQParse.mod
+/usr/local/lib/libfeqparse-static.a
+/usr/local/lib/libfeqparse.so
+/usr/local/include/feqparse_floatstacks.mod
+/usr/local/include/feqparse_functions.mod
+/usr/local/include/feqparse_tokenstack.mod
+/usr/local/include/feqparse.mod
 ```
 
 ### Fortran Package Manager
@@ -101,10 +104,23 @@ spack install feq-parse
 
 To install a specific version of feq-parse with spack, e.g.
 ```
-spack install feq-parse@1.1.0
+spack install feq-parse@2.2.2
 ```
 
 Refer to the [spack documentation](https://spack.readthedocs.io/en/latest/) for further guidance on using Spack.
+
+### `apt-get`
+A `.deb` file is provided for each release. If you are using a Debian-based linux distribution (e.g., Debian, Ubuntu, Pop_OS!) and an `x86_64/amd64` architecture, simply download the `.deb` via the [github interface](), or with
+```
+wget https://github.com/FluidNumerics/feq-parse/releases/download/<version-number>/feq-parse_<version-number>_amd64.deb -P /tmp
+```
+and then run
+```
+sudo apt-get install ./feq-parse_<version-number>-1_amd64.deb
+```
+in the directory in which it was downloaded.
+
+All `.deb` releases are built using **Ubuntu 20.04.06 LTS** with **GNU Fortran 10**.
 
 ## Supported Compilers
 
@@ -112,6 +128,7 @@ The following combinations are tested on the main branch of feq-parse:
 
 Name | Version | Platform | Build System | Architecture
 --- | --- | --- | --- | --- |
+GNU Fortran | 10 | Ubuntu 20.04.6 LTS | `cmake` | x86_64
 GNU Fortran | 9, 10, 11, 12 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 GNU Fortran | 13.2.0 | Windows Server 2022 (10.0.20348 Build 1547) (MSYS2) | `fpm`, `cmake` | x86_64
 Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
