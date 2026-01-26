@@ -59,7 +59,7 @@ contains
     x = 0.0_real32
     do i = 1,N
       x(i,1) = (2.0_real32)/real(N,real32)*real(i-1,real32)
-      fexact(i) = x(i,1) - sqrt(x(i,1)) + 100.0
+      fexact(i) = x(i,1)-sqrt(x(i,1))+100.0
     enddo
 
     ! Evaluate the equation
@@ -67,6 +67,9 @@ contains
     if(maxval(abs(feval-fexact)) <= epsilon(1.0_real32)) then
       r = 0
     else
+      do i = 1,N
+        print*,x(i,1),feval(i),fexact(i),abs(feval(i)-fexact(i))
+      enddo
       r = 1
     endif
 
