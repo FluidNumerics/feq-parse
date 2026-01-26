@@ -11,6 +11,13 @@ human maintainer.
 
 ---
 
+## Development Environment
+- Language: Fortran 2008
+- Build tool: Fortran Compiler (GNU), Fortran Packager Manager
+- Test framework: Fortran Package Manager
+
+---
+
 ## 1. Project Purpose
 
 This project implements and infix tokenizer, infix to postfix conversion utilities, and postfix calculator 
