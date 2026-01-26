@@ -71,14 +71,24 @@ elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 
 elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Flang" )
+    # Classic Flang (PGI-derived)
     set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
     set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -g -Wall -pedantic" )
-    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
+    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available
     set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
     set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
     set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
 
-    elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC" )
+elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang" )
+    # LLVM Flang (flang-new, LLVM-based) - uses GCC-style flags
+    set( CMAKE_Fortran_FLAGS "-cpp" )
+    set( CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -Wall -pedantic" )
+    set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available
+    set( CMAKE_Fortran_FLAGS_PROFILE "-O3")
+    set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
+    set( CMAKE_C_FLAGS_COVERAGE "-g -O0")
+
+elseif( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC" )
     set( CMAKE_Fortran_FLAGS "-Mpreprocess" )
     set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -O0 -Wall -C -g -traceback" )
     set( CMAKE_Fortran_FLAGS_COVERAGE "${CMAKE_Fortran_FLAGS_DEBUG}") # Code coverage not available with ifx
