@@ -377,9 +377,12 @@ contains
 
           tok = operator_stack%TopToken()
 
+          ! Pop operators with higher priority, or equal priority for left-associative ops
+          ! (all operators except '^' are left-associative)
           do while(trim(tok%tokenString) /= '(' .and. &
-                   parser%Priority(tok) > &
-                   parser%Priority(parser%inFix%tokens(i)) .and. &
+                   (parser%Priority(tok) > parser%Priority(parser%inFix%tokens(i)) .or. &
+                    (parser%Priority(tok) == parser%Priority(parser%inFix%tokens(i)) .and. &
+                     trim(parser%inFix%tokens(i)%tokenString) /= '^')) .and. &
                    .not. operator_stack%IsEmpty())
 
             call parser%postFix%push(tok)
@@ -410,6 +413,15 @@ contains
 
         ! Pop the opening parenthesis
         call operator_stack%pop(tok)
+
+        ! If there is a function token at the top of the operator stack, pop it to output
+        if(.not. operator_stack%IsEmpty()) then
+          tok = operator_stack%TopToken()
+          if(tok%tokenType == Function_Token) then
+            call parser%postFix%push(tok)
+            call operator_stack%pop(tok)
+          endif
+        endif
 
       endif
 
