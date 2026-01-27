@@ -10,6 +10,7 @@ Copyright 2020 Fluid Numerics LLC
 
 [![linux-amdflang-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-amdflang-cmake.yaml)
 [![linux-nvfortran-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-nvfortran-cmake.yaml)
+[![linux-llvmflang-cmake](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-llvmflang-cmake.yaml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/linux-llvmflang-cmake.yaml)
 
 [![windows-gnu-cmake](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-cmake.yml)
 [![windows-gnu-fpm](https://github.com/fluidnumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml/badge.svg)](https://github.com/FluidNumerics/feq-parse/actions/workflows/windows-gnu-fpm.yml)
@@ -134,6 +135,7 @@ GNU Fortran | 13.2.0 | Windows Server 2022 (10.0.20348 Build 1547) (MSYS2) | `fp
 Intel oneAPI (`ifx`)| 2023.2 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 Intel oneAPI classic (`ifort`) | 2021.1 | Ubuntu 22.04.2 LTS | `fpm`, `cmake` | x86_64
 Nvidia HPC (`nvfortran`) | 23.11 | Ubuntu 22.04.2 LTS | `cmake` | x86_64
+LLVM Flang (`flang-new`) | 19, 20 | Ubuntu 24.04 LTS | `cmake` | x86_64
 
 ## Usage
 

@@ -29,7 +29,7 @@ module FEQParse_Functions
 
   implicit none
 
-  integer,public :: nFunctions = 17
+  integer,public :: nFunctions = 16
   integer,protected,public :: maxFunctionLength = 0
   integer,parameter :: maxFunctions = 100
   logical :: isInitialized = .false.
@@ -51,7 +51,6 @@ module FEQParse_Functions
     enumerator :: asin_function = 14
     enumerator :: atan_function = 15
     enumerator :: sech_function = 16
-    enumerator :: rand_function = 17
   endenum
 
   private
@@ -103,18 +102,6 @@ module FEQParse_Functions
   endtype FEQParse_Function
 
   type(FEQParse_Function),public :: Functions(maxFunctions)
-
-  interface
-    pure real(real32) function randomize_r32()
-      import
-    endfunction
-  endinterface
-
-  interface
-    pure real(real64) function randomize_r64()
-      import
-    endfunction
-  endinterface
 
   interface AddFunction
     module procedure :: AddFunction32
@@ -267,10 +254,6 @@ contains
     Functions(sech_function) = Tuple("sech","SECH")
     Functions(sech_function)%ptr32 => sech32
     Functions(sech_function)%ptr64 => sech64
-
-    Functions(rand_function) = Tuple("rand","RAND")
-    Functions(rand_function)%ptr32 => rand32
-    Functions(rand_function)%ptr64 => rand64
 
     isInitialized = .true.
   endsubroutine InitializeFunctions
@@ -473,24 +456,6 @@ contains
     fx = 2.0_real64/(exp(x)+exp(-x))
   endfunction
 
-  pure real(real32) function rand32(x) result(fx)
-    real(real32),intent(in) :: x
-    !private
-    real(real32) :: r
-    associate(r => randomize_r32())
-      fx = r*x
-    endassociate
-  endfunction
-
-  pure real(real64) function rand64(x) result(fx)
-    real(real64),intent(in) :: x
-    !private
-    real(real64) :: r
-    associate(r => randomize_r64())
-      fx = r*x
-    endassociate
-  endfunction
-
   pure function ToUpperCase(str) result(res)
     character(*),intent(in) :: str
     character(len(str)) :: res
@@ -507,19 +472,3 @@ contains
   endfunction ToUpperCase
 
 endmodule FEQParse_Functions
-
-real(real32) function randomize_r32()
-  use,intrinsic :: iso_fortran_env,only:real32
-  real(real32)   :: r
-
-  call random_number(r)
-  randomize_r32 = r
-endfunction
-
-real(real64) function randomize_r64()
-  use,intrinsic :: iso_fortran_env,only:real64
-  real(real64)   :: r
-
-  call random_number(r)
-  randomize_r64 = r
-endfunction

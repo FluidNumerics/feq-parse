@@ -1,0 +1,65 @@
+name: linux-llvmflang-cmake
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'AUTHORS.md'
+      - 'LICENSE.md'
+      - 'README.md'
+
+jobs:
+  linux-tests:
+    timeout-minutes: 20
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: ${{ matrix.os }} - flang-new-${{ matrix.llvm_version }} - ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+            - os: ubuntu-24.04
+              llvm_version: 19
+              build_type: debug
+
+            - os: ubuntu-24.04
+              llvm_version: 20
+              build_type: debug
+
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install LLVM Flang
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh ${{ matrix.llvm_version }}
+          sudo apt-get install -y flang-${{ matrix.llvm_version }}
+
+      - name: Show version information
+        run: |
+          flang-new-${{ matrix.llvm_version }} --version
+          clang-${{ matrix.llvm_version }} --version
+
+      - name: Build with Cmake
+        run: |
+          mkdir build
+          cd build
+          FC=flang-new-${{ matrix.llvm_version }} CC=clang-${{ matrix.llvm_version }} cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          make VERBOSE=1
+
+      - name: Run ctests
+        run: |
+          cd build/test
+          ctest || ctest --rerun-failed --output-on-failure
